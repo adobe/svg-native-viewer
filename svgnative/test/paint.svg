@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+    <rect x="0" y="0" width="20" height="20" fill="#008000" stroke="#008000"/>
+    <rect x="20" y="0" width="20" height="20" fill="     #008000" stroke="     #008000"/>
+    <rect x="40" y="0" width="20" height="20" fill="     #008000
+    " stroke="     #008000
+    "/>
+    <rect x="60" y="0" width="20" height="20" fill="#080" stroke="#080"/>
+    <rect x="80" y="0" width="20" height="20" fill="    #080" stroke="    #080"/>
+    <rect x="100" y="0" width="20" height="20" fill="    #080
+    " stroke="    #080
+    "/>
+    <rect x="120" y="0" width="20" height="20" fill="green" stroke="green"/>
+    <rect x="140" y="0" width="20" height="20" fill="    green" stroke="    green"/>
+    <rect x="160" y="0" width="20" height="20" fill="    green
+    " stroke="    green
+    "/>
+    <rect x="180" y="0" width="20" height="20" fill="    green   " stroke="    green   "/>
+    <rect x="0" y="20" width="20" height="20" fill="greenInvalid" stroke="greenInvalid"/>
+    <rect x="20" y="20" width="20" height="20" fill="rgb(0, 128, 0)" stroke="rgb(0, 128, 0)"/>
+    <rect x="40" y="20" width="20" height="20" fill="rgb(01280)" stroke="rgb(01280)"/>
+    <rect x="60" y="20" width="20" height="20" fill="rgb(0  , 128    ,
+     0)" stroke="rgb(0  , 128    ,
+     0)"/>
+    <rect x="80" y="20" width="20" height="20" style="fill: #008000; stroke: #008000;" fill="#F00" stroke="#F00"/>
+    <rect x="100" y="20" width="20" height="20" style="fill: invalid; stroke: invalid;" fill="#008000" stroke="#008000"/>
+    <g fill="#008000" stroke="#008000">
+        <rect x="120" y="20" width="20" height="20"/>
+    </g>
+    <g style="fill: #008000; stroke: #008000;">
+        <rect x="140" y="20" width="20" height="20"/>
+    </g>
+    <g style="fill: invalid; stroke: invalid;">
+        <rect x="160" y="20" width="20" height="20" fill="#008000" stroke="#008000"/>
+    </g>
+    <rect x="180" y="20" width="20" height="20" color="#008000" fill="currentColor" stroke="currentColor"/>
+    <rect x="0" y="40" width="20" height="20" style="color: #008000;" fill="currentColor" stroke="currentColor"/>
+    <g style="color: #008000;">
+        <rect x="20" y="40" width="20" height="20" fill="currentColor" stroke="currentColor"/>
+    </g>
+    <g color="#008000">
+        <rect x="40" y="40" width="20" height="20" fill="currentColor" stroke="currentColor"/>
+    </g>
+    <g color="#008000">
+        <rect x="60" y="40" width="20" height="20"/>
+    </g>
+    <g fill="#008000" stroke="#008000">
+        <rect x="80" y="40" width="20" height="20" fill="invalid" stroke="invalid"/>
+    </g>
+    <g fill="#008000" stroke="#008000">
+        <rect x="100" y="40" width="20" height="20" fill="initial" stroke="initial"/>
+    </g>
+    <g fill="#008000" stroke="#008000">
+        <rect x="120" y="40" width="20" height="20" fill="inherited" stroke="inherited"/>
+    </g>
+    <rect x="140" y="40" width="20" height="20" fill="#F00 red" stroke="#F00 red"/>
+    <rect x="160" y="40" width="20" height="20" fill="#F00 #F00" stroke="#F00 #F00"/>
+    <rect x="180" y="40" width="20" height="20" fill="url(#notPresent) #008000" stroke="url(#notPresent) #008000"/>
+    <rect x="0" y="60" width="20" height="20" fill="url(#notPresent) green" stroke="url(#notPresent) green"/>
+    <rect x="20" y="60" width="20" height="20" fill="url(#notPresent) none" stroke="url(#notPresent) none"/>
+    <rect x="40" y="60" width="20" height="20" fill="url(#notPresent) #008000 #008000" stroke="url(#notPresent) #008000 #008000"/>
+    <rect x="60" y="60" width="20" height="20" fill="#F00 url(#notPresent)" stroke="#F00 url(#notPresent)"/>
+    <rect x="80" y="60" width="20" height="20" fill="url(#notPresent), #F00" stroke="url(#notPresent), #F00"/>
+
+    <!-- var(): invalid -->
+    <rect x="100" y="60" width="20" height="20" fill="var(test-green)" stroke="var(test-green)"/>
+    <rect x="120" y="60" width="20" height="20" fill="var(invalid, #F00)" stroke="var(invalid, #F00)"/>
+    <rect x="140" y="60" width="20" height="20" fill="var(--missingComma #F00)" stroke="var(--missingComma #F00)"/>
+    <rect x="160" y="60" width="20" height="20" fill="var(--missingName)" stroke="var(--missingName)"/>
+    <rect x="180" y="60" width="20" height="20" fill="var(--test-green, url(#grad))" stroke="var(--test-green, url(#grad))"/>
+
+    <!-- var() passes. Color defined in source code -->
+    <rect x="0" y="80" width="20" height="20" fill="var(--missingName, #008000)" stroke="var(--missingName, #008000)"/>
+    <rect x="20" y="80" width="20" height="20" fill="var(--test-green)" stroke="var(--test-green)"/>
+    <rect x="40" y="80" width="20" height="20" fill="var(--test-green, #F00)" stroke="var(--test-green, #F00)"/>
+    <rect x="60" y="80" width="20" height="20" fill="  var(   --test-green
+        , #F00  )" stroke="var(--test-green, #F00)"/>
+
+    <!-- var(): testing fallback colors -->
+    <rect x="80" y="80" width="20" height="20" fill="var(--missingName, green)" stroke="var(--missingName, green)"/>
+    <rect x="80" y="80" width="20" height="20" fill="var(--missingName, rgb(0, 128, 0))" stroke="var(--missingName, rgb(0, 128, 0))"/>
+    <rect x="80" y="80" width="20" height="20" fill="var(--test-green, var(--missingName, #008000))" stroke="var(--test-green, var(--missingName, #008000))"/>
+</svg>

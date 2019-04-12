@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="250" viewBox="0 0 150 250">
+    <polygon points=".9"/>
+    <polygon points=".9 .9"/>
+    <polygon points=".9 .9 .9"/>
+    <polygon points=".9.9 .7.7 .6.6"/>
+    <polygon points=".9.9.7.7.6.6"/>
+    <polygon points=".9 .9.7 .7.6 .6"/>
+    <polygon points=".9.9,.7.7,.6.6"/>
+    <polygon points=".9.9 ,
+    .7.7  ,  .6.6"/>
+    <polygon points=".9,.9 .7,.7 .6,.6"/>
+    <path d="M83.858-14H37.205a50.742,50.742,0,0,0-50.6-47,50.75,50.75,0,0,0-50.75,50.75A50.75,50.75,0,0,0-13.392,40.5c1.433,0,2.847-.074,4.25-.191V68H40.7c4.49-5.993,9.618-13.1,15.154-22A277.752,277.752,0,0,0,83.858-14Z"/>
+    <path fill="green" d="M 20 100 L 40 100 L 40 120 L 20 120 z"/>
+    <path fill="green" d="M 40,100 L 60,100 L 60,120 L 40,120 z"/>
+    <path fill="green" d="M60,100L80,100L80,120L60,120z"/>
+    <path fill="green" d="M.8e2.1e3L.1e3.1e3L.1e3.12e3L.8e2.12e3z"/>
+    <path fill="green" d="M100,100Zm0,0l20,0v20zm0,0v20h20z"/>
+    <path fill="green" d="M120,100,140,100,140,120,120,120z"/>
+    <path fill="green" d="m20,120,20,0l0,20,-20,0z"/>
+    <path fill="green" d="m.4e2.12e3.2e2.0.0.2e2-.2e2.0z"/>
+
+    <!-- negetive tests -->
+    <!-- Comma before segment identifier supported by WebKit & Blink; not by spec -->
+    <path fill="green" d="M60,120,L80,120,L80,140,L60,140,z"/>
+    <!-- Comma right after segment identifier not supported anywhere -->
+    <path fill="green" d="M,80,120L,100,120L,100,140L,80,140z"/>
+</svg>

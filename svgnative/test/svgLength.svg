@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="250" viewBox="0 0 150 250">
+    <rect  y="0" height="10" width="100"/>
+    <rect  y="10" height="10" width="50%"/>
+    <rect  y="20" height="10" width="0.5%"/>
+    <rect  y="30" height="10" width="0.5%"/>
+    <rect  y="40" height="10" width="100px"/>
+    <rect  y="50" height="10" width="50pt"/>
+    <rect  y="60" height="10" width="10pc"/>
+    <rect  y="70" height="10" width="0.5cm"/>
+    <rect  y="80" height="10" width="5mm"/>
+    <rect  y="90" height="10" width="0.5in"/>
+    <rect  y="90" height="10" width="0.5in   "/>
+    <rect  y="90" height="10" width="   0.5in"/>
+    <rect  y="90" height="10" width="
+    0.5in"/>
+    <rect  y="90" height="10" width="50" x="-.5e2"/>
+    <rect  y="90" height="10" width="50" x="5000e-2"/>
+    <rect  y="90" height="10" width="50" x=".5e-2"/>
+    <rect  y="90" height="10" width="50" x="5.e-1"/>
+
+    <circle cx="50%" cy="50%" r="50%"/>
+    <ellipse cx="50%" cy="50%" rx="50%" ry="50%"/>
+    <rect x="25%" y="25%" width="50%" height="50%"/>
+
+    <!-- negetive tests -->
+    <rect fill="red" x="50e" y="100" height="5" width="50"/>
+    <rect fill="red" x="50pxx" y="105" height="5" width="50"/>
+    <rect fill="red" x="50epx" y="110" height="5" width="50"/>
+    <rect fill="red" x="50 px" y="115" height="5" width="50"/>
+    <rect fill="red" x="--70px" y="120" height="5" width="50"/>
+    <rect fill="red" x="1..1px" y="125" height="5" width="50"/>
+    <rect fill="red" x=".e10" y="130" height="5" width="50"/>
+
+    <!-- for visual testing -->
+    <rect fill="green" y="100" width="50" height="100"/>
+</svg>

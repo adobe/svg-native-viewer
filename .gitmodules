@@ -1,0 +1,7 @@
+[submodule "third_party/stylesheet"]
+	path = third_party/stylesheet
+	url = git@github.com:adobe/stylesheet.git
+	branch = modifications
+[submodule "third_party/cpp-base64"]
+	path = third_party/cpp-base64
+	url = https://github.com/ReneNyffenegger/cpp-base64

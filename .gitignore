@@ -1,0 +1,5 @@
+.DS_Store
+svgnative/build/
+viewer/
+.vscode
+third_party/

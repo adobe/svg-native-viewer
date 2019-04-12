@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="150" height="250" viewBox="0 0 150 250">
+    <defs>
+        <!-- Linear gradient without color stops -->
+        <linearGradient id="g1" gradientUnits="userSpaceOnUse">
+        </linearGradient>
+        <!-- Radial gradient without color stops -->
+        <radialGradient id="g2" gradientUnits="userSpaceOnUse">
+        </radialGradient>
+        <!-- Linear gradient with start/end color stop -->
+        <linearGradient id="g3" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0000FF" offset="0"/>
+            <stop stop-color="#00FF00" offset="1"/>
+        </linearGradient>
+        <!-- Radial gradient with start/end color stop -->
+        <radialGradient id="g4" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0000FF" offset="0"/>
+            <stop stop-color="#00FF00" offset="1"/>
+        </radialGradient>
+        <!-- One color stop in the middle -->
+        <radialGradient id="g5" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FF00" offset="0.5"/>
+        </radialGradient>
+        <!-- Multiple color stops with stop opacity -->
+        <linearGradient id="g6" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#000000" stop-opacity="0" offset="0"/>
+            <stop stop-color="#0FF000" stop-opacity="0.25" offset="0.25"/>
+            <stop style="stop-color: #00FF00; stop-opacity: 0.5;" offset="0.5"/>
+            <stop stop-color="#000FF0" stop-opacity="0.75" offset="0.75"/>
+            <stop stop-color="#0000FF" stop-opacity="1" offset="1"/>
+        </linearGradient>
+        <!-- Color stops with unordered offsets -->
+        <radialGradient id="g7" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#000000" offset="0"/>
+            <stop stop-color="#0FF000" offset="0.75"/>
+            <stop stop-color="#00FF00" offset="0.6"/>
+            <stop stop-color="#000FF0" offset="0.5"/>
+            <stop stop-color="#0000FF" offset="1"/>
+        </radialGradient>
+        <!-- Color stops not reaching 0% or 100% -->
+        <radialGradient id="g8" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0000FF" offset="0.25"/>
+            <stop stop-color="#00FF00" offset="0.75"/>
+        </radialGradient>
+        <!-- Referencing gradients -->
+        <linearGradient id="ref1-1" x1="15" y1="15" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FF0000" offset="0"/>
+            <stop stop-color="#FF0000" offset="1"/>
+        </linearGradient>
+        <linearGradient id="ref1-2" xlink:href="#ref1-1" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FF00" offset="0"/>
+            <stop stop-color="#00DD00" offset="1"/>
+        </linearGradient>
+        <linearGradient id="ref1-3" xlink:href="#ref1-2" x2="185" y2="35" gradientUnits="userSpaceOnUse">
+        </linearGradient>
+        <linearGradient id="g9" xlink:href="#ref1-3" y2="185" gradientUnits="userSpaceOnUse">
+        </linearGradient>
+        <!-- Referencing future gradient -->
+        <linearGradient id="g10" xlink:href="#future" y2="185" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FF00" offset="0"/>
+            <stop stop-color="#00FF00" offset="1"/>
+        </linearGradient>
+        <linearGradient id="future" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FF0000" offset="0"/>
+            <stop stop-color="#FF0000" offset="1"/>
+        </linearGradient>
+        <!-- Referencing cross gradient types -->
+        <linearGradient id="ref2-1" x1="5" y1="5" x2="195" y2="195" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FF0000" offset="0"/>
+            <stop stop-color="#FF0000" offset="1"/>
+        </linearGradient>
+        <radialGradient id="ref2-2" xlink:href="#ref2-1" cx="50" cy="50" r="25" spreadMethod="reflect" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FF00" offset="0"/>
+            <stop stop-color="#00FF00" offset="1"/>
+        </radialGradient>
+        <linearGradient id="g11" xlink:href="#ref2-2" gradientUnits="userSpaceOnUse">
+        </linearGradient>
+        <!-- Referencing cross gradient types 2 -->
+        <radialGradient id="ref3-1" cx="0" cy="50" r="25" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FF0000" offset="0"/>
+            <stop stop-color="#FF0000" offset="1"/>
+        </radialGradient>
+        <linearGradient id="ref3-2" xlink:href="#ref3-1" cx="50" cy="50" r="25" gradientTransform="scale(2) translate(20)" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FF00" offset="0"/>
+            <stop stop-color="#00FF00" offset="1"/>
+        </linearGradient>
+        <radialGradient id="g12" xlink:href="#ref3-2" cx="50" gradientUnits="userSpaceOnUse">
+        </radialGradient>
+        <!-- Referencing cross gradient types 3 -->
+        <linearGradient id="ref4-1" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FF00" offset="0"/>
+            <stop stop-color="#00FF00" offset="1"/>
+        </linearGradient>
+        <radialGradient id="g13" xlink:href="#ref4-1" gradientUnits="userSpaceOnUse">
+        </radialGradient>
+        <!-- Variables as color stops -->
+        <linearGradient id="g14" gradientUnits="userSpaceOnUse">
+            <stop stop-color="var(--test-green, #F00)" offset="0"/>
+            <stop stop-color="var(--test-blue, #F00)" offset="1"/>
+        </linearGradient>
+        <linearGradient id="g15" gradientUnits="userSpaceOnUse">
+            <stop stop-color="var(--test-green, #F00)" offset="0"/>
+            <stop stop-color="var(--missing, #00F)" offset="1"/>
+        </linearGradient>
+        <linearGradient id="g16" gradientUnits="userSpaceOnUse">
+            <stop stop-color="var(--test-green, #F00)" offset="0"/>
+            <stop stop-color="var(invalid)" offset="1"/>
+        </linearGradient>
+        <!-- Test currentColor -->
+        <linearGradient id="g17" gradientUnits="userSpaceOnUse">
+            <stop color="green" stop-color="currentColor" offset="0"/>
+            <stop stop-color="green" offset="1"/>
+        </linearGradient>
+        <linearGradient id="g18" gradientUnits="userSpaceOnUse" color="green">
+            <stop stop-color="currentColor" offset="0"/>
+            <stop stop-color="green" offset="1"/>
+        </linearGradient>
+    </defs>
+    <defs color="green">
+        <linearGradient id="g20" gradientUnits="userSpaceOnUse">
+            <stop stop-color="currentColor" offset="0"/>
+            <stop stop-color="green" offset="1"/>
+        </linearGradient>
+    </defs>
+    <rect width="150" height="10" fill="url(#g1)"/>
+    <rect width="150" height="10" fill="url(#g2)" y="10"/>
+    <rect width="150" height="10" fill="url(#g3)" y="20"/>
+    <rect width="150" height="10" fill="url(#g4)" y="30"/>
+    <rect width="150" height="10" fill="url(#g5)" y="40"/>
+    <rect width="150" height="10" fill="url(#g6)" y="50"/>
+    <rect width="150" height="10" fill="url(#g7)" y="60"/>
+    <rect width="150" height="10" fill="url(#g8)" y="70"/>
+    <rect width="150" height="10" fill="url(#g9)" y="80"/>
+    <rect width="150" height="10" fill="url(#g10)" y="90"/>
+    <rect width="150" height="10" fill="url(#g11)" y="100"/>
+    <rect width="150" height="10" fill="url(#g12)" y="110"/>
+    <rect width="150" height="10" fill="url(#g13)" y="120"/>
+    <rect width="150" height="10" fill="url(#g14)" y="130"/>
+    <rect width="150" height="10" fill="url(#g15)" y="140"/>
+    <rect width="150" height="10" fill="url(#g16)" y="150"/>
+    <rect width="150" height="10" fill="url(#g17)" y="160"/>
+    <rect width="150" height="10" fill="url(#g18)" y="170"/>
+    <rect width="150" height="10" fill="url(#g19)" y="180"/>
+    <rect width="150" height="10" color="red" fill="url(#g20)" y="190"/>
+</svg>

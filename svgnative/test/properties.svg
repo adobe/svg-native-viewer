@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="250" viewBox="0 0 150 250">
+    <!-- stroke-miterlimit -->
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="4"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="1"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="0.5e2"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="  0.5e2"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="  
+    0.5e2  "/>
+
+    <!-- stroke-miterlimit: negetive tests -->
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="-4"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="0"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="0.99"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="2e-2"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="2px"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="2pc"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="2pt"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="2mm"/>
+    <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="2cm"/>
+
+    <!-- stroke-opacity -->
+    <line x1="5" y1="10" x2="145" y2="10" stroke="black" stroke-opacity="-4"/>
+    <line x1="5" y1="13" x2="145" y2="13" stroke="black" stroke-opacity="4"/>
+    <line x1="5" y1="16" x2="145" y2="16" stroke="black" stroke-opacity="2e-1"/>
+    <line x1="5" y1="19" x2="145" y2="19" stroke="black" stroke-opacity="   
+    2e-1  "/>
+
+    <!-- stroke-opacity: negetive tests -->
+    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="20%"/>
+    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2px"/>
+    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2pc"/>
+    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2pt"/>
+    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2mm"/>
+    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2cm"/>
+
+    <!-- opacity -->
+    <rect x="5" y="30" width="140" height="2" opacity="-4"/>
+    <rect x="5" y="33" width="140" height="2" opacity="4"/>
+    <rect x="5" y="36" width="140" height="2" opacity="2e-1"/>
+    <rect x="5" y="39" width="140" height="2" opacity="   
+    2e-1  "/>
+
+    <!-- opacity: negetive tests -->
+    <rect x="5" y="40" width="140" height="2" opacity="20%"/>
+    <rect x="5" y="40" width="140" height="2" opacity="2px"/>
+    <rect x="5" y="40" width="140" height="2" opacity="2pc"/>
+    <rect x="5" y="40" width="140" height="2" opacity="2pt"/>
+    <rect x="5" y="40" width="140" height="2" opacity="2mm"/>
+    <rect x="5" y="40" width="140" height="2" opacity="2cm"/>
+
+    <!-- fill-opacity -->
+    <rect x="5" y="30" width="140" height="2" fill-opacity="-4"/>
+    <rect x="5" y="33" width="140" height="2" fill-opacity="4"/>
+    <rect x="5" y="36" width="140" height="2" fill-opacity="2e-1"/>
+    <rect x="5" y="39" width="140" height="2" fill-opacity="   
+    2e-1  "/>
+
+    <!-- fill-opacity: negetive tests -->
+    <rect x="5" y="42" width="140" height="2" fill-opacity="20%"/>
+    <rect x="5" y="42" width="140" height="2" fill-opacity="2px"/>
+    <rect x="5" y="42" width="140" height="2" fill-opacity="2pc"/>
+    <rect x="5" y="42" width="140" height="2" fill-opacity="2pt"/>
+    <rect x="5" y="42" width="140" height="2" fill-opacity="2mm"/>
+    <rect x="5" y="42" width="140" height="2" fill-opacity="2cm"/>
+
+    <!-- stroke-width -->
+    <line x2="200" y1="50" y2="50" stroke="black" stroke-width="3"/>
+    <line x2="200" y1="55" y2="55" stroke="black" stroke-width="3px"/>
+    <line x2="200" y1="60" y2="60" stroke="black" stroke-width="1.5pt"/>
+    <line x2="200" y1="65" y2="65" stroke="black" stroke-width="1pc"/>
+    <line x2="200" y1="70" y2="70" stroke="black" stroke-width="1.1mm"/>
+    <line x2="200" y1="75" y2="75" stroke="black" stroke-width="0.12cm"/>
+    <line x2="200" y1="80" y2="80" stroke="black" stroke-width="1%"/>
+    <line x2="200" y1="85" y2="85" stroke="black" stroke-width=".9e1"/>
+    <line x2="200" y1="90" y2="90" stroke="black" stroke-width="   
+    .9e1   "/>
+    <line x2="200" y1="95" y2="95" stroke="black" stroke-width="2000.0e-3"/>
+
+    <!-- stroke-width: reset stroke -->
+    <line x2="200" y1="100" y2="100" stroke="black" stroke-width="0"/>
+
+    <!-- stroke-width: negetive tests -->
+    <line x2="200" y1="105" y2="105" stroke="black" stroke-width="-3.0e2"/>
+    <line x2="200" y1="105" y2="105" stroke="black" stroke-width="-300.0e-2"/>
+</svg>

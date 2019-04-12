@@ -1,0 +1,3 @@
+add_executable(testSVGNative TestMain.cpp)
+
+target_link_libraries(testSVGNative PUBLIC SVGNativeViewerLib)

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+    <rect width="10" height="10" transform="translate(13)"/>
+    <rect width="10" height="10" transform="translate(12, 34)"/>
+    <rect width="10" height="10" transform="    translate(12, 34)    "/>
+    <rect width="10" height="10" transform="translate   (12, 34)"/>
+    <rect width="10" height="10" transform="translate(12 34)"/>
+    <rect width="10" height="10" transform="translate(12 , 34)"/>
+    <rect width="10" height="10" transform="translate(
+    12 ,    34)     "/>
+    <rect width="10" height="10" transform="scale(13)"/>
+    <rect width="10" height="10" transform="scale(12, 34)"/>
+    <rect width="10" height="10" transform="    scale(12, 34)    "/>
+    <rect width="10" height="10" transform="scale   (12, 34)"/>
+    <rect width="10" height="10" transform="scale(12 34)"/>
+    <rect width="10" height="10" transform="scale(12 , 34)"/>
+    <rect width="10" height="10" transform="scale(
+    12 ,    34)     "/>
+    <rect width="10" height="10" transform="rotate(45)"/>
+    <rect width="10" height="10" transform="rotate(765)"/>
+    <rect width="10" height="10" transform="rotate(45, 34, 75)"/>
+    <rect width="10" height="10" transform="    scale(45, 34, 75)    "/>
+    <rect width="10" height="10" transform="rotate   (45, 34, 75)"/>
+    <rect width="10" height="10" transform="rotate(45 34, 75)"/>
+    <rect width="10" height="10" transform="rotate(45, 34 75)"/>
+    <rect width="10" height="10" transform="rotate(45 34 75)"/>
+    <rect width="10" height="10" transform="rotate(45 34, 75)"/>
+    <rect width="10" height="10" transform="rotate(45 , 34  ,75     )"/>
+    <rect width="10" height="10" transform="rotate(
+    45 ,    34  75)     "/>
+    <rect width="10" height="10" transform="skewX(45)"/>
+    <rect width="10" height="10" transform="    skewX(45)   "/>
+    <rect width="10" height="10" transform="skewX  (45)"/>
+    <rect width="10" height="10" transform="skewX(  45)"/>
+    <rect width="10" height="10" transform="skewX(45  )"/>
+    <rect width="10" height="10" transform="skewX(  45
+      )"/>
+    <rect width="10" height="10" transform="skewX(  765
+      )"/>
+    <rect width="10" height="10" transform="skewY(45)"/>
+    <rect width="10" height="10" transform="    skewY(45)    "/>
+    <rect width="10" height="10" transform="skewY  (45)"/>
+    <rect width="10" height="10" transform="skewY(  45)"/>
+    <rect width="10" height="10" transform="skewY(45  )"/>
+    <rect width="10" height="10" transform="skewY(  45
+      )"/>
+    <rect width="10" height="10" transform="skewX(  765
+      )"/>
+    <rect width="10" height="10" transform="matrix(1, 2, 3, 4, 5, 6)"/>
+    <rect width="10" height="10" transform="    matrix(1, 2, 3, 4, 5, 6)    "/>
+    <rect width="10" height="10" transform="matrix(1 2 3 4 5 6)"/>
+    <rect width="10" height="10" transform="matrix(1 2, 3 4, 5 6)"/>
+    <rect width="10" height="10" transform="matrix(1, 2 3, 4 5, 6)"/>
+    <rect width="10" height="10" transform="matrix    (1, 2, 3, 4, 5, 6)"/>
+    <rect width="10" height="10" transform="matrix(1    , 2, 3  , 4, 
+    5  , 6     )"/>
+    <rect width="10" height="10" transform="scale(2) rotate(45, 50, 60) translate(20, 30)"/>
+    <rect width="10" height="10" transform="scale(2)        rotate(45, 50, 60)    translate(20, 30)"/>
+    <rect width="10" height="10" transform="scale(2)  ,   rotate(45, 50, 60)    ,   
+    translate(20, 30)"/>
+    <rect width="10" height="10" transform="translate(20, 20) translate() scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) scale() scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) rotate() scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) matrix() scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) skewX() scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) skewY() scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) ; scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) ,, scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) translate(20, 20, 20) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) scale(20, 20, 20) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) rotate(20, 20) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) rotate(20, 20, 20, 20) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) skewX(20, 20) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) skewY(20, 20) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) matrix(1, 2, 3, 4, 5) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20) matrix(1, 2, 3, 4, 5, 6, 7) scale(20)"/>
+    <rect width="10" height="10" transform="translate(20, 20)translate(20, 20)"/>
+    <rect width="10" height="10" transform="translate(-.20, 0)"/>
+    <rect width="10" height="10" transform="translate(-.2e20, 0)"/>
+    <rect width="10" height="10" transform="translate(-.2e2, 0)"/>
+    <rect width="10" height="10" transform="translate(-.2e-2, 0)"/>
+    <rect width="10" height="10" transform="translate(-2.e2, 0)"/>
+    <rect width="10" height="10" transform="translate(-2.e-2, 0)"/>
+    <rect width="10" height="10" transform="translate(.20, 0)"/>
+    <rect width="10" height="10" transform="translate(.2e20, 0)"/>
+    <rect width="10" height="10" transform="translate(.2e2, 0)"/>
+    <rect width="10" height="10" transform="translate(.2e-2, 0)"/>
+    <rect width="10" height="10" transform="translate(2.e2, 0)"/>
+    <rect width="10" height="10" transform="translate(2.e-2, 0)"/>
+    <rect width="10" height="10" transform="translate(2e2.2, 0)"/>
+    <rect width="10" height="10" transform="translate(2e2.2)"/>
+    <rect width="10" height="10" transform="translate(.2e2-.2)"/>
+    <rect width="10" height="10" transform="translate(.2e2.2e2)"/>
+    <rect width="10" height="10" transform="translate(2.e2-2.e2)"/>
+    <rect width="10" height="10" transform="translate(-..20, 0)"/>
+    <rect width="10" height="10" transform="translate(-0.-e2, 0)"/>
+    <rect width="10" height="10" transform="translate(.2e2.-2)"/>
+    <rect width="10" height="10" transform="translate(.e2-.e2)"/>
+</svg>
