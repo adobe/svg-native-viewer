@@ -73,12 +73,6 @@ void SkiaSVGTransform::Scale(float sx, float sy) { mMatrix.preScale(sx, sy, 0.0,
 
 void SkiaSVGTransform::Concat(const Transform& other) { mMatrix.preConcat(static_cast<const SkiaSVGTransform&>(other).mMatrix); }
 
-SkiaSVGShape::SkiaSVGShape(const Path&, WindingRule) {}
-
-void SkiaSVGShape::Transform(const class Transform&) {}
-
-void SkiaSVGShape::Union(const Shape&) {}
-
 SkiaSVGRenderer::SkiaSVGRenderer() {}
 
 void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
@@ -90,6 +84,17 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
         mCanvas->save();
     if (graphicStyle.transform)
         mCanvas->concat(static_cast<SkiaSVGTransform*>(graphicStyle.transform.get())->mMatrix);
+    if (graphicStyle.clippingPath && graphicStyle.clippingPath->path)
+    {
+        SkPath clippingPath(static_cast<const SkiaSVGPath*>(graphicStyle.clippingPath->path.get())->mPath);
+        if (graphicStyle.clippingPath->transform)
+        {
+            const auto& matrix = static_cast<const SkiaSVGTransform*>(graphicStyle.clippingPath->transform.get())->mMatrix;
+            clippingPath.transform(matrix);
+        }
+        clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? kWinding_FillType : kEvenOdd_FillType);
+        mCanvas->clipPath(clippingPath);
+    }
 }
 
 void SkiaSVGRenderer::Restore()

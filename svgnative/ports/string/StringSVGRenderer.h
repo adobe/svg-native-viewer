@@ -72,16 +72,6 @@ private:
     AffineTransform mTransform{};
 };
 
-class StringSVGShape final : public Shape
-{
-public:
-    StringSVGShape(const Path& path, WindingRule windingRule);
-
-    void Transform(const class Transform& transform) override;
-
-    void Union(const Shape& other) override;
-};
-
 class StringSVGImageData final : public ImageData
 {
 public:
@@ -109,11 +99,6 @@ public:
     std::unique_ptr<ImageData> CreateImageData(const std::string& base64) override { return std::make_unique<StringSVGImageData>(base64); }
 
     std::unique_ptr<Path> CreatePath() override { return std::make_unique<StringSVGPath>(); }
-
-    std::unique_ptr<Shape> CreateShape(const Path& path, WindingRule windingRule) override
-    {
-        return std::make_unique<StringSVGShape>(path, windingRule);
-    }
 
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override

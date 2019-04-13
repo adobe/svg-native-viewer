@@ -23,6 +23,7 @@ class CGSVGPath final : public Path
 {
 public:
     CGSVGPath();
+    ~CGSVGPath();
 
     void Rect(float x, float y, float width, float height) override;
     void RoundedRect(float x, float y, float width, float height, float cornerRadius) override;
@@ -53,16 +54,6 @@ public:
     void Concat(const Transform& other) override;
 
     CGAffineTransform mTransform;
-};
-
-class CGSVGShape final : public Shape
-{
-public:
-    CGSVGShape(const Path& path, WindingRule windingRule);
-
-    void Transform(const class Transform& transform) override;
-
-    void Union(const Shape& other) override;
 };
 
 class CGSVGImageData final : public ImageData
@@ -108,11 +99,6 @@ public:
     std::unique_ptr<ImageData> CreateImageData(const std::string& base64) override { return std::make_unique<CGSVGImageData>(base64); }
 
     std::unique_ptr<Path> CreatePath() override { return std::make_unique<CGSVGPath>(); }
-
-    std::unique_ptr<Shape> CreateShape(const Path& path, WindingRule windingRule) override
-    {
-        return std::make_unique<CGSVGShape>(path, windingRule);
-    }
 
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override

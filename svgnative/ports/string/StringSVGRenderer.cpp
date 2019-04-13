@@ -106,12 +106,6 @@ void StringSVGTransform::Multiply(const AffineTransform& o)
     mTransform = newT;
 }
 
-StringSVGShape::StringSVGShape(const Path&, WindingRule) {}
-
-void StringSVGShape::Transform(const class Transform&) {}
-
-void StringSVGShape::Union(const Shape&) {}
-
 StringSVGRenderer::StringSVGRenderer() { mStringStream.precision(3); }
 
 void StringSVGRenderer::Save(const GraphicStyle& graphicStyle)
@@ -227,24 +221,14 @@ void StringSVGRenderer::WriteGraphic(const GraphicStyle& graphicStyle)
         mStringStream << " opacity: " << graphicStyle.opacity;
     if (graphicStyle.transform)
         mStringStream << " transform: " << static_cast<StringSVGTransform*>(graphicStyle.transform.get())->String();
-    if (graphicStyle.clippingPath)
+    if (graphicStyle.clippingPath && graphicStyle.clippingPath->path)
     {
         mStringStream << " clipping: {";
-        // WriteNewline();
-        // IncIndent();
-
-        //        auto clipping = graphicStyle.clippingPath.get();
-
-        // auto shape
-        // WriteNewline();
-        // WriteIndent();
-        // mStringStream << "(clipPath) " << .String();
-
-        mStringStream << "}";
-
-        // DecIndent();
-        // WriteNewline();
-        // WriteIndent();
+        mStringStream << " winding: " << (graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? "nonzero" : "evenodd");
+        if (graphicStyle.clippingPath->transform)
+            mStringStream << " transform: " << static_cast<StringSVGTransform*>(graphicStyle.clippingPath->transform.get())->String();
+        mStringStream <<  "[path" << static_cast<const StringSVGPath*>(graphicStyle.clippingPath->path.get())->String();
+        mStringStream << "]}";
     }
 }
 
