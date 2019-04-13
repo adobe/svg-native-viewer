@@ -92,7 +92,7 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
             const auto& matrix = static_cast<const SkiaSVGTransform*>(graphicStyle.clippingPath->transform.get())->mMatrix;
             clippingPath.transform(matrix);
         }
-        clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? kWinding_FillType : kEvenOdd_FillType);
+		clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPath::kWinding_FillType : SkPath::kEvenOdd_FillType);
         mCanvas->clipPath(clippingPath);
     }
 }

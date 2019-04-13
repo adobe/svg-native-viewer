@@ -89,7 +89,7 @@ void CGSVGRenderer::Save(const GraphicStyle& graphicStyle)
         auto path = static_cast<const CGSVGPath*>(graphicStyle.clippingPath->path.get())->mPath;
         if (graphicStyle.clippingPath->transform)
         {
-            auto newPath = CGPathCreateCopyByTransformingPath(path, static_cast<CGSVGTransform*>(graphicStyle.clippingPath->transform.get())->mTransform);
+            auto newPath = CGPathCreateCopyByTransformingPath(path, &static_cast<CGSVGTransform*>(graphicStyle.clippingPath->transform.get())->mTransform);
             CGContextAddPath(mContext, newPath);
             CGPathRelease(newPath);
         }
