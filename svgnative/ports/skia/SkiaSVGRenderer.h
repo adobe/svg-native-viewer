@@ -60,7 +60,7 @@ public:
 class SkiaSVGImageData final : public ImageData
 {
 public:
-    SkiaSVGImageData(const std::string& /*base64*/) {}
+    SkiaSVGImageData(const std::string& /*base64*/, ImageEncoding /*encoding*/) {}
 
     float Width() const override { return 0.0f; }
 
@@ -72,7 +72,7 @@ class SkiaSVGRenderer final : public SVGRenderer
 public:
     SkiaSVGRenderer();
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64) override { return std::make_unique<SkiaSVGImageData>(base64); }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::make_unique<SkiaSVGImageData>(base64, encoding); }
 
     std::unique_ptr<Path> CreatePath() override { return std::make_unique<SkiaSVGPath>(); }
 

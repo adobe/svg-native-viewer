@@ -75,9 +75,10 @@ private:
 class StringSVGImageData final : public ImageData
 {
 public:
-    StringSVGImageData(const std::string& base64)
+    StringSVGImageData(const std::string& base64, ImageEncoding encoding)
         : mBase64{base64}
     {
+        mBase64.insert(0, encoding == ImageEncoding::kPNG ? "(PNG) " : "(JPEG) ");
     }
 
     // We are not able to encode PNG images here so we return a fixed size.
@@ -96,7 +97,7 @@ class StringSVGRenderer final : public SVGRenderer
 public:
     StringSVGRenderer();
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64) override { return std::make_unique<StringSVGImageData>(base64); }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::make_unique<StringSVGImageData>(base64, encoding); }
 
     std::unique_ptr<Path> CreatePath() override { return std::make_unique<StringSVGPath>(); }
 

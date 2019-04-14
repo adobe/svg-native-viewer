@@ -59,7 +59,7 @@ public:
 class CGSVGImageData final : public ImageData
 {
 public:
-    CGSVGImageData(const std::string& base64)
+    CGSVGImageData(const std::string& base64, ImageEncoding)
     {
         std::string pngString = base64_decode(base64);
         auto dataProvider = CGDataProviderCreateWithCFData(CFDataCreate(NULL, (const UInt8*)pngString.data(), pngString.size()));
@@ -96,7 +96,7 @@ public:
 
     virtual ~CGSVGRenderer() { ReleaseGraphicsContext(); }
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64) override { return std::make_unique<CGSVGImageData>(base64); }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::make_unique<CGSVGImageData>(base64, encoding); }
 
     std::unique_ptr<Path> CreatePath() override { return std::make_unique<CGSVGPath>(); }
 
