@@ -59,11 +59,14 @@ public:
 class CGSVGImageData final : public ImageData
 {
 public:
-    CGSVGImageData(const std::string& base64, ImageEncoding)
+    CGSVGImageData(const std::string& base64, ImageEncoding encoding)
     {
         std::string pngString = base64_decode(base64);
         auto dataProvider = CGDataProviderCreateWithCFData(CFDataCreate(NULL, (const UInt8*)pngString.data(), pngString.size()));
-        mImage = CGImageCreateWithPNGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
+        if (encoding == ImageEncoding::kPNG)
+            mImage = CGImageCreateWithPNGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
+        else if (encoding == ImageEncoding::kJPEG)
+            mImage = CGImageCreateWithJPEGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
     }
 
     ~CGSVGImageData()
