@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="250" viewBox="0 0 200 250">
+    <defs>
+        <!-- ClipPath w/o content -->
+        <clipPath id="c1">
+        </clipPath>
+        <!-- ClipPath w/ different shapes -->
+        <clipPath id="c2">
+            <circle cx="60" cy="20" r="20"/>
+        </clipPath>
+        <clipPath id="c3">
+            <ellipse cx="100" cy="20" rx="20" ry="15"/>
+        </clipPath>
+        <clipPath id="c4">
+            <rect x="130" y="10" width="20" height="20" rx="5" ry="5"/>
+        </clipPath>
+        <clipPath id="c5">
+            <path d="M180 10 L190 35 L170 35"/>
+        </clipPath>
+        <clipPath id="c6">
+            <polyline points="20,50 30,75 10,75"/>
+        </clipPath>
+        <clipPath id="c7">
+            <circle cx="20" cy="20" r="20" transform="translate(40, 40)"/>
+        </clipPath>
+        <!-- Invalid content -->
+        <clipPath id="c8">
+            <g>
+                <circle cx="100" cy="60" r="20"/>
+            </g>
+        </clipPath>
+        <clipPath id="c9">
+            <circle cx="140" cy="60" r="20"/>
+            <g>
+                <rect x="-200" y="-200" width="200" height="200"/>
+            </g>
+        </clipPath>
+        <clipPath id="c10">
+            <g>
+                <rect x="-200" y="-200" width="200" height="200"/>
+            </g>
+            <circle cx="180" cy="60" r="20"/>
+        </clipPath>
+        <clipPath id="c11">
+            <circle cx="20" cy="100" r="20"/>
+            <rect x="-200" y="-200" width="200" height="200"/>
+        </clipPath>
+        <!-- clip related properties and attributes -->
+        <clipPath id="c12">
+            <circle cx="60" cy="100" r="20" clip-rule="evenodd"/>
+        </clipPath>
+        <clipPath id="c13" clip-rule="evenodd">
+            <circle cx="100" cy="100" r="20"/>
+        </clipPath>
+    </defs>
+    <defs clip-rule="evenodd">
+        <clipPath id="c14">
+            <circle cx="140" cy="100" r="20"/>
+        </clipPath>
+    </defs>
+    <defs>
+        <clipPath id="c15">
+            <circle cx="180" cy="100" r="20"/>
+        </clipPath>
+        <!-- clipping paths operate in the coordinate space of the referencing element -->
+        <clipPath id="c16">
+            <circle cx="20" cy="20" r="20"/>
+        </clipPath>
+    </defs>
+    <rect width="40" height="40" x="0" y="0" clip-path="url(#c1)"/>
+    <rect width="40" height="40" x="40" y="0" clip-path="url(#c2)"/>
+    <rect width="40" height="40" x="80" y="0" clip-path="url(#c3)"/>
+    <rect width="40" height="40" x="120" y="0" clip-path="url(#c4)"/>
+    <rect width="40" height="40" x="160" y="0" clip-path="url(#c5)"/>
+    <rect width="40" height="40" x="0" y="40" clip-path="url(#c6)"/>
+    <rect width="40" height="40" x="40" y="40" clip-path="url(#c7)"/>
+    <rect width="40" height="40" x="80" y="40" clip-path="url(#c8)"/>
+    <rect width="40" height="40" x="120" y="40" clip-path="url(#c9)"/>
+    <rect width="40" height="40" x="160" y="40" clip-path="url(#c10)"/>
+    <rect width="40" height="40" x="0" y="80" clip-path="url(#c11)"/>
+    <rect width="40" height="40" x="40" y="80" clip-path="url(#c12)"/>
+    <rect width="40" height="40" x="80" y="80" clip-path="url(#c13)"/>
+    <rect width="40" height="40" x="120" y="80" clip-path="url(#c14)"/>
+    <rect width="40" height="40" x="160" y="80" clip-path="url(#c15)" clip-rule="evenodd"/>
+    <rect width="40" height="40" x="0" y="0" clip-path="url(#c16)" transform="translate(0, 120)"/>
+</svg>

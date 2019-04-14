@@ -400,8 +400,10 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
 
         // SVG only allows shapes (and <use> elements referencing shapes) as children of
         // <clipPath>. Ignore all other elements.
+        bool hasClipContent{false};
         for (auto clipPathChild = child->first_node(); clipPathChild != nullptr; clipPathChild = clipPathChild->next_sibling())
         {
+            // WebKit and Blink allow the clipping path if there is at least one valid basic shape child.
             if (auto path = ParseShape(clipPathChild))
             {
                 std::unique_ptr<Transform> transform;
@@ -417,10 +419,13 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
                 auto strokeStyleChild = mStrokeStyleStack.top();
                 std::set<std::string> classNames;
                 ParseGraphic(child, fillStyleChild, strokeStyleChild, classNames);
-                mClippingPaths[id->value()] = std::make_shared<ClippingPath>(fillStyleChild.clipRule, std::move(path), std::move(transform));
+                mClippingPaths[id->value()] = std::make_shared<ClippingPath>(true, fillStyleChild.clipRule, std::move(path), std::move(transform));
+                hasClipContent = true;
                 break;
             }
         }
+        if (!hasClipContent)
+            mClippingPaths[id->value()] = std::make_shared<ClippingPath>(false, WindingRule::kNonZero, nullptr, nullptr);
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
     }
@@ -1154,6 +1159,9 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element* elem
     auto graphicStyle = element->graphicStyle;
     FillStyleImpl fillStyle{};
     StrokeStyleImpl strokeStyle{};
+    // Do not draw element if an applied clipPath has no content.
+    if (graphicStyle.clippingPath && !graphicStyle.clippingPath->hasClipContent)
+        return;
     switch (element->Type())
     {
     case ElementType::kGraphic:

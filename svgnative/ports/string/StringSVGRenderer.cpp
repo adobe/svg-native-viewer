@@ -227,7 +227,7 @@ void StringSVGRenderer::WriteGraphic(const GraphicStyle& graphicStyle)
         mStringStream << " winding: " << (graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? "nonzero" : "evenodd");
         if (graphicStyle.clippingPath->transform)
             mStringStream << " transform: " << static_cast<StringSVGTransform*>(graphicStyle.clippingPath->transform.get())->String();
-        mStringStream <<  "[path" << static_cast<const StringSVGPath*>(graphicStyle.clippingPath->path.get())->String();
+        mStringStream <<  " [path" << static_cast<const StringSVGPath*>(graphicStyle.clippingPath->path.get())->String();
         mStringStream << "]}";
     }
 }

@@ -162,12 +162,14 @@ public:
 
 struct ClippingPath
 {
-    ClippingPath(WindingRule aClipRule, std::shared_ptr<Path> aPath, std::shared_ptr<Transform> aTransform)
-        : clipRule{aClipRule}
+    ClippingPath(bool aHasClipContent, WindingRule aClipRule, std::shared_ptr<Path> aPath, std::shared_ptr<Transform> aTransform)
+        : hasClipContent{aHasClipContent}
+        , clipRule{aClipRule}
         , path{aPath}
         , transform{aTransform}
     {}
 
+    bool hasClipContent = false;
     WindingRule clipRule = WindingRule::kNonZero;
     std::shared_ptr<Path> path; /** Clipping path. **/
     std::shared_ptr<Transform> transform; /** Joined transformation matrix based to the "transform" attribute. **/
