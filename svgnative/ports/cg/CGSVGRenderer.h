@@ -14,7 +14,6 @@ governing permissions and limitations under the License.
 #define SVGViewer_CGSVGRenderer_h
 
 #include "SVGRenderer.h"
-#include "base64.h"
 #include <CoreGraphics/CoreGraphics.h>
 
 namespace SVGNative
@@ -59,35 +58,13 @@ public:
 class CGSVGImageData final : public ImageData
 {
 public:
-    CGSVGImageData(const std::string& base64, ImageEncoding encoding)
-    {
-        std::string pngString = base64_decode(base64);
-        auto dataProvider = CGDataProviderCreateWithCFData(CFDataCreate(NULL, (const UInt8*)pngString.data(), pngString.size()));
-        if (encoding == ImageEncoding::kPNG)
-            mImage = CGImageCreateWithPNGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
-        else if (encoding == ImageEncoding::kJPEG)
-            mImage = CGImageCreateWithJPEGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
-    }
+    CGSVGImageData(const std::string& base64, ImageEncoding encoding);
 
-    ~CGSVGImageData()
-    {
-        CGImageRelease(mImage);
-        mImage = nullptr;
-    }
+    ~CGSVGImageData();
 
-    float Width() const override
-    {
-        if (!mImage)
-            return 0;
-        return static_cast<float>(CGImageGetWidth(mImage));
-    }
+    float Width() const override;
 
-    float Height() const override
-    {
-        if (!mImage)
-            return 0;
-        return static_cast<float>(CGImageGetHeight(mImage));
-    }
+    float Height() const override;
 
     CGImageRef mImage{};
 };

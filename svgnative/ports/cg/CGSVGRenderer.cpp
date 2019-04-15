@@ -11,6 +11,8 @@ governing permissions and limitations under the License.
 */
 
 #include "CGSVGRenderer.h"
+#include "base64.h"
+#include "Config.h"
 
 namespace SVGNative
 {
@@ -75,11 +77,41 @@ void CGSVGTransform::Concat(const Transform& other)
     mTransform = CGAffineTransformConcat(mTransform, static_cast<const CGSVGTransform&>(other).mTransform);
 }
 
+CGSVGImageData::CGSVGImageData(const std::string& base64, ImageEncoding encoding)
+{
+    std::string imageString = base64_decode(base64);
+    auto dataProvider = CGDataProviderCreateWithCFData(CFDataCreate(NULL, (const UInt8*)imageString.data(), imageString.size()));
+    if (encoding == ImageEncoding::kPNG)
+        mImage = CGImageCreateWithPNGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
+    else if (encoding == ImageEncoding::kJPEG)
+        mImage = CGImageCreateWithJPEGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
+}
+
+CGSVGImageData::~CGSVGImageData()
+{
+    CGImageRelease(mImage);
+    mImage = nullptr;
+}
+
+float CGSVGImageData::Width() const
+{
+    if (!mImage)
+        return 0;
+    return static_cast<float>(CGImageGetWidth(mImage));
+}
+
+float CGSVGImageData::Height() const
+{
+    if (!mImage)
+        return 0;
+    return static_cast<float>(CGImageGetHeight(mImage));
+}
+
 CGSVGRenderer::CGSVGRenderer() {}
 
 void CGSVGRenderer::Save(const GraphicStyle& graphicStyle)
 {
-    assert(mContext);
+    SVG_ASSERT(mContext);
     CGContextSaveGState(mContext);
     if (graphicStyle.transform)
         CGContextConcatCTM(mContext, static_cast<CGSVGTransform*>(graphicStyle.transform.get())->mTransform);
@@ -106,7 +138,7 @@ void CGSVGRenderer::Save(const GraphicStyle& graphicStyle)
 
 void CGSVGRenderer::Restore()
 {
-    assert(mContext);
+    SVG_ASSERT(mContext);
     CGContextEndTransparencyLayer(mContext);
     CGContextRestoreGState(mContext);
 }
@@ -136,7 +168,7 @@ void CGSVGRenderer::DrawGradientToContext(const Gradient& gradient, float opacit
 
 void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
 {
-    assert(mContext);
+    SVG_ASSERT(mContext);
     Save(graphicStyle);
     if (fillStyle.hasFill)
     {
@@ -226,7 +258,7 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
 
 void CGSVGRenderer::DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea)
 {
-    assert(mContext);
+    SVG_ASSERT(mContext);
     Save(graphicStyle);
     if (clipArea.width < fillArea.width || clipArea.height < fillArea.height)
         CGContextClipToRect(mContext, {{clipArea.x, clipArea.y}, {clipArea.width, clipArea.height}});

@@ -14,10 +14,11 @@ governing permissions and limitations under the License.
 #define SVGViewer_SkiaSVGRenderer_h
 
 #include "SVGRenderer.h"
-#include "SkCanvas.h"
 #include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRect.h"
+
+struct SkRect;
+class SkCanvas;
+class SkImage;
 
 namespace SVGNative
 {
@@ -60,11 +61,13 @@ public:
 class SkiaSVGImageData final : public ImageData
 {
 public:
-    SkiaSVGImageData(const std::string& /*base64*/, ImageEncoding /*encoding*/) {}
+    SkiaSVGImageData(const std::string& base64, ImageEncoding encoding);
 
-    float Width() const override { return 0.0f; }
+    float Width() const override;
 
-    float Height() const override { return 0.0f; }
+    float Height() const override;
+
+    sk_sp<SkImage> mImageData;
 };
 
 class SkiaSVGRenderer final : public SVGRenderer
