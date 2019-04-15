@@ -30,15 +30,15 @@ SVG Native is an upcoming specification of the SVG WG based on [SVG OpenType](ht
 * No support for scripting, interactions, events, animations, filters, masks, patterns, texts.
 * No support for inner `<svg>` or `<symbol>` elements.
 * No support for XML namespaces with the exception of the SVG namespace and the Xlink namespace.
+* No support of `objectBoundingBox` on `gradientUnits` or `clipPathUnits`.
 * The `var()` CSS value function is limited to the CSS properties `fill`, `stroke`, `stop-color` and `color`. Only color values are allowed. `currentColor` is supported.
 
 A valid SVG Native document is always a valid SVG1.1/2.0 document.
 
 ### Known limitations in SVG Native Viewer
 * Referenced elements need to be declared first. Example: A `<linearGradient>` element must be defined in the SVG document before its first reference (`fill="url(#gradient)"`).
-* The attribute value `objectBoundingBox` of the `gradientUnits` and `clipPathUnits` attributes is not supported and gets treated as `userSpaceOnUse`.
 * `viewBox` on `<svg>` element does not take translation values into account yet.
-* `preserveAspectRatio` is not supported on the `<svg>` element.
+* `preserveAspectRatio` is not supported on the `<svg>` element yet.
 * Furthermore, there might be limitations on certain platforms. (E.g. missing spread-method support on CoreGraphics.)
 
 ## SVG Native Viewer Library
