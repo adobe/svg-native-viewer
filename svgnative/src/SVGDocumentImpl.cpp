@@ -47,10 +47,7 @@ constexpr std::array<const char*, 5> gNonInheritedPropertyNames{{
 SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
     : mRenderer{renderer}
 {
-    mViewBox.push_back(0);
-    mViewBox.push_back(0);
-    mViewBox.push_back(320);
-    mViewBox.push_back(200);
+    mViewBox = {{0, 0, 320.0f, 200.0f}};
 
     mFillStyleStack.push(FillStyleImpl());
     mStrokeStyleStack.push(StrokeStyleImpl());
@@ -69,33 +66,21 @@ void SVGDocumentImpl::TraverseSVGTree()
 
     if (!HasAttr(rootNode, "viewBox"))
     {
-        std::array<float, 4> bounds{};
         if (HasAttr(rootNode, "x"))
-            bounds[0] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "x", LengthType::kHorrizontal);
+            mViewBox[0] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "x", LengthType::kHorrizontal);
         if (HasAttr(rootNode, "y"))
-            bounds[1] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "y", LengthType::kVertical);
+            mViewBox[1] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "y", LengthType::kVertical);
         if (HasAttr(rootNode, "width"))
-            bounds[2] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "width", LengthType::kHorrizontal);
+            mViewBox[2] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "width", LengthType::kHorrizontal);
         if (HasAttr(rootNode, "height"))
-            bounds[3] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "height", LengthType::kVertical);
-        mViewBox.clear();
-        mViewBox.push_back(static_cast<std::int32_t>(bounds[0]));
-        mViewBox.push_back(static_cast<std::int32_t>(bounds[1]));
-        mViewBox.push_back(static_cast<std::int32_t>(bounds[2]));
-        mViewBox.push_back(static_cast<std::int32_t>(bounds[3]));
+            mViewBox[3] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "height", LengthType::kVertical);
     }
     else
     {
         auto attr = rootNode->first_attribute("viewBox");
         std::vector<float> numberList;
         if (SVGStringParser::ParseListOfNumbers(std::string(attr->value()), numberList) && numberList.size() == 4)
-        {
-            mViewBox.clear();
-            mViewBox.push_back(static_cast<std::int32_t>(numberList[0]));
-            mViewBox.push_back(static_cast<std::int32_t>(numberList[1]));
-            mViewBox.push_back(static_cast<std::int32_t>(numberList[2]));
-            mViewBox.push_back(static_cast<std::int32_t>(numberList[3]));
-        }
+            mViewBox = {{numberList[0], numberList[1], numberList[2], numberList[3]}};
     }
 
 #if DEBUG
@@ -118,16 +103,15 @@ bool SVGDocumentImpl::HasAttr(XMLNode* node, const char* attrName)
 
 float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
 {
-    float diagonal = sqrtf(static_cast<float>(mViewBox[2]) * static_cast<float>(mViewBox[2])
-        + static_cast<float>(mViewBox[3]) * static_cast<float>(mViewBox[3]));
+    float diagonal = sqrtf(mViewBox[2] * mViewBox[2] + mViewBox[3] * mViewBox[3]);
     float relLength{};
     switch (lengthType)
     {
     case LengthType::kHorrizontal:
-        relLength = static_cast<float>(mViewBox[2]);
+        relLength = mViewBox[2];
         break;
     case LengthType::kVertical:
-        relLength = static_cast<float>(mViewBox[3]);
+        relLength = mViewBox[3];
         break;
     case LengthType::kDiagonal:
         relLength = diagonal;
@@ -358,11 +342,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             if (SVGStringParser::ParseListOfNumbers(std::string(attr->value()), numberList) && numberList.size() == 4)
                 graphicStyle.transform = mRenderer->CreateTransform(1, 0, 0, 1, -numberList[0], -numberList[1]);
             {
-                mViewBox.clear();
-                mViewBox.push_back(static_cast<std::int32_t>(numberList[0]));
-                mViewBox.push_back(static_cast<std::int32_t>(numberList[1]));
-                mViewBox.push_back(static_cast<std::int32_t>(numberList[2]));
-                mViewBox.push_back(static_cast<std::int32_t>(numberList[3]));
+                mViewBox = {{numberList[0], numberList[1], numberList[2], numberList[3]}};
             }
         }
 
@@ -772,8 +752,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     prop = propertySet.getProperty("stroke-dasharray");
     if (prop.isValid())
     {
-        float diagonal = sqrtf(static_cast<float>(mViewBox[2]) * static_cast<float>(mViewBox[2])
-            + static_cast<float>(mViewBox[3]) * static_cast<float>(mViewBox[3]));
+        float diagonal = sqrtf(mViewBox[2] * mViewBox[2] + mViewBox[3] * mViewBox[3]);
         if (!SVGStringParser::ParseListOfLengthOrPercentage(prop.getValue().c_str(), diagonal, strokeStyle.dashArray, true))
             strokeStyle.dashArray.clear();
         for (auto it = strokeStyle.dashArray.begin(); it < strokeStyle.dashArray.end(); ++it)

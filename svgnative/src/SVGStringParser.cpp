@@ -1035,7 +1035,7 @@ SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& pa
 }
 
 SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
-    std::vector<std::int32_t>& viewBox, PaintImpl& paint)
+    const std::array<float 4>& viewBox, PaintImpl& paint)
 {
     SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kInvalid};
     if (!colorString.size())
@@ -1073,8 +1073,7 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
                 {
                     // Percentage values that do neither correlate to horrizontal nor vertical dimensions
                     // need to be relative to the hypotenuse of both. Example: r="50%"
-                    float sqr = sqrtf(static_cast<float>(viewBox[2]) * static_cast<float>(viewBox[2])
-                        + static_cast<float>(viewBox[3]) * static_cast<float>(viewBox[3]));
+                    float sqr = sqrtf(viewBox[2] * viewBox[2] + viewBox[3] * viewBox[3]);
                     if (gradient.type == GradientType::kLinearGradient)
                     {
                         // https://www.w3.org/TR/SVG11/pservers.html#LinearGradients

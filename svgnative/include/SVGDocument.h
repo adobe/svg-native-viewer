@@ -50,20 +50,13 @@ public:
      * Get the horizontal dimension of the SVG document in local coordinates.
      * @return Horizontal dimension of the SVG document in local coordinates.
      */
-    std::int32_t getWidth() const;
+    std::int32_t Width() const;
 
     /**
      * Get the vertical dimension of the SVG document in local coordinates.
      * @return Vertical dimension of the SVG document in local coordinates.
      */
-    std::int32_t getHeight() const;
-
-    /**
-     * Position and dimension of the SVG document in local coordinates.
-     * @return 4 floating point values representing x, y, width and height of
-     *      the SVG document in local coordinates.
-     */
-    std::vector<std::int32_t> getViewBox() const;
+    std::int32_t Height() const;
 
     /**
      * Renderer used to draw SVG content to. This was passed to ParserSVG() first.
