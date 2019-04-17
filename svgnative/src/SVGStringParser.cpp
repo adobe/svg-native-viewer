@@ -1035,7 +1035,7 @@ SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& pa
 }
 
 SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
-    const std::array<float 4>& viewBox, PaintImpl& paint)
+    const std::array<float, 4>& viewBox, PaintImpl& paint)
 {
     SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kInvalid};
     if (!colorString.size())
