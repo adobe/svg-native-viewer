@@ -159,7 +159,7 @@ def readLine(p):
         c = p.stdout.read(1)
     return line
 
-def exportTestFilesSequential(files, args):
+def exportTestFilesSequential(files, args, hasError):
     p = None
     isExpectedFileMissing = False
     inputFile = files.nextPath()
@@ -178,28 +178,31 @@ def exportTestFilesSequential(files, args):
         p = Popen([args.program, inputFile, expectedFile])
         if p == None:
             print('Error opening testapp')
-            return -1
+            hasError = -1
+            return hasError
         print('Created missing expectation file: ' + expectedFile)
     else:
         p = Popen([args.program, inputFile, actualFile])
         if p == None:
             print('Error opening testapp')
-            return -1
+            hasError = -1
+            return hasError
         p.wait()
         if not compare_text_files(expectedFile, actualFile, diffFile):
-            print(u'\u274c' + ' ' + inputFile + ' failed.')
+            print('   ' + inputFile + ' FAILED.')
+            hasError = -1
         else:
-            print(u'\u2713' + ' ' + inputFile + ' passed.')
+            print('   ' + inputFile + ' passed.')
 
-    exportTestFilesSequential(files, args)
-    return 0
+    hasError = exportTestFilesSequential(files, args, hasError)
+    return hasError
 
 def runTestApp(args):
     filesIterator = DirectoryIterator(args.path, args.recursive)
     files = filesIterator.fileArray()
     testexpectations = filesIterator.testExpectations()
 
-    error = exportTestFilesSequential(filesIterator, args)
+    error = exportTestFilesSequential(filesIterator, args, 0)
     if error == -1:
         return error
 
