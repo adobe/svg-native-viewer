@@ -89,7 +89,8 @@ CGSVGImageData::CGSVGImageData(const std::string& base64, ImageEncoding encoding
 
 CGSVGImageData::~CGSVGImageData()
 {
-    CGImageRelease(mImage);
+    if (mImage)
+        CGImageRelease(mImage);
     mImage = nullptr;
 }
 
