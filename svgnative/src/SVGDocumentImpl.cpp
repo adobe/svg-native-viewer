@@ -209,9 +209,26 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         if (hrefAttr)
         {
             std::string dataURL = hrefAttr->value();
-            if (dataURL.find("data:image/png;base64,") != 0)
+            ImageEncoding encoding{};
+            size_t base64Offset{};
+            if (dataURL.find("data:image/png;base64,") == 0)
+            {
+                encoding = ImageEncoding::kPNG;
+                base64Offset = 22;
+            }
+            else if (dataURL.find("data:image/jpg;base64,") == 0)
+            {
+                encoding = ImageEncoding::kPNG;
+                base64Offset = 22;
+            }
+            else if (dataURL.find("data:image/jpeg;base64,") == 0)
+            {
+                encoding = ImageEncoding::kPNG;
+                base64Offset = 23;
+            }
+            else
                 return;
-            imageData = mRenderer->CreateImageData(dataURL.substr(22));
+            imageData = mRenderer->CreateImageData(dataURL.substr(base64Offset), encoding);
         }
 
         if (imageData)

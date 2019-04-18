@@ -11,8 +11,15 @@ governing permissions and limitations under the License.
 */
 
 #include "SkiaSVGRenderer.h"
+#include "base64.h"
+#include "Config.h"
+#include "SkCanvas.h"
+#include "SkData.h"
 #include "SkGradientShader.h"
+#include "SkImage.h"
 #include "SkPoint.h"
+#include "SkRect.h"
+#include "SkRRect.h"
 #include "SkShader.h"
 #include <math.h>
 
@@ -73,11 +80,32 @@ void SkiaSVGTransform::Scale(float sx, float sy) { mMatrix.preScale(sx, sy, 0.0,
 
 void SkiaSVGTransform::Concat(const Transform& other) { mMatrix.preConcat(static_cast<const SkiaSVGTransform&>(other).mMatrix); }
 
+SkiaSVGImageData::SkiaSVGImageData(const std::string& base64, ImageEncoding /*encoding*/)
+{
+    std::string imageString = base64_decode(base64);
+    auto skData = SkData::MakeWithCopy(imageString.data(), imageString.size());
+    mImageData = SkImage::MakeFromEncoded(skData);
+}
+
+float SkiaSVGImageData::Width() const
+{
+    if (!mImageData)
+        return 0;
+    return static_cast<float>(mImageData->width());
+}
+
+float SkiaSVGImageData::Height() const
+{
+    if (!mImageData)
+        return 0;
+    return static_cast<float>(mImageData->height());
+}
+
 SkiaSVGRenderer::SkiaSVGRenderer() {}
 
 void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
 {
-    assert(mCanvas);
+    SVG_ASSERT(mCanvas);
     if (graphicStyle.opacity != 1.0)
         mCanvas->saveLayerAlpha(nullptr, graphicStyle.opacity);
     else
@@ -99,7 +127,7 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
 
 void SkiaSVGRenderer::Restore()
 {
-    assert(mCanvas);
+    SVG_ASSERT(mCanvas);
     mCanvas->restore();
 }
 
@@ -158,7 +186,7 @@ inline void CreateSkPaint(const Paint& paint, float opacity, SkPaint& skPaint)
 void SkiaSVGRenderer::DrawPath(
     const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
 {
-    assert(mCanvas);
+    SVG_ASSERT(mCanvas);
     Save(graphicStyle);
     if (fillStyle.hasFill)
     {
@@ -179,13 +207,19 @@ void SkiaSVGRenderer::DrawPath(
 }
 
 void SkiaSVGRenderer::DrawImage(
-    const ImageData& /*image*/, const GraphicStyle& /*graphicStyle*/, const Rect& /*clipArea*/, const Rect& /*fillArea*/)
+    const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea)
 {
+    SVG_ASSERT(mCanvas);
+    Save(graphicStyle);
+    mCanvas->clipRect({clipArea.x, clipArea.y, clipArea.x + clipArea.width, clipArea.y + clipArea.height}, SkClipOp::kIntersect);
+    mCanvas->drawImageRect(static_cast<const SkiaSVGImageData&>(image).mImageData,
+        {fillArea.x, fillArea.y, fillArea.x + fillArea.width, fillArea.y + fillArea.height}, nullptr);
+    Restore();
 }
 
 void SkiaSVGRenderer::SetSkCanvas(SkCanvas* canvas)
 {
-    assert(canvas);
+    SVG_ASSERT(canvas);
     mCanvas = canvas;
 }
 

@@ -23,6 +23,16 @@ governing permissions and limitations under the License.
 namespace SVGNative
 {
 /**
+ * Supported image encoding foramts are PNG and JPEG.
+ * The assumed encoding format based on the base64 string.
+ */
+enum class ImageEncoding
+{
+    kPNG,
+    kJPEG
+};
+
+/**
  * Line caps as described in:
  * https://www.w3.org/TR/SVG2/painting.html#LineCaps
  */
@@ -228,7 +238,7 @@ class SVGRenderer
 public:
     virtual ~SVGRenderer() = default;
 
-    virtual std::unique_ptr<ImageData> CreateImageData(const std::string& base64) = 0;
+    virtual std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding) = 0;
     virtual std::unique_ptr<Path> CreatePath() = 0;
     virtual std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) = 0;
