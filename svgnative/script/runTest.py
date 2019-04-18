@@ -187,9 +187,9 @@ def exportTestFilesSequential(files, args):
             return -1
         p.wait()
         if not compare_text_files(expectedFile, actualFile, diffFile):
-            print(u'\u274c' + ' ' + inputFile + ' failed.')
+            print('   ' + inputFile + ' FAILED.')
         else:
-            print(u'\u2713' + ' ' + inputFile + ' passed.')
+            print('   ' + inputFile + ' passed.')
 
     exportTestFilesSequential(files, args)
     return 0

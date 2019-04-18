@@ -3,11 +3,12 @@ cd build
 cmake -Bbuild/win64 -H. -G "Visual Studio 15 2017 Win64"
 cmake -Bbuild/win32 -H. -G "Visual Studio 15 2017"
 cmake -Bbuild/mac -H. -G "Xcode"
+cmake -Bbuild/linux -H.
 
 cmake --build build/win64 --config Release
 ]]
 
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.7.2)
 project(SVGNativeViewer)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 14)
