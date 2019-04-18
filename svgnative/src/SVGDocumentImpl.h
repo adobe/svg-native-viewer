@@ -166,7 +166,6 @@ public:
     void Render(const ColorMap& colorMap, float width, float height);
 
     XMLDocument mXMLDocument;
-    // FIXME: Use floats internally.
     std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
 

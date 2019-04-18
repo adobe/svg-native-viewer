@@ -45,10 +45,9 @@ constexpr std::array<const char*, 5> gNonInheritedPropertyNames{{
 }};
 
 SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
-    : mRenderer{renderer}
+    : mViewBox{{0, 0, 320.0f, 200.0f}}
+    , mRenderer{renderer}
 {
-    mViewBox = {{0, 0, 320.0f, 200.0f}};
-
     mFillStyleStack.push(FillStyleImpl());
     mStrokeStyleStack.push(StrokeStyleImpl());
 
