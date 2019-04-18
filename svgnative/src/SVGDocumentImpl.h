@@ -193,8 +193,6 @@ private:
 
     StyleSheet::CssPropertySet ParsePresentationAttributes(XMLNode* node);
 
-    WindingRule ParseClipRule(XMLNode* node);
-
     void ParseStyle(XMLNode* child);
 
     void TraverseTree(const ColorMap& colorMap, const Element*);
@@ -219,7 +217,7 @@ private:
 
     std::map<std::string, GradientImpl> mGradients;
     std::map<std::string, XMLNode*> mResourceIDs;
-    std::map<std::string, std::shared_ptr<Shape>> mClippingPaths;
+    std::map<std::string, std::shared_ptr<ClippingPath>> mClippingPaths;
 
     std::stack<Group*> mGroupStack;
     std::unique_ptr<Group> mGroup;

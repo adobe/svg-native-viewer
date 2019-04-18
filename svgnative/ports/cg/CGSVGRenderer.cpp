@@ -16,6 +16,8 @@ namespace SVGNative
 {
 CGSVGPath::CGSVGPath() { mPath = CGPathCreateMutable(); }
 
+CGSVGPath::~CGSVGPath() { CGPathRelease(mPath); }
+
 void CGSVGPath::Rect(float x, float y, float width, float height) { CGPathAddRect(mPath, 0, {{x, y}, {width, height}}); }
 
 void CGSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadius)
@@ -73,12 +75,6 @@ void CGSVGTransform::Concat(const Transform& other)
     mTransform = CGAffineTransformConcat(mTransform, static_cast<const CGSVGTransform&>(other).mTransform);
 }
 
-CGSVGShape::CGSVGShape(const Path&, WindingRule) {}
-
-void CGSVGShape::Transform(const class Transform&) {}
-
-void CGSVGShape::Union(const Shape&) {}
-
 CGSVGRenderer::CGSVGRenderer() {}
 
 void CGSVGRenderer::Save(const GraphicStyle& graphicStyle)
@@ -87,6 +83,23 @@ void CGSVGRenderer::Save(const GraphicStyle& graphicStyle)
     CGContextSaveGState(mContext);
     if (graphicStyle.transform)
         CGContextConcatCTM(mContext, static_cast<CGSVGTransform*>(graphicStyle.transform.get())->mTransform);
+    if (graphicStyle.clippingPath)
+    {
+        CGContextBeginPath(mContext);
+        auto path = static_cast<const CGSVGPath*>(graphicStyle.clippingPath->path.get())->mPath;
+        if (graphicStyle.clippingPath->transform)
+        {
+            auto newPath = CGPathCreateCopyByTransformingPath(path, &static_cast<CGSVGTransform*>(graphicStyle.clippingPath->transform.get())->mTransform);
+            CGContextAddPath(mContext, newPath);
+            CGPathRelease(newPath);
+        }
+        else
+            CGContextAddPath(mContext, path);   
+        if (graphicStyle.clippingPath->clipRule == WindingRule::kEvenOdd)
+            CGContextEOClip(mContext);
+        else
+            CGContextClip(mContext);
+    }
     CGContextSetAlpha(mContext, graphicStyle.opacity);
     CGContextBeginTransparencyLayer(mContext, 0);
 }

@@ -57,16 +57,6 @@ public:
     SkMatrix mMatrix;
 };
 
-class SkiaSVGShape final : public Shape
-{
-public:
-    SkiaSVGShape(const Path& path, WindingRule windingRule);
-
-    void Transform(const class Transform& transform) override;
-
-    void Union(const Shape& other) override;
-};
-
 class SkiaSVGImageData final : public ImageData
 {
 public:
@@ -85,11 +75,6 @@ public:
     std::unique_ptr<ImageData> CreateImageData(const std::string& base64) override { return std::make_unique<SkiaSVGImageData>(base64); }
 
     std::unique_ptr<Path> CreatePath() override { return std::make_unique<SkiaSVGPath>(); }
-
-    std::unique_ptr<Shape> CreateShape(const Path& path, WindingRule windingRule) override
-    {
-        return std::make_unique<SkiaSVGShape>(path, windingRule);
-    }
 
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override

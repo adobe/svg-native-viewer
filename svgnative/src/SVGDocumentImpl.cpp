@@ -151,33 +151,6 @@ float SVGDocumentImpl::ParseLengthFromAttr(XMLNode* node, const char* attrName, 
     return number;
 }
 
-WindingRule SVGDocumentImpl::ParseClipRule(XMLNode* node)
-{
-    auto clipRule = WindingRule::kNonZero;
-    auto attr = node->first_attribute("clip-rule");
-    if (attr && std::string(attr->value()) == "evenodd")
-        clipRule = WindingRule::kEvenOdd;
-
-    attr = node->first_attribute("style");
-    if (attr)
-    {
-        auto doc = StyleSheet::CssDocument::parse(attr->value());
-        auto element = doc.getElements().front();
-        auto propertySet = element.getProperties();
-
-        auto prop = propertySet.getProperty("clip-rule");
-        if (prop.isValid())
-        {
-            if (std::string(prop.getValue().c_str()) == "evenodd")
-                clipRule = WindingRule::kEvenOdd;
-            else if (std::string(prop.getValue().c_str()) == "nonzero")
-                clipRule = WindingRule::kNonZero;
-        }
-    }
-
-    return clipRule;
-}
-
 void SVGDocumentImpl::ParseChildren(XMLNode* node)
 {
     for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
@@ -422,31 +395,39 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
         if (!id)
             return;
 
+        mFillStyleStack.push(fillStyle);
+        mStrokeStyleStack.push(strokeStyle);
+
         // SVG only allows shapes (and <use> elements referencing shapes) as children of
         // <clipPath>. Ignore all other elements.
-        std::shared_ptr<Shape> clipShape;
+        bool hasClipContent{false};
         for (auto clipPathChild = child->first_node(); clipPathChild != nullptr; clipPathChild = clipPathChild->next_sibling())
         {
+            // WebKit and Blink allow the clipping path if there is at least one valid basic shape child.
             if (auto path = ParseShape(clipPathChild))
             {
-                auto siblingShape = mRenderer->CreateShape(*path, ParseClipRule(child));
+                std::unique_ptr<Transform> transform;
                 if (auto transformAttr = clipPathChild->first_attribute("transform"))
                 {
                     auto transformHandler = [&]() {
                         SVG_ASSERT(mRenderer != nullptr);
                         return mRenderer->CreateTransform();
                     };
-                    if (auto transform = SVGStringParser::ParseTransform(transformAttr->value(), transformHandler))
-                        siblingShape->Transform(*transform);
+                    transform = SVGStringParser::ParseTransform(transformAttr->value(), transformHandler);
                 }
-                if (!clipShape)
-                    clipShape = std::move(siblingShape);
-                else
-                    clipShape->Union(*siblingShape);
+                auto fillStyleChild = mFillStyleStack.top();
+                auto strokeStyleChild = mStrokeStyleStack.top();
+                std::set<std::string> classNames;
+                ParseGraphic(child, fillStyleChild, strokeStyleChild, classNames);
+                mClippingPaths[id->value()] = std::make_shared<ClippingPath>(true, fillStyleChild.clipRule, std::move(path), std::move(transform));
+                hasClipContent = true;
+                break;
             }
         }
-        if (clipShape)
-            mClippingPaths[id->value()] = std::move(clipShape);
+        if (!hasClipContent)
+            mClippingPaths[id->value()] = std::make_shared<ClippingPath>(false, WindingRule::kNonZero, nullptr, nullptr);
+        mFillStyleStack.pop();
+        mStrokeStyleStack.pop();
     }
     else
     {
@@ -1178,6 +1159,9 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element* elem
     auto graphicStyle = element->graphicStyle;
     FillStyleImpl fillStyle{};
     StrokeStyleImpl strokeStyle{};
+    // Do not draw element if an applied clipPath has no content.
+    if (graphicStyle.clippingPath && !graphicStyle.clippingPath->hasClipContent)
+        return;
     switch (element->Type())
     {
     case ElementType::kGraphic:

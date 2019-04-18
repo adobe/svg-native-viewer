@@ -160,6 +160,21 @@ public:
     virtual void Concat(const Transform& other) = 0;
 };
 
+struct ClippingPath
+{
+    ClippingPath(bool aHasClipContent, WindingRule aClipRule, std::shared_ptr<Path> aPath, std::shared_ptr<Transform> aTransform)
+        : hasClipContent{aHasClipContent}
+        , clipRule{aClipRule}
+        , path{aPath}
+        , transform{aTransform}
+    {}
+
+    bool hasClipContent = false;
+    WindingRule clipRule = WindingRule::kNonZero;
+    std::shared_ptr<Path> path; /** Clipping path. **/
+    std::shared_ptr<Transform> transform; /** Joined transformation matrix based to the "transform" attribute. **/
+};
+
 /**
  * All compositing related properties. With the exception of the
  */
@@ -168,7 +183,7 @@ struct GraphicStyle
     // Add blend modes and other graohic style options here.
     float opacity = 1.0; /** Corresponds to the "opacty" CSS property. **/
     std::shared_ptr<Transform> transform; /** Joined transformation matrix based to the "transform" attribute. **/
-    std::shared_ptr<Shape> clippingPath;
+    std::shared_ptr<ClippingPath> clippingPath;
 };
 
 /**
@@ -188,20 +203,6 @@ public:
     virtual void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3) = 0;
     virtual void CurveToV(float x2, float y2, float x3, float y3) = 0;
     virtual void ClosePath() = 0;
-};
-
-/**
- * A shape is the combination of one or more Path objects with winding rules for each path
- * object.
- * Transforms and unions only apply to Shapes.
- */
-class Shape
-{
-public:
-    virtual ~Shape() = default;
-
-    virtual void Transform(const Transform& transform) = 0;
-    virtual void Union(const Shape& shape) = 0;
 };
 
 /**
@@ -229,7 +230,6 @@ public:
 
     virtual std::unique_ptr<ImageData> CreateImageData(const std::string& base64) = 0;
     virtual std::unique_ptr<Path> CreatePath() = 0;
-    virtual std::unique_ptr<Shape> CreateShape(const Path& path, WindingRule windingRule = WindingRule::kNonZero) = 0;
     virtual std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) = 0;
 
