@@ -31,7 +31,7 @@ bool ParseLengthOrPercentage(const std::string& lengthString, float relDimension
 void ParsePathString(const std::string& pathString, Path& p);
 SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& paint, bool supportsCurrentColor = true);
 SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
-    std::vector<std::int32_t>& viewBox, PaintImpl& paint);
+    const std::array<float, 4>& viewBox, PaintImpl& paint);
 
 } // namespace SVGStringParser
 

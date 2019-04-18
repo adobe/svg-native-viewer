@@ -16,6 +16,7 @@ governing permissions and limitations under the License.
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"
 
+#include <array>
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
 #include <map>
 #include <set>
@@ -165,8 +166,7 @@ public:
     void Render(const ColorMap& colorMap, float width, float height);
 
     XMLDocument mXMLDocument;
-    // FIXME: Use floats internally.
-    std::vector<std::int32_t> mViewBox;
+    std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
 
 private:

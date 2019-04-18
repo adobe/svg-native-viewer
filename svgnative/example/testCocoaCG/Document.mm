@@ -60,8 +60,8 @@ governing permissions and limitations under the License.
 		return;
 	
 	NSSize size;
-	size.height = mSVGDocument->getHeight();
-	size.width = mSVGDocument->getWidth();
+	size.height = mSVGDocument->Height();
+	size.width = mSVGDocument->Width();
 	
 	[[aController window] setContentSize:size];
 	
@@ -69,8 +69,8 @@ governing permissions and limitations under the License.
 	
 	allBounds.origin.x = 0;
 	allBounds.origin.y = 0;
-	allBounds.size.width = mSVGDocument->getWidth();
-	allBounds.size.height = mSVGDocument->getHeight();
+	allBounds.size.width = mSVGDocument->Width();
+	allBounds.size.height = mSVGDocument->Height();
 	[[aController window] setFrame:allBounds display:YES animate:TRUE];
 }
 

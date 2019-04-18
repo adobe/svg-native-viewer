@@ -53,7 +53,7 @@ SVGDocument::~SVGDocument() {}
 void SVGDocument::Render()
 {
     ColorMap colorMap;
-    mDocument->Render(colorMap, static_cast<float>(mDocument->mViewBox[2]), static_cast<float>(mDocument->mViewBox[3]));
+    mDocument->Render(colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
 void SVGDocument::Render(float width, float height)
@@ -64,16 +64,14 @@ void SVGDocument::Render(float width, float height)
 
 void SVGDocument::Render(const ColorMap& colorMap)
 {
-    mDocument->Render(colorMap, static_cast<float>(mDocument->mViewBox[2]), static_cast<float>(mDocument->mViewBox[3]));
+    mDocument->Render(colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
 void SVGDocument::Render(const ColorMap& colorMap, float width, float height) { mDocument->Render(colorMap, width, height); }
 
-std::int32_t SVGDocument::getWidth() const { return mDocument->mViewBox[2]; }
+std::int32_t SVGDocument::Width() const { return static_cast<std::int32_t>(mDocument->mViewBox[2]); }
 
-std::int32_t SVGDocument::getHeight() const { return mDocument->mViewBox[3]; }
-
-std::vector<std::int32_t> SVGDocument::getViewBox() const { return mDocument->mViewBox; }
+std::int32_t SVGDocument::Height() const { return static_cast<std::int32_t>(mDocument->mViewBox[3]); }
 
 SVGRenderer* SVGDocument::Renderer() const { return mDocument->mRenderer.get(); }
 

@@ -64,7 +64,7 @@ auto renderer = std::make_shared<SVGNative::SkiaSVGRenderer>();
 auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
 
 // Setup SkSurface for drawing
-auto skRasterSurface = SkSurface::MakeRasterN32Premul(doc->getWidth(), doc->getHeight());
+auto skRasterSurface = SkSurface::MakeRasterN32Premul(doc->Width(), doc->Height());
 auto skRasterCanvas = skRasterSurface->getCanvas();
 
 // Pass SkCanvas to renderer object
