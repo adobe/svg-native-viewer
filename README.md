@@ -1,5 +1,7 @@
 # SVG Native Viewer
 
+[![CircleCI](https://circleci.com/gh/adobe/svg-native-viewer.svg?style=svg)](https://circleci.com/gh/adobe/svg-native-viewer)
+
 SVG Native viewer is a library that parses and renders SVG Native documents.
 
 ## SVG Native
