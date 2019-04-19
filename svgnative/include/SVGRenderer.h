@@ -104,6 +104,14 @@ using ColorMap = std::map<std::string, Color>;
 
 struct Rect
 {
+    Rect() = default;
+    Rect(float aX, float aY, float aWidth, float aHeight)
+        : x{aX}
+        , y{aY}
+        , width{aWidth}
+        , height{aHeight}
+    {
+    }
     float x = std::numeric_limits<float>::quiet_NaN();
     float y = std::numeric_limits<float>::quiet_NaN();
     float width = std::numeric_limits<float>::quiet_NaN();

@@ -30,7 +30,7 @@ std::unique_ptr<SVGDocument> SVGDocument::CreateSVGDocument(const char* s, std::
 {
     try
     {
-        auto realSVGDoc = std::make_unique<SVGDocumentImpl>(renderer);
+        auto realSVGDoc = std::unique_ptr<SVGDocumentImpl>(new SVGDocumentImpl(renderer));
         realSVGDoc->mXMLDocument.parse<0>((char*)s); // 0 means default parse flags
         realSVGDoc->TraverseSVGTree();
 

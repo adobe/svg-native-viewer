@@ -47,6 +47,16 @@ class StringSVGTransform final : public Transform
 public:
     struct AffineTransform
     {
+        AffineTransform() = default;
+        AffineTransform(float aA, float aB, float aC, float aD, float aE, float aF)
+            : a{aA}
+            , b{aB}
+            , c{aC}
+            , d{aD}
+            , e{aE}
+            , f{aF}
+        {
+        }
         float a{1};
         float b{0};
         float c{0};
@@ -97,14 +107,14 @@ class StringSVGRenderer final : public SVGRenderer
 public:
     StringSVGRenderer();
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::make_unique<StringSVGImageData>(base64, encoding); }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::unique_ptr<StringSVGImageData>(new StringSVGImageData(base64, encoding)); }
 
-    std::unique_ptr<Path> CreatePath() override { return std::make_unique<StringSVGPath>(); }
+    std::unique_ptr<Path> CreatePath() override { return std::unique_ptr<StringSVGPath>(new StringSVGPath); }
 
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override
     {
-        return std::make_unique<StringSVGTransform>(a, b, c, d, tx, ty);
+        return std::unique_ptr<StringSVGTransform>(new StringSVGTransform(a, b, c, d, tx, ty));
     }
 
     void Save(const GraphicStyle& graphicStyle) override;

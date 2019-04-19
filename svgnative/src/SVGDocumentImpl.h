@@ -22,6 +22,7 @@ governing permissions and limitations under the License.
 #include <set>
 #include <stack>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace SVGNative

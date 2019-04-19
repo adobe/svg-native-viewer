@@ -75,14 +75,14 @@ class SkiaSVGRenderer final : public SVGRenderer
 public:
     SkiaSVGRenderer();
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::make_unique<SkiaSVGImageData>(base64, encoding); }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::unique_ptr<SkiaSVGImageData>(new SkiaSVGImageData(base64, encoding)); }
 
-    std::unique_ptr<Path> CreatePath() override { return std::make_unique<SkiaSVGPath>(); }
+    std::unique_ptr<Path> CreatePath() override { return std::unique_ptr<SkiaSVGPath>(new SkiaSVGPath); }
 
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override
     {
-        return std::make_unique<SkiaSVGTransform>(a, b, c, d, tx, ty);
+        return std::unique_ptr<SkiaSVGTransform>(new SkiaSVGTransform(a, b, c, d, tx, ty));
     }
 
     void Save(const GraphicStyle& graphicStyle) override;

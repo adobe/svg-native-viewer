@@ -11,7 +11,7 @@ cmake --build build/win64 --config Release
 cmake_minimum_required(VERSION 3.5.0)
 project(SVGNativeViewer)
 enable_language(CXX)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 
 message(STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
@@ -52,7 +52,7 @@ elseif(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zp8")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4302 /we4189")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4290 /wd4335 /wd4355 /wd4814 /wd4091 /TP")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:sizedDealloc-")
 elseif(APPLE)
     # GCC or Clang
