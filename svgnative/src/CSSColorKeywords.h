@@ -20,6 +20,12 @@ namespace SVGNative
 
 struct CSSColorInfo
 {
+    constexpr CSSColorInfo(const char* aColorName, size_t aLength, Color aColor)
+        : colorName{aColorName}
+        , length{aLength}
+        , color{std::move(aColor)}
+    {
+    }
     const char* colorName{};
     size_t length{};
     Color color{};
