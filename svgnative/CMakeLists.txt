@@ -9,6 +9,7 @@ cmake --build build/win64 --config Release
 ]]
 
 cmake_minimum_required(VERSION 3.5.0)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 project(SVGNativeViewer)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11)
@@ -37,16 +38,31 @@ option(CG "Enable CoreGraphics/Quartz2D port")
 option(SKIA "Enable Skia port")
 option(GDIPLUS "Enable GDI+ port")
 option(STYLE "Enable deprecated CSS Styling support")
+option(CAIRO "Enable Cairo port")
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA "Skia" TRUE "APPLE;SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS "GDI+ port" TRUE "MSVC;GDIPLUS" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_CAIRO "Cairo" TRUE "CAIRO" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT_EXAMPLE "Text port for testing" TRUE "NOT LIB_ONLY;TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG_EXAMPLE "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "NOT LIB_ONLY;USE_CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY;GDIPLUS" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_CAIRO_EXAMPLE "Cairo example" TRUE "NOT LIB_ONLY;CAIRO" FALSE)
+
+################################
+# setting for Cairo 
+################################
+if(CAIRO)
+    find_package(PkgConfig)
+    include(FindCairo)
+    if(NOT CAIRO_FOUND)
+        set(CAIRO_INCLUDE_DIRS "/usr/include/cairo")     
+        set(CAIRO_LIBRARIES "-lcairo")     
+    endif()
+endif()
 
 ################################
 # Other Attributes
@@ -93,6 +109,9 @@ add_subdirectory(example/testSkia)
 endif()
 if (USE_GDIPLUS_EXAMPLE)
 add_subdirectory(example/testGDIPlus)
+endif()
+if (USE_CAIRO_EXAMPLE)
+add_subdirectory(example/testCairo)
 endif()
 
 ##############################
@@ -156,6 +175,17 @@ file(GLOB gdiplus_port
     ../third_party/cpp-base64/base64.cpp
 )
 endif()
+set(cairo_port)
+if (USE_CAIRO)
+file(GLOB cairo_port
+    ports/cairo/CairoSVGRenderer.h
+    ports/cairo/CairoSVGRenderer.cpp
+    ports/cairo/CairoImageInfo.h
+    ports/cairo/CairoImageInfo.c
+    ../third_party/cpp-base64/base64.h
+    ../third_party/cpp-base64/base64.cpp
+)
+endif()
 
 ##############################
 # Library settings
@@ -169,6 +199,7 @@ add_library(
     ${cg_port}
     ${skia_port}
     ${gdiplus_port}
+    ${cairo_port}
 )
 
 ##############################
@@ -200,6 +231,11 @@ if (USE_GDIPLUS)
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/gdiplus")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 endif()
+if (USE_CAIRO)
+target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/cairo")
+target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
+target_include_directories(SVGNativeViewerLib PUBLIC "${CAIRO_INCLUDE_DIRS}")
+endif()
 
 ##############################
 # Library search paths
@@ -214,6 +250,10 @@ target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_p
 else()
 target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/libskia.a")
 endif()
+endif()
+if (USE_CAIRO)
+target_link_libraries(SVGNativeViewerLib "${CAIRO_LIBRARIES}")
+target_link_libraries(SVGNativeViewerLib "-ljpeg")
 endif()
 
 set_target_properties(SVGNativeViewerLib PROPERTIES LINKER_LANGUAGE CXX)
