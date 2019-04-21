@@ -15,7 +15,9 @@ governing permissions and limitations under the License.
 
 #include <array>
 #include <boost/variant.hpp>
+#include <limits>
 #include <map>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
