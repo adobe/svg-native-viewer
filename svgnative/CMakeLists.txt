@@ -35,15 +35,18 @@ option(LIB_ONLY "Create a project for library only" OFF)
 option(TEXT "Enable Text port for testing" ON)
 option(CG "Enable CoreGraphics/Quartz2D port")
 option(SKIA "Enable Skia port")
+option(WINDRAW "Enable Windrawlib port")
 option(STYLE "Enable deprecated CSS Styling support")
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA "Skia" TRUE "APPLE;SKIA" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_WINDRAW "Windraw" TRUE "MSVC;WINDRAW" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT_EXAMPLE "Text port for testing" TRUE "NOT LIB_ONLY;TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG_EXAMPLE "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "NOT LIB_ONLY;USE_CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_WINDRAW_EXAMPLE "windraw" TRUE "NOT LIB_ONLY;WINDRAW" FALSE)
 
 ################################
 # Other Attributes
@@ -87,6 +90,9 @@ add_subdirectory(example/testCocoaCG)
 endif()
 if (USE_SKIA_EXAMPLE)
 add_subdirectory(example/testSkia)
+endif()
+if (USE_WINDRAW_EXAMPLE)
+add_subdirectory(example/testWindraw)
 endif()
 
 ##############################
@@ -141,6 +147,14 @@ file(GLOB skia_port
 )
 endif()
 
+set(windraw_port)
+if (USE_WINDRAW)
+file(GLOB windraw_port
+    ports/windraw/WindrawSVGRenderer.h
+    ports/windraw/WindrawSVGRenderer.cpp
+)
+endif()
+
 ##############################
 # Library settings
 ##############################
@@ -152,6 +166,7 @@ add_library(
     ${text_port}
     ${cg_port}
     ${skia_port}
+    ${windraw_port}
 )
 
 ##############################
@@ -179,6 +194,9 @@ target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/encode")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/gpu")
 endif()
+if (USE_WINDRAW)
+target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/windrawlib/include")
+endif()
 
 ##############################
 # Library search paths
@@ -193,6 +211,9 @@ target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_p
 else()
 target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/libskia.a")
 endif()
+endif()
+if (USE_WINDRAW)
+target_link_libraries(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/windrawlib/build/win64/Debug/windrawlib.lib")
 endif()
 
 set_target_properties(SVGNativeViewerLib PROPERTIES LINKER_LANGUAGE CXX)

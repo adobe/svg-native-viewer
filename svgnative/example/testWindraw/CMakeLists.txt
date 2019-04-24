@@ -1,0 +1,14 @@
+
+add_definitions(-DUNICODE -D_UNICODE)
+add_definitions(-D_WIN32_IE=0x0501 -D_WIN32_WINNT=0x0501 -DWINVER=_WIN32_WINNT)
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
+add_definitions(/D_CRT_SECURE_NO_WARNINGS)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MTd")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} /MT")
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} /MT")
+
+add_executable("testWindraw" WIN32 "TestWindraw.cpp")
+target_link_libraries("testWindraw" PUBLIC SVGNativeViewerLib)
+target_include_directories("testWindraw" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/windrawlib/include" "${CMAKE_CURRENT_SOURCE_DIR}/../../" "${CMAKE_CURRENT_SOURCE_DIR}/../../ports/windraw")

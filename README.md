@@ -51,6 +51,7 @@ For rendering, SVG Native Viewer requires a rendering port. Already existing por
 * **StringSVGRenderer** for testing purposes,
 * **CGSVGRenderer** a rendering port using CoreGraphics (Quartz 2D).
 * **SkiaSVGRenderer** a rendering port using Skia.
+* **WindrawSVGRenderer** a rendering port using Windraw, a wrapper for D2D and GDI+.
 
 New ports need to inherit from **SVGRenderer** and implement the virtual functions.
 
@@ -140,7 +141,8 @@ On Linux you may choose to use GCC or Clang/LLVM. Add the following to the comma
 The following arguments can be passed with the `-D` flag and the options `ON` or `OFF`:
 * `TEXT` adds the _Text_ port to the library. Default `ON`.
 * `CG` adds the _CoreGraphics/Quartz2D_ port to the library. Default `OFF`.
-* `Skia` adds the _Skia_ port to the library. Default `OFF`.
+* `SKIA` adds the _Skia_ port to the library. Default `OFF`.
+* `WINDRAW` adds the _Windraw_ port to the library. Default `OFF`.
 
 Each port includes an example project using the port. To disable the example projects set the following option to `OFF`. Default `ON`.
 * `LIBRARY_ONLY`
