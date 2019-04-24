@@ -523,7 +523,7 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
         // coordinate pairs. However, Blink and WebKit do it the same way.
         std::vector<float> numberList;
         SVGStringParser::ParseListOfNumbers(attr->value(), numberList);
-        auto size{numberList.size()};
+        size_t size = numberList.size();
         auto path = mRenderer->CreatePath();
         if (size > 1)
         {
@@ -903,7 +903,7 @@ float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>&
 
     graphicStyle.stopOpacity = std::max<float>(0.0, std::min<float>(1.0, graphicStyle.stopOpacity));
 
-    colorStops.push_back({offset, paint, graphicStyle.stopOpacity});
+    colorStops.push_back(std::make_tuple(offset, paint, graphicStyle.stopOpacity));
     return offset;
 }
 
@@ -925,10 +925,10 @@ void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
     {
         const auto& firstStop = colorStops.front();
         if (std::get<0>(firstStop) != 0.0f)
-            colorStops.insert(colorStops.begin(), {0.0f, std::get<1>(firstStop), std::get<2>(firstStop)});
+            colorStops.insert(colorStops.begin(), std::make_tuple(0.0f, std::get<1>(firstStop), std::get<2>(firstStop)));
         const auto& lastStop = colorStops.back();
         if (std::get<0>(lastStop) != 1.0f)
-            colorStops.push_back({1.0f, std::get<1>(lastStop), std::get<2>(lastStop)});
+            colorStops.push_back(std::make_tuple(1.0f, std::get<1>(lastStop), std::get<2>(lastStop)));
     }
     // Keep the color stops from referenced gradients if the current gradient
     // has none.
@@ -1115,7 +1115,7 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
         auto& gradient = boost::get<Gradient>(paint);
         for (auto& colorStop : internalGradient.internalColorStops)
         {
-            Color stopColor{};
+            Color stopColor{{0, 0, 0, 1.0}};
             const auto& colorImpl = std::get<1>(colorStop);
             if (colorImpl.type() == typeid(Variable))
             {
