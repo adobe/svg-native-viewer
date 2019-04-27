@@ -570,9 +570,15 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     auto attr = node->first_attribute("style");
     if (attr)
     {
-        auto cssDoc = StyleSheet::CssDocument::parse(attr->value());
-        auto cssElement = cssDoc.getElements().front();
-        propertySets.push_back(cssElement.getProperties());
+        try
+        {
+            auto cssDoc = StyleSheet::CssDocument::parse(attr->value());
+            auto cssElement = cssDoc.getElements().front();
+            propertySets.push_back(cssElement.getProperties());
+        }
+        catch (...) 
+        {
+        }
     }
     // Warning: The inheritance order is incorrect but required by current clients at this point.
     // The code is going to get removed once clients do no longer use "<style>" or
