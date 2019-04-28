@@ -201,12 +201,12 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             }
             else if (dataURL.find("data:image/jpg;base64,") == 0)
             {
-                encoding = ImageEncoding::kPNG;
+                encoding = ImageEncoding::kJPEG;
                 base64Offset = 22;
             }
             else if (dataURL.find("data:image/jpeg;base64,") == 0)
             {
-                encoding = ImageEncoding::kPNG;
+                encoding = ImageEncoding::kJPEG;
                 base64Offset = 23;
             }
             else
