@@ -993,16 +993,17 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
     // Parse CSS named Colors.
     for (const auto& namedColor : gCSSNamedColors)
     {
-        if (std::distance(pos, end) < static_cast<const long>(namedColor.length))
+        auto namedColorSize = std::get<1>(namedColor);
+        if (std::distance(pos, end) < static_cast<const long>(namedColorSize))
             continue;
-        std::string nameString(pos, pos + namedColor.length);
+        std::string nameString(pos, pos + namedColorSize);
         std::transform(nameString.begin(), nameString.end(), nameString.begin(), ::tolower);
-        if (std::string(nameString).compare(namedColor.colorName) == 0)
+        if (std::string(nameString).compare(std::get<0>(namedColor)) == 0)
         {
-            color = namedColor.color;
+            color = std::get<2>(namedColor);
             paint = color;
             result = SVGDocumentImpl::Result::kSuccess;
-            pos += namedColor.length;
+            pos += namedColorSize;
             return true;
         }
     }
