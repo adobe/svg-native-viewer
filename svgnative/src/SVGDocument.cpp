@@ -75,8 +75,9 @@ std::int32_t SVGDocument::Height() const { return static_cast<std::int32_t>(mDoc
 
 SVGRenderer* SVGDocument::Renderer() const { return mDocument->mRenderer.get(); }
 
+#ifdef STYLE_SUPPORT
 void SVGDocument::AddCustomCSS(const StyleSheet::CssDocument* cssDocument) { mDocument->AddCustomCSS(cssDocument); }
 
 void SVGDocument::ClearCustomCSS() { mDocument->ClearCustomCSS(); }
-
+#endif
 } // namespace SVGNative

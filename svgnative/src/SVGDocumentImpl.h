@@ -161,9 +161,10 @@ public:
         kDiagonal
     };
 
+#ifdef STYLE_SUPPORT
     void AddCustomCSS(const StyleSheet::CssDocument* cssDocument);
     void ClearCustomCSS();
-
+#endif
     void Render(const ColorMap& colorMap, float width, float height);
 
     XMLDocument mXMLDocument;
@@ -194,7 +195,9 @@ private:
 
     StyleSheet::CssPropertySet ParsePresentationAttributes(XMLNode* node);
 
+#ifdef STYLE_SUPPORT
     void ParseStyle(XMLNode* child);
+#endif
 
     void TraverseTree(const ColorMap& colorMap, const Element*);
     void ApplyCSSStyle(

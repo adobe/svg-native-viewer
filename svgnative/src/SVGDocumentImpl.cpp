@@ -353,8 +353,10 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         mGroupStack.pop();
     }
+#ifdef STYLE_SUPPORT
     else if (elementName == "style")
         ParseStyle(child);
+#endif
 }
 
 void SVGDocumentImpl::ParseResources(XMLNode* node)
@@ -383,8 +385,10 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
     }
+#ifdef STYLE_SUPPORT
     else if (elementName == "style")
         ParseStyle(child);
+#endif
     else if (elementName == "clipPath")
     {
         auto id = child->first_attribute("id");
@@ -574,6 +578,7 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
         auto cssElement = cssDoc.getElements().front();
         propertySets.push_back(cssElement.getProperties());
     }
+#ifdef STYLE_SUPPORT
     // Warning: The inheritance order is incorrect but required by current clients at this point.
     // The code is going to get removed once clients do no longer use "<style>" or
     // override styles.
@@ -591,6 +596,7 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
             propertySets.push_back(cssElement.getProperties());
         }
     }
+#endif
     GraphicStyleImpl graphicStyle{};
     for (const auto& propertySet : propertySets)
     {
@@ -821,6 +827,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     }
 }
 
+#ifdef STYLE_SUPPORT
 void SVGDocumentImpl::ParseStyle(XMLNode* child)
 {
     SVG_ASSERT(mCSSInfo.getElements().size() == 0); // otherwise we need to merge with existing mCSSInfo
@@ -878,6 +885,7 @@ void SVGDocumentImpl::ParseStyle(XMLNode* child)
     // parse style sheet
     mCSSInfo = StyleSheet::CssDocument::parse(output);
 }
+#endif
 
 float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
 {
@@ -1024,6 +1032,7 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
         mGradients.insert({attr->value(), gradient});
 }
 
+#ifdef STYLE_SUPPORT
 void SVGDocumentImpl::AddCustomCSS(const StyleSheet::CssDocument* cssDocument) { mOverrideStyle = cssDocument; }
 
 void SVGDocumentImpl::ClearCustomCSS()
@@ -1033,6 +1042,7 @@ void SVGDocumentImpl::ClearCustomCSS()
         mCustomCSSInfo.removeElement(element.getSelector());
     mOverrideStyle = nullptr;
 }
+#endif
 
 void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height)
 {
@@ -1058,6 +1068,7 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
 void SVGDocumentImpl::ApplyCSSStyle(
     const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle)
 {
+#ifdef STYLE_SUPPORT
     if (!mOverrideStyle)
         return;
 
@@ -1073,6 +1084,7 @@ void SVGDocumentImpl::ApplyCSSStyle(
         ParseFillProperties(fillStyle, properties);
         ParseStrokeProperties(strokeStyle, properties);
     }
+#endif
 }
 
 void SVGDocumentImpl::AddChildToCurrentGroup(std::unique_ptr<Element> element)

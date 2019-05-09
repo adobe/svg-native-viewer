@@ -64,6 +64,7 @@ public:
      */
     SVGNative::SVGRenderer* Renderer() const;
 
+#ifdef STYLE_SUPPORT
     /**
      * Add a custom CSS stylesheet to the cascading of the document.
      * @param cssDocument CSS style sheet.
@@ -74,6 +75,7 @@ public:
      * Remove all CSS stylesheets added by AddCustomCSS.
      */
     void ClearCustomCSS();
+#endif
 
     /**
      * Renders the parsed SVG document to renderer. Some clients require a separation
