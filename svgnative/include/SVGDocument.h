@@ -68,11 +68,13 @@ public:
     /**
      * Add a custom CSS stylesheet to the cascading of the document.
      * @param cssDocument CSS style sheet.
+     * @deprecated This method is deprecated and will get removed.
      */
     void AddCustomCSS(const StyleSheet::CssDocument* cssDocument);
 
     /**
      * Remove all CSS stylesheets added by AddCustomCSS.
+     * @deprecated This method is deprecated and will get removed.
      */
     void ClearCustomCSS();
 #endif

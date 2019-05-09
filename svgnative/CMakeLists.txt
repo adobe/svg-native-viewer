@@ -13,6 +13,9 @@ project(SVGNativeViewer)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11)
 
+# Enable CSS style support. This feature is deprecated and will get removed.
+#add_definitions(-DSTYLE_SUPPORT)
+
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8.1)
         message(FATAL_ERROR "Minimum supported GCC version: 4.8.1. Currently used version: ${CMAKE_CXX_COMPILER_VERSION}")

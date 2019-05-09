@@ -13,8 +13,12 @@ governing permissions and limitations under the License.
 #pragma once
 
 #include "SVGRenderer.h"
+#ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"
+#else
+#include "StyleSheet/PropertySet.h"
+#endif
 
 #include <array>
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
@@ -215,9 +219,11 @@ private:
     std::stack<StrokeStyleImpl> mStrokeStyleStack;
     std::stack<FillStyleImpl> mFillStyleStack;
 
+#ifdef STYLE_SUPPORT
     const StyleSheet::CssDocument* mOverrideStyle{};
     StyleSheet::CssDocument mCSSInfo;
     StyleSheet::CssDocument mCustomCSSInfo;
+#endif
 
     std::map<std::string, GradientImpl> mGradients;
     std::map<std::string, XMLNode*> mResourceIDs;

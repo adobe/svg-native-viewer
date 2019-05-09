@@ -571,6 +571,7 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
 {
     std::vector<StyleSheet::CssPropertySet> propertySets;
     propertySets.push_back(ParsePresentationAttributes(node));
+#ifdef STYLE_SUPPORT
     auto attr = node->first_attribute("style");
     if (attr)
     {
@@ -578,7 +579,6 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
         auto cssElement = cssDoc.getElements().front();
         propertySets.push_back(cssElement.getProperties());
     }
-#ifdef STYLE_SUPPORT
     // Warning: The inheritance order is incorrect but required by current clients at this point.
     // The code is going to get removed once clients do no longer use "<style>" or
     // override styles.
@@ -596,7 +596,12 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
             propertySets.push_back(cssElement.getProperties());
         }
     }
+#else
+    (void)classNames;
+    auto
 #endif
+    attr = node->first_attribute("transform");
+
     GraphicStyleImpl graphicStyle{};
     for (const auto& propertySet : propertySets)
     {
@@ -605,7 +610,6 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
         ParseStrokeProperties(strokeStyle, propertySet);
     }
 
-    attr = node->first_attribute("transform");
     if (attr)
     {
         auto transformHandler = [&]() {
@@ -1065,10 +1069,10 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     mRenderer->Restore();
 }
 
+#ifdef STYLE_SUPPORT
 void SVGDocumentImpl::ApplyCSSStyle(
     const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle)
 {
-#ifdef STYLE_SUPPORT
     if (!mOverrideStyle)
         return;
 
@@ -1084,8 +1088,11 @@ void SVGDocumentImpl::ApplyCSSStyle(
         ParseFillProperties(fillStyle, properties);
         ParseStrokeProperties(strokeStyle, properties);
     }
-#endif
 }
+#else
+void SVGDocumentImpl::ApplyCSSStyle(
+    const std::set<std::string>&, GraphicStyleImpl&, FillStyleImpl&, StrokeStyleImpl&) {}
+#endif
 
 void SVGDocumentImpl::AddChildToCurrentGroup(std::unique_ptr<Element> element)
 {
