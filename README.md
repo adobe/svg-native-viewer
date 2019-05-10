@@ -8,7 +8,7 @@ SVG Native viewer is a library that parses and renders SVG Native documents.
 SVG Native is an upcoming specification of the SVG WG based on [SVG OpenType](https://docs.microsoft.com/en-us/typography/opentype/spec/svg). SVG Native will be a strict subset of SVG 1.1 and SVG 2.0.
 
 ### A collection of supported features in SVG Native (in comparison to SVG1.1/SVG2)
-* No stylesheet support (CSS/XSL) with the exception of the `style` attribute (only CSS property/value pairs), its basic inheritance model and the following presentation attributes:
+* No stylesheet support (CSS/XSL) with the exception of the its basic inheritance model and the following presentation attributes:
     * `clip-path`
     * `clip-rule`
     * `color`
@@ -86,7 +86,7 @@ git submodule update --init
 ```
 
 Submodules are located in the `third_party/` directory. Used submodules:
-* [stylesheet](https://github.com/adobe/stylesheet/tree/modifications) **(required)**
+* [stylesheet](https://github.com/adobe/stylesheet/tree/modifications) **(optional)** Needed if compiled with CSS style support (deprecated).
 * [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64) **(optional)** Needed by some ports for decoding base64 encoded raster image support.
 
 ### Windows
@@ -144,6 +144,9 @@ The following arguments can be passed with the `-D` flag and the options `ON` or
 
 Each port includes an example project using the port. To disable the example projects set the following option to `OFF`. Default `ON`.
 * `LIBRARY_ONLY`
+
+To enable deprecated CSS styling support:
+* `STYLE` adds limited, deprecated support for `<style>` element and `style` attribute.
 
 The following example creates project files for the library with the Text, CoreGraphics/Quartz2D and Skia port and the example applications.
 **Example:**

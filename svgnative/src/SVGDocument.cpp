@@ -13,8 +13,10 @@ governing permissions and limitations under the License.
 #include "SVGDocument.h"
 #include "SVGDocumentImpl.h"
 #include "SVGRenderer.h"
+#ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"
+#endif
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>

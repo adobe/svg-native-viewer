@@ -13,8 +13,6 @@ project(SVGNativeViewer)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11)
 
-# Enable CSS style support. This feature is deprecated and will get removed.
-#add_definitions(-DSTYLE_SUPPORT)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8.1)
@@ -37,6 +35,7 @@ option(LIB_ONLY "Create a project for library only" OFF)
 option(TEXT "Enable Text port for testing" ON)
 option(CG "Enable CoreGraphics/Quartz2D port")
 option(SKIA "Enable Skia port")
+option(STYLE "Enable deprecated CSS Styling support")
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
@@ -71,6 +70,11 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 endif()
 
+if(STYLE)
+    # Enable CSS style support. This feature is deprecated and will get removed.
+    add_definitions(-DSTYLE_SUPPORT)
+endif()
+
 ##############################
 # Demo/Testing applications
 ##############################
@@ -99,6 +103,13 @@ file(GLOB gl_source
     src/SVGStringParser.h
     src/SVGStringParser.cpp
 )
+
+set(gl_deprecated_styling)
+if(STYLE)
+file(GLOB gl_deprecated_styling
+    src/DeprecatedSVGDocumentImpl.cpp
+)
+endif()
 
 ##############################
 # Rendering ports
@@ -135,6 +146,7 @@ endif()
 add_library(
     SVGNativeViewerLib STATIC    
     ${gl_public}
+    ${gl_deprecated_styling}
     ${gl_source}
     ${text_port}
     ${cg_port}

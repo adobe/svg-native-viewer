@@ -16,8 +16,6 @@ governing permissions and limitations under the License.
 #ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"
-#else
-#include "StyleSheet/PropertySet.h"
 #endif
 
 #include <array>
@@ -46,6 +44,7 @@ using Variable = std::pair<std::string, Color>;
 using ColorImpl = boost::variant<Color, Variable, ColorKeys>;
 using PaintImpl = boost::variant<Color, GradientImpl, Variable, ColorKeys>;
 using ColorStopImpl = std::tuple<float, ColorImpl, float>;
+using PropertySet = std::map<std::string, std::string>;
 
 struct GradientImpl : public Gradient
 {
@@ -193,19 +192,18 @@ private:
     std::unique_ptr<Path> ParseShape(XMLNode* node);
 
     GraphicStyleImpl ParseGraphic(XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
-    void ParseFillProperties(FillStyleImpl& fillStyle, const StyleSheet::CssPropertySet& propertySet);
-    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const StyleSheet::CssPropertySet& propertySet);
-    void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const StyleSheet::CssPropertySet& propertySet);
+    void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet);
+    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet);
+    void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const PropertySet& propertySet);
 
-    StyleSheet::CssPropertySet ParsePresentationAttributes(XMLNode* node);
-
-#ifdef STYLE_SUPPORT
-    void ParseStyle(XMLNode* child);
-#endif
+    PropertySet ParsePresentationAttributes(XMLNode* node);
 
     void TraverseTree(const ColorMap& colorMap, const Element*);
+
     void ApplyCSSStyle(
         const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle);
+    void ParseStyleAttr(XMLNode* node, std::vector<PropertySet>& propertySets, std::set<std::string>& classNames);
+    void ParseStyle(XMLNode* child);
 
     void AddChildToCurrentGroup(std::unique_ptr<Element> element);
 
