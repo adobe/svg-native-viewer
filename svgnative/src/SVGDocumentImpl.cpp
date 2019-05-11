@@ -92,6 +92,11 @@ void SVGDocumentImpl::TraverseSVGTree()
 #endif
 
     ParseChildren(rootNode);
+
+    // Clear all temporary sets
+    mGradients.clear();
+    mResourceIDs.clear();
+    mClippingPaths.clear();
 }
 
 bool SVGDocumentImpl::HasAttr(XMLNode* node, const char* attrName)

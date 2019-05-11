@@ -33,6 +33,7 @@ std::unique_ptr<SVGDocument> SVGDocument::CreateSVGDocument(const char* s, std::
         auto realSVGDoc = std::unique_ptr<SVGDocumentImpl>(new SVGDocumentImpl(renderer));
         realSVGDoc->mXMLDocument.parse<0>((char*)s); // 0 means default parse flags
         realSVGDoc->TraverseSVGTree();
+        realSVGDoc->mXMLDocument.clear();
 
         auto retval = new SVGDocument();
         retval->mDocument = std::move(realSVGDoc);
