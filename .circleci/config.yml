@@ -16,7 +16,7 @@ jobs:
       - run: git submodule update --init
       - run:
           name: Creating Build Files
-          command: 'cd svgnative && cmake -Bbuild/linux -H.' -DSTYLE=ON
+          command: 'cd svgnative && cmake -Bbuild/linux -H. -DSTYLE=ON'
       - run:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/linux'
