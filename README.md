@@ -86,7 +86,7 @@ git submodule update --init
 ```
 
 Submodules are located in the `third_party/` directory. Used submodules:
-* [stylesheet](https://github.com/adobe/stylesheet/tree/modifications) **(optional)** Needed if compiled with CSS style support (deprecated).
+* [stylesheet](https://github.com/adobe/stylesheet/tree/modifications) **(optional)** Needed if compiled with limited CSS style support (deprecated).
 * [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64) **(optional)** Needed by some ports for decoding base64 encoded raster image support.
 
 ### Windows

@@ -16,14 +16,6 @@ governing permissions and limitations under the License.
 
 namespace SVGNative
 {
-inline PropertySet FromCssPropertySet(const StyleSheet::CssPropertySet& cssPropertySet)
-{
-    PropertySet propertySet;
-    for (const auto& prop : cssPropertySet.getPropertyList())
-        propertySet.insert({prop.getName(), prop.getValue()});
-    return propertySet;
-}
-
 void SVGDocumentImpl::AddCustomCSS(const StyleSheet::CssDocument* cssDocument) { mOverrideStyle = cssDocument; }
 
 void SVGDocumentImpl::ClearCustomCSS()
@@ -105,7 +97,7 @@ void SVGDocumentImpl::ApplyCSSStyle(
             continue;
 
         auto cssElement = mOverrideStyle->getElement(selector);
-        auto properties = FromCssPropertySet(cssElement.getProperties());
+        auto properties = cssElement.getProperties();
         ParseGraphicsProperties(graphicStyle, properties);
         ParseFillProperties(fillStyle, properties);
         ParseStrokeProperties(strokeStyle, properties);
@@ -119,7 +111,7 @@ void SVGDocumentImpl::ParseStyleAttr(XMLNode* node, std::vector<PropertySet>& pr
     {
         auto cssDoc = StyleSheet::CssDocument::parse(attr->value());
         auto cssElement = cssDoc.getElements().front();
-        propertySets.push_back(FromCssPropertySet(cssElement.getProperties()));
+        propertySets.push_back(cssElement.getProperties());
     }
     // Warning: The inheritance order is incorrect but required by current clients at this point.
     // The code is going to get removed once clients do no longer use "<style>" or
@@ -135,7 +127,7 @@ void SVGDocumentImpl::ParseStyleAttr(XMLNode* node, std::vector<PropertySet>& pr
             classNames.insert(*it);
             auto selector = StyleSheet::CssSelector::CssClassSelector(*it);
             auto cssElement = mCSSInfo.getElement(selector);
-            propertySets.push_back(FromCssPropertySet(cssElement.getProperties()));
+            propertySets.push_back(cssElement.getProperties());
         }
     }
 }

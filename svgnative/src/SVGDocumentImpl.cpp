@@ -1091,7 +1091,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element* elem
     }
 }
 
-#ifdef STYLE_SUPPORT
+#ifndef STYLE_SUPPORT
 // Deprecated style support
 void SVGDocumentImpl::ApplyCSSStyle(
     const std::set<std::string>&, GraphicStyleImpl&, FillStyleImpl&, StrokeStyleImpl&) {}
