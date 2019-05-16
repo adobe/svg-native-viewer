@@ -13,8 +13,10 @@ governing permissions and limitations under the License.
 #pragma once
 
 #include "SVGRenderer.h"
+#ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"
+#endif
 
 #include <array>
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
@@ -42,6 +44,11 @@ using Variable = std::pair<std::string, Color>;
 using ColorImpl = boost::variant<Color, Variable, ColorKeys>;
 using PaintImpl = boost::variant<Color, GradientImpl, Variable, ColorKeys>;
 using ColorStopImpl = std::tuple<float, ColorImpl, float>;
+#ifdef STYLE_SUPPORT
+using PropertySet = StyleSheet::CssPropertySet;
+#else
+using PropertySet = std::map<std::string, std::string>;
+#endif
 
 struct GradientImpl : public Gradient
 {
@@ -161,9 +168,10 @@ public:
         kDiagonal
     };
 
+#ifdef STYLE_SUPPORT
     void AddCustomCSS(const StyleSheet::CssDocument* cssDocument);
     void ClearCustomCSS();
-
+#endif
     void Render(const ColorMap& colorMap, float width, float height);
 
     XMLDocument mXMLDocument;
@@ -188,17 +196,18 @@ private:
     std::unique_ptr<Path> ParseShape(XMLNode* node);
 
     GraphicStyleImpl ParseGraphic(XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
-    void ParseFillProperties(FillStyleImpl& fillStyle, const StyleSheet::CssPropertySet& propertySet);
-    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const StyleSheet::CssPropertySet& propertySet);
-    void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const StyleSheet::CssPropertySet& propertySet);
+    void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet);
+    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet);
+    void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const PropertySet& propertySet);
 
-    StyleSheet::CssPropertySet ParsePresentationAttributes(XMLNode* node);
-
-    void ParseStyle(XMLNode* child);
+    PropertySet ParsePresentationAttributes(XMLNode* node);
 
     void TraverseTree(const ColorMap& colorMap, const Element*);
+
     void ApplyCSSStyle(
         const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle);
+    void ParseStyleAttr(XMLNode* node, std::vector<PropertySet>& propertySets, std::set<std::string>& classNames);
+    void ParseStyle(XMLNode* child);
 
     void AddChildToCurrentGroup(std::unique_ptr<Element> element);
 
@@ -212,9 +221,11 @@ private:
     std::stack<StrokeStyleImpl> mStrokeStyleStack;
     std::stack<FillStyleImpl> mFillStyleStack;
 
+#ifdef STYLE_SUPPORT
     const StyleSheet::CssDocument* mOverrideStyle{};
     StyleSheet::CssDocument mCSSInfo;
     StyleSheet::CssDocument mCustomCSSInfo;
+#endif
 
     std::map<std::string, GradientImpl> mGradients;
     std::map<std::string, XMLNode*> mResourceIDs;

@@ -13,8 +13,10 @@ governing permissions and limitations under the License.
 #include "SVGDocument.h"
 #include "SVGDocumentImpl.h"
 #include "SVGRenderer.h"
+#ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"
+#endif
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
@@ -75,8 +77,9 @@ std::int32_t SVGDocument::Height() const { return static_cast<std::int32_t>(mDoc
 
 SVGRenderer* SVGDocument::Renderer() const { return mDocument->mRenderer.get(); }
 
+#ifdef STYLE_SUPPORT
 void SVGDocument::AddCustomCSS(const StyleSheet::CssDocument* cssDocument) { mDocument->AddCustomCSS(cssDocument); }
 
 void SVGDocument::ClearCustomCSS() { mDocument->ClearCustomCSS(); }
-
+#endif
 } // namespace SVGNative
