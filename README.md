@@ -8,7 +8,7 @@ SVG Native viewer is a library that parses and renders SVG Native documents.
 SVG Native is an upcoming specification of the SVG WG based on [SVG OpenType](https://docs.microsoft.com/en-us/typography/opentype/spec/svg). SVG Native will be a strict subset of SVG 1.1 and SVG 2.0.
 
 ### A collection of supported features in SVG Native (in comparison to SVG1.1/SVG2)
-* No stylesheet support (CSS/XSL) with the exception of the its basic inheritance model and the following presentation attributes:
+* No stylesheet support (CSS/XSL) with the exception of the basic inheritance model and the following presentation attributes:
     * `clip-path`
     * `clip-rule`
     * `color`

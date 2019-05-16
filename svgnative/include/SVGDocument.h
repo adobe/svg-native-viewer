@@ -21,10 +21,12 @@ governing permissions and limitations under the License.
 #include <string>
 #include <vector>
 
+#ifdef STYLE_SUPPORT
 namespace StyleSheet
 {
 class CssDocument;
 }
+#endif
 
 namespace SVGNative
 {
