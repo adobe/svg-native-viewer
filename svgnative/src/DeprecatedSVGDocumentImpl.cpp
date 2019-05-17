@@ -110,8 +110,11 @@ void SVGDocumentImpl::ParseStyleAttr(XMLNode* node, std::vector<PropertySet>& pr
     if (attr)
     {
         auto cssDoc = StyleSheet::CssDocument::parse(attr->value());
-        auto cssElement = cssDoc.getElements().front();
-        propertySets.push_back(cssElement.getProperties());
+        auto cssElements = cssDoc.getElements();
+        if (!cssElements.empty())
+        {
+            propertySets.push_back(cssElements.front().getProperties());
+        }
     }
     // Warning: The inheritance order is incorrect but required by current clients at this point.
     // The code is going to get removed once clients do no longer use "<style>" or
