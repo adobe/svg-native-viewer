@@ -92,6 +92,11 @@ void SVGDocumentImpl::TraverseSVGTree()
 #endif
 
     ParseChildren(rootNode);
+
+    // Clear all temporary sets
+    mGradients.clear();
+    mResourceIDs.clear();
+    mClippingPaths.clear();
 }
 
 bool SVGDocumentImpl::HasAttr(XMLNode* node, const char* attrName)
@@ -201,12 +206,12 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             }
             else if (dataURL.find("data:image/jpg;base64,") == 0)
             {
-                encoding = ImageEncoding::kPNG;
+                encoding = ImageEncoding::kJPEG;
                 base64Offset = 22;
             }
             else if (dataURL.find("data:image/jpeg;base64,") == 0)
             {
-                encoding = ImageEncoding::kPNG;
+                encoding = ImageEncoding::kJPEG;
                 base64Offset = 23;
             }
             else
@@ -565,32 +570,10 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames)
 {
-    std::vector<StyleSheet::CssPropertySet> propertySets;
+    std::vector<PropertySet> propertySets;
     propertySets.push_back(ParsePresentationAttributes(node));
-    auto attr = node->first_attribute("style");
-    if (attr)
-    {
-        auto cssDoc = StyleSheet::CssDocument::parse(attr->value());
-        auto cssElement = cssDoc.getElements().front();
-        propertySets.push_back(cssElement.getProperties());
-    }
-    // Warning: The inheritance order is incorrect but required by current clients at this point.
-    // The code is going to get removed once clients do no longer use "<style>" or
-    // override styles.
-    attr = node->first_attribute("class");
-    if (attr)
-    {
-        boost::char_separator<char> sep("\n\r\t ");
-        std::string cssString = attr->value();
-        boost::tokenizer<boost::char_separator<char>> tok(cssString, sep);
-        for (boost::tokenizer<boost::char_separator<char>>::iterator it = tok.begin(); it != tok.end(); ++it)
-        {
-            classNames.insert(*it);
-            auto selector = StyleSheet::CssSelector::CssClassSelector(*it);
-            auto cssElement = mCSSInfo.getElement(selector);
-            propertySets.push_back(cssElement.getProperties());
-        }
-    }
+    ParseStyleAttr(node, propertySets, classNames);
+
     GraphicStyleImpl graphicStyle{};
     for (const auto& propertySet : propertySets)
     {
@@ -599,7 +582,7 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
         ParseStrokeProperties(strokeStyle, propertySet);
     }
 
-    attr = node->first_attribute("transform");
+    auto attr = node->first_attribute("transform");
     if (attr)
     {
         auto transformHandler = [&]() {
@@ -612,13 +595,13 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     return graphicStyle;
 }
 
-StyleSheet::CssPropertySet SVGDocumentImpl::ParsePresentationAttributes(XMLNode* node)
+PropertySet SVGDocumentImpl::ParsePresentationAttributes(XMLNode* node)
 {
-    StyleSheet::CssPropertySet propertySet;
+    PropertySet propertySet;
     auto attributeHandler = [&](const std::string& propertyName) {
         auto attr = node->first_attribute(propertyName.c_str());
         if (attr)
-            propertySet.add({propertyName, attr->value()});
+            propertySet.insert({propertyName, attr->value()});
     };
     for (const auto& propertyName : gInheritedPropertyNames)
         attributeHandler(propertyName);
@@ -627,30 +610,31 @@ StyleSheet::CssPropertySet SVGDocumentImpl::ParsePresentationAttributes(XMLNode*
     return propertySet;
 }
 
-void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const StyleSheet::CssPropertySet& propertySet)
+void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet)
 {
-    auto prop = propertySet.getProperty("fill");
-    if (prop.isValid())
+    auto prop = propertySet.find("fill");
+    auto iterEnd = propertySet.end();
+    if (prop != iterEnd)
     {
-        auto result = SVGStringParser::ParsePaint(prop.getValue().c_str(), mGradients, mViewBox, fillStyle.internalPaint);
+        auto result = SVGStringParser::ParsePaint(prop->second.c_str(), mGradients, mViewBox, fillStyle.internalPaint);
         if (result == SVGDocumentImpl::Result::kDisabled)
             fillStyle.hasFill = false;
         else if (result == SVGDocumentImpl::Result::kSuccess)
             fillStyle.hasFill = true;
     }
 
-    prop = propertySet.getProperty("fill-opacity");
-    if (prop.isValid())
+    prop = propertySet.find("fill-opacity");
+    if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop.getValue().c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
             fillStyle.fillOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
-    prop = propertySet.getProperty("fill-rule");
-    if (prop.isValid())
+    prop = propertySet.find("fill-rule");
+    if (prop != iterEnd)
     {
-        auto fillRuleString = std::string(prop.getValue().c_str());
+        auto fillRuleString = std::string(prop->second.c_str());
         if (fillRuleString == "evenodd")
             fillStyle.fillRule = WindingRule::kEvenOdd;
         else if (fillRuleString == "nonzero")
@@ -658,41 +642,42 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const StyleS
     }
 
     // Other inherited properties
-    prop = propertySet.getProperty("color");
-    if (prop.isValid())
+    prop = propertySet.find("color");
+    if (prop != iterEnd)
     {
         ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-        auto result = SVGStringParser::ParseColor(prop.getValue().c_str(), color, false);
+        auto result = SVGStringParser::ParseColor(prop->second.c_str(), color, false);
         if (result == SVGDocumentImpl::Result::kSuccess)
             fillStyle.color = color;
     }
 
-    prop = propertySet.getProperty("visibility");
-    if (prop.isValid())
+    prop = propertySet.find("visibility");
+    if (prop != iterEnd)
     {
-        auto visibilityString = std::string(prop.getValue().c_str());
+        auto visibilityString = std::string(prop->second.c_str());
         if (visibilityString == "hidden")
             fillStyle.visibility = false;
         else if (visibilityString == "collapse" || visibilityString == "visible")
             fillStyle.visibility = true;
     }
 
-    prop = propertySet.getProperty("clip-rule");
-    if (prop.isValid())
+    prop = propertySet.find("clip-rule");
+    if (prop != iterEnd)
     {
-        if (std::string(prop.getValue().c_str()) == "evenodd")
+        if (std::string(prop->second.c_str()) == "evenodd")
             fillStyle.clipRule = WindingRule::kEvenOdd;
-        else if (std::string(prop.getValue().c_str()) == "nonzero")
+        else if (std::string(prop->second.c_str()) == "nonzero")
             fillStyle.clipRule = WindingRule::kNonZero;
     }
 }
 
-void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const StyleSheet::CssPropertySet& propertySet)
+void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet)
 {
-    auto prop = propertySet.getProperty("stroke");
-    if (prop.isValid())
+    auto prop = propertySet.find("stroke");
+    auto iterEnd = propertySet.end();
+    if (prop != iterEnd)
     {
-        std::string strokeValue = prop.getValue();
+        std::string strokeValue = prop->second;
         auto result = SVGStringParser::ParsePaint(strokeValue.c_str(), mGradients, mViewBox, strokeStyle.internalPaint);
         if (result == SVGDocumentImpl::Result::kDisabled)
             strokeStyle.hasStroke = false;
@@ -700,12 +685,12 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
             strokeStyle.hasStroke = true;
     }
 
-    prop = propertySet.getProperty("stroke-width");
-    if (prop.isValid())
+    prop = propertySet.find("stroke-width");
+    if (prop != iterEnd)
     {
         float strokeWidth{};
         // Ignore stroke-width if invalid or negative.
-        if (SVGStringParser::ParseLengthOrPercentage(prop.getValue(), RelativeLength(LengthType::kDiagonal), strokeWidth, true)
+        if (SVGStringParser::ParseLengthOrPercentage(prop->second, RelativeLength(LengthType::kDiagonal), strokeWidth, true)
             && strokeWidth >= 0)
             strokeStyle.lineWidth = strokeWidth;
         // Disable stroke on a stroke-width of 0.
@@ -713,46 +698,46 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
             strokeStyle.hasStroke = false;
     }
 
-    prop = propertySet.getProperty("stroke-linecap");
-    if (prop.isValid())
+    prop = propertySet.find("stroke-linecap");
+    if (prop != iterEnd)
     {
-        if (prop.getValue() == "round")
+        if (prop->second == "round")
             strokeStyle.lineCap = LineCap::kRound;
-        else if (prop.getValue() == "square")
+        else if (prop->second == "square")
             strokeStyle.lineCap = LineCap::kSquare;
     }
 
-    prop = propertySet.getProperty("stroke-linejoin");
-    if (prop.isValid())
+    prop = propertySet.find("stroke-linejoin");
+    if (prop != iterEnd)
     {
-        if (prop.getValue() == "round")
+        if (prop->second == "round")
             strokeStyle.lineJoin = LineJoin::kRound;
-        else if (prop.getValue() == "bevel")
+        else if (prop->second == "bevel")
             strokeStyle.lineJoin = LineJoin::kBevel;
     }
 
-    prop = propertySet.getProperty("stroke-miterlimit");
-    if (prop.isValid())
+    prop = propertySet.find("stroke-miterlimit");
+    if (prop != iterEnd)
     {
         float miter{};
         // Miter must be bigger 1. Otherwise ignore.
-        if (SVGStringParser::ParseNumber(prop.getValue().c_str(), miter) && miter >= 1)
+        if (SVGStringParser::ParseNumber(prop->second.c_str(), miter) && miter >= 1)
             strokeStyle.miterLimit = miter;
     }
 
-    prop = propertySet.getProperty("stroke-dashoffset");
-    if (prop.isValid())
+    prop = propertySet.find("stroke-dashoffset");
+    if (prop != iterEnd)
     {
         float strokeDashoffset{};
-        if (SVGStringParser::ParseLengthOrPercentage(prop.getValue(), RelativeLength(LengthType::kDiagonal), strokeDashoffset, true))
+        if (SVGStringParser::ParseLengthOrPercentage(prop->second, RelativeLength(LengthType::kDiagonal), strokeDashoffset, true))
             strokeStyle.dashOffset = strokeDashoffset;
     }
 
-    prop = propertySet.getProperty("stroke-dasharray");
-    if (prop.isValid())
+    prop = propertySet.find("stroke-dasharray");
+    if (prop != iterEnd)
     {
         float diagonal = sqrtf(mViewBox[2] * mViewBox[2] + mViewBox[3] * mViewBox[3]);
-        if (!SVGStringParser::ParseListOfLengthOrPercentage(prop.getValue().c_str(), diagonal, strokeStyle.dashArray, true))
+        if (!SVGStringParser::ParseListOfLengthOrPercentage(prop->second.c_str(), diagonal, strokeStyle.dashArray, true))
             strokeStyle.dashArray.clear();
         for (auto it = strokeStyle.dashArray.begin(); it < strokeStyle.dashArray.end(); ++it)
         {
@@ -764,119 +749,62 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
         }
     }
 
-    prop = propertySet.getProperty("stroke-opacity");
-    if (prop.isValid())
+    prop = propertySet.find("stroke-opacity");
+    if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop.getValue().c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
             strokeStyle.strokeOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 }
 
-void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, const StyleSheet::CssPropertySet& propertySet)
+void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, const PropertySet& propertySet)
 {
-    auto prop = propertySet.getProperty("opacity");
-    if (prop.isValid())
+    auto prop = propertySet.find("opacity");
+    auto iterEnd = propertySet.end();
+    if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop.getValue().c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
             graphicStyle.opacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
-    prop = propertySet.getProperty("clip-path");
-    if (prop.isValid())
+    prop = propertySet.find("clip-path");
+    if (prop != iterEnd)
     {
         // FIXME: Use proper parser.
         auto urlLength = strlen("url(#");
-        std::string id = prop.getValue();
+        std::string id = prop->second;
         id = id.substr(urlLength, id.size() - urlLength - 1);
         auto clippingPathIt = mClippingPaths.find(id);
         if (clippingPathIt != mClippingPaths.end())
             graphicStyle.clippingPath = clippingPathIt->second;
     }
 
-    prop = propertySet.getProperty("display");
-    if (prop.isValid())
+    prop = propertySet.find("display");
+    if (prop != iterEnd)
     {
-        std::string displayString = prop.getValue();
+        std::string displayString = prop->second;
         if (displayString.compare("none"))
             graphicStyle.display = false;
     }
 
-    prop = propertySet.getProperty("stop-opacity");
-    if (prop.isValid())
+    prop = propertySet.find("stop-opacity");
+    if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop.getValue().c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
             graphicStyle.stopOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
-    prop = propertySet.getProperty("stop-color");
-    if (prop.isValid())
+    prop = propertySet.find("stop-color");
+    if (prop != iterEnd)
     {
         ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-        auto result = SVGStringParser::ParseColor(prop.getValue().c_str(), color, true);
+        auto result = SVGStringParser::ParseColor(prop->second.c_str(), color, true);
         if (result == SVGDocumentImpl::Result::kSuccess)
             graphicStyle.stopColor = color;
     }
-}
-
-void SVGDocumentImpl::ParseStyle(XMLNode* child)
-{
-    SVG_ASSERT(mCSSInfo.getElements().size() == 0); // otherwise we need to merge with existing mCSSInfo
-
-    // StyleSheet Library expects one definition per line, so we need to
-    // format the string accordingly.
-    std::string styleSheet = std::string(child->value());
-
-    SVG_CSS_TRACE("ParseStyle INPUT:\n" << styleSheet);
-
-    // strip out all line breaks
-    boost::replace_all(styleSheet, "\r\n", " ");
-    boost::replace_all(styleSheet, "\r", " ");
-    boost::replace_all(styleSheet, "\n", " ");
-    // trim whitespace from head & tail of string
-    boost::trim(styleSheet);
-    // put each definition on its own line
-    boost::replace_all(styleSheet, "} ", "}\n");
-
-    SVG_CSS_TRACE("ParseStyle CLEANED:\n" << styleSheet);
-
-    std::string output;
-
-    boost::tokenizer<boost::char_separator<char>> cssLines(styleSheet, boost::char_separator<char>("\n"));
-    for (boost::tokenizer<boost::char_separator<char>>::iterator it = cssLines.begin(); it != cssLines.end(); ++it)
-    {
-        std::string cssLine{*it};
-        boost::trim(cssLine);
-
-        if (cssLine.find(",") == std::string::npos)
-        {
-            output.append(cssLine);
-            output.append("\n");
-        }
-        else
-        {
-            auto dataStart = cssLine.find("{");
-            std::string cssData(cssLine.substr(dataStart, cssLine.find("}") - dataStart + 1));
-
-            std::string cssClasses(cssLine.substr(0, dataStart));
-
-            boost::tokenizer<boost::char_separator<char>> cssClassTokens(cssClasses, boost::char_separator<char>(","));
-            for (boost::tokenizer<boost::char_separator<char>>::iterator itc = cssClassTokens.begin(); itc != cssClassTokens.end(); ++itc)
-            {
-                output.append(*itc);
-                output.append(" ");
-                output.append(cssData);
-                output.append("\n");
-            }
-        }
-    }
-
-    SVG_CSS_TRACE("ParseStyle OUTPUT:\n" << output);
-
-    // parse style sheet
-    mCSSInfo = StyleSheet::CssDocument::parse(output);
 }
 
 float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
@@ -1024,16 +952,6 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
         mGradients.insert({attr->value(), gradient});
 }
 
-void SVGDocumentImpl::AddCustomCSS(const StyleSheet::CssDocument* cssDocument) { mOverrideStyle = cssDocument; }
-
-void SVGDocumentImpl::ClearCustomCSS()
-{
-    const auto elements = mCustomCSSInfo.getElements();
-    for (const auto& element : elements)
-        mCustomCSSInfo.removeElement(element.getSelector());
-    mOverrideStyle = nullptr;
-}
-
 void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height)
 {
     SVG_ASSERT(mGroup);
@@ -1053,26 +971,6 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     TraverseTree(colorMap, mGroup.get());
 
     mRenderer->Restore();
-}
-
-void SVGDocumentImpl::ApplyCSSStyle(
-    const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle)
-{
-    if (!mOverrideStyle)
-        return;
-
-    for (const auto& className : classNames)
-    {
-        auto selector = StyleSheet::CssSelector::CssClassSelector(className);
-        if (!mOverrideStyle->hasSelector(selector))
-            continue;
-
-        auto cssElement = mOverrideStyle->getElement(selector);
-        auto properties = cssElement.getProperties();
-        ParseGraphicsProperties(graphicStyle, properties);
-        ParseFillProperties(fillStyle, properties);
-        ParseStrokeProperties(strokeStyle, properties);
-    }
 }
 
 void SVGDocumentImpl::AddChildToCurrentGroup(std::unique_ptr<Element> element)
@@ -1197,5 +1095,13 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element* elem
         SVG_ASSERT_MSG(false, "Unknown element type");
     }
 }
+
+#ifndef STYLE_SUPPORT
+// Deprecated style support
+void SVGDocumentImpl::ApplyCSSStyle(
+    const std::set<std::string>&, GraphicStyleImpl&, FillStyleImpl&, StrokeStyleImpl&) {}
+void SVGDocumentImpl::ParseStyleAttr(XMLNode*, std::vector<PropertySet>&, std::set<std::string>&) {}
+void SVGDocumentImpl::ParseStyle(XMLNode*) {}
+#endif
 
 } // namespace SVGNative

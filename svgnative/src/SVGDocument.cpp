@@ -13,8 +13,10 @@ governing permissions and limitations under the License.
 #include "SVGDocument.h"
 #include "SVGDocumentImpl.h"
 #include "SVGRenderer.h"
+#ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"
+#endif
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
@@ -33,6 +35,7 @@ std::unique_ptr<SVGDocument> SVGDocument::CreateSVGDocument(const char* s, std::
         auto realSVGDoc = std::unique_ptr<SVGDocumentImpl>(new SVGDocumentImpl(renderer));
         realSVGDoc->mXMLDocument.parse<0>((char*)s); // 0 means default parse flags
         realSVGDoc->TraverseSVGTree();
+        realSVGDoc->mXMLDocument.clear();
 
         auto retval = new SVGDocument();
         retval->mDocument = std::move(realSVGDoc);
@@ -75,8 +78,9 @@ std::int32_t SVGDocument::Height() const { return static_cast<std::int32_t>(mDoc
 
 SVGRenderer* SVGDocument::Renderer() const { return mDocument->mRenderer.get(); }
 
+#ifdef STYLE_SUPPORT
 void SVGDocument::AddCustomCSS(const StyleSheet::CssDocument* cssDocument) { mDocument->AddCustomCSS(cssDocument); }
 
 void SVGDocument::ClearCustomCSS() { mDocument->ClearCustomCSS(); }
-
+#endif
 } // namespace SVGNative
