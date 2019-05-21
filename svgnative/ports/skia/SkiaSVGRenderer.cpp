@@ -200,6 +200,7 @@ void SkiaSVGRenderer::DrawPath(
     {
         SkPaint stroke;
         stroke.setStyle(SkPaint::kStroke_Style);
+        stroke.setStrokeWidth(strokeStyle.lineWidth);
         CreateSkPaint(strokeStyle.paint, strokeStyle.strokeOpacity, stroke);
         mCanvas->drawPath(static_cast<const SkiaSVGPath&>(path).mPath, stroke);
     }
