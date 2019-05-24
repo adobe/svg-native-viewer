@@ -53,8 +53,8 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
 
     GraphicStyleImpl graphicStyle{};
     std::set<std::string> classNames;
-    mGroup = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-    mGroupStack.push(mGroup.get());
+    mGroup = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+    mGroupStack.push(mGroup);
 }
 
 void SVGDocumentImpl::TraverseSVGTree()
@@ -154,11 +154,15 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     std::set<std::string> classNames;
     auto graphicStyle = ParseGraphic(child, fillStyle, strokeStyle, classNames);
 
+    std::string idString;
+    if (auto idAttr = child->first_attribute("id"))
+        idString = idAttr->value();
+
     // Check if we have a shape rect, circle, ellipse, line, polygon, polyline
     // or path first.
     if (auto path = ParseShape(child))
     {
-        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))));
+        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))), idString);
         return;
     }
 
@@ -169,10 +173,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mFillStyleStack.push(fillStyle);
         mStrokeStyleStack.push(strokeStyle);
 
-        auto group = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-        auto tempGroupPtr = group.get();
-        AddChildToCurrentGroup(std::move(group));
-        mGroupStack.push(tempGroupPtr);
+        auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+        AddChildToCurrentGroup(group, idString);
+        mGroupStack.push(group);
 
         ParseChildren(child);
 
@@ -307,7 +310,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             if (imageWidth && imageHeight && clipArea.width && clipArea.height && fillArea.width && fillArea.height)
             {
                 auto image = std::unique_ptr<Image>(new Image(graphicStyle, classNames, std::move(imageData), clipArea, fillArea));
-                AddChildToCurrentGroup(std::move(image));
+                AddChildToCurrentGroup(std::move(image), idString);
             }
         }
     }
@@ -327,9 +330,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             transform->Concat(*graphicStyle.transform);
         graphicStyle.transform = std::move(transform);
 
-        auto group = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-        mGroupStack.push(group.get());
-        AddChildToCurrentGroup(std::move(group));
+        auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+        mGroupStack.push(group);
+        AddChildToCurrentGroup(group, idString);
 
         ParseChildren(resourceIt->second);
 
@@ -350,9 +353,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             }
         }
 
-        auto group = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-        mGroupStack.push(group.get());
-        AddChildToCurrentGroup(std::move(group));
+        auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+        mGroupStack.push(group);
+        AddChildToCurrentGroup(group, idString);
 
         ParseChildren(child);
 
@@ -973,13 +976,16 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     mRenderer->Restore();
 }
 
-void SVGDocumentImpl::AddChildToCurrentGroup(std::unique_ptr<Element> element)
+void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString)
 {
     SVG_ASSERT(!mGroupStack.empty());
     if (mGroupStack.empty())
         return;
 
-    mGroupStack.top()->children.push_back(std::move(element));
+    mGroupStack.top()->children.push_back(element);
+
+    if (!idString.empty() && mIdToElementToMap.find(idString) == mIdToElementToMap.end())
+        mIdToElementToMap.emplace(std::move(idString), element);
 }
 
 static void ResolveColorImpl(const ColorMap& colorMap, const ColorImpl& colorImpl, Color& color)
