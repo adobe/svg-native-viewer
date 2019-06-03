@@ -9,17 +9,6 @@
     <line x2="200" y1="35" y2="35" stroke="black" stroke-width="5" stroke-dasharray=".99e1.2e2.1e2.9.9"/>
     <line x2="200" y1="40" y2="40" stroke="black" stroke-width="5" stroke-dasharray="5% 10%"/>
 
-    <!-- Same as above but with style attribute -->
-    <line x2="200" y1="55" y2="55" stroke="black" stroke-width="5" style="stroke-dasharray: 20;"/>
-    <line x2="200" y1="60" y2="60" stroke="black" stroke-width="5" style="stroke-dasharray: 20 10;"/>
-    <line x2="200" y1="65" y2="65" stroke="black" stroke-width="5" style="stroke-dasharray: 20 0 0 0 10;"/>
-    <line x2="200" y1="70" y2="70" stroke="black" stroke-width="5" style="stroke-dasharray: .99.99.99.99;"/>
-    <line x2="200" y1="75" y2="75" stroke="black" stroke-width="5" style="stroke-dasharray: 5px 1pt 0.5pc;"/>
-    <line x2="200" y1="80" y2="80" stroke="black" stroke-width="5" style="stroke-dasharray: 2mm , 
-    0.2cm;"/>
-    <line x2="200" y1="85" y2="85" stroke="black" stroke-width="5" style="stroke-dasharray: .99e1.2e2.1e2.9.9;"/>
-    <line x2="200" y1="90" y2="90" stroke="black" stroke-width="5" stroke-dasharray="5% 10%"/>
-
     <!-- invalid values -->
     <line x2="200" y1="100" y2="100" stroke="black" stroke-width="5" stroke-dasharray="20, 10, 20,"/>
     <line x2="200" y1="105" y2="105" stroke="black" stroke-width="5" stroke-dasharray="20,, 10"/>
