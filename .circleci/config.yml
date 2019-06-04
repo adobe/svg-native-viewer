@@ -61,6 +61,22 @@ jobs:
       - run:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/linux'
+  build_with_cocoa:
+    macos:
+      xcode: "9.2.0"
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run:
+          name: Installing dependencies
+          command: brew install cmake boost
+      - run:
+          name: Creating Build Files
+          command: 'cd svgnative && cmake -Bbuild/mac -H. -DCG=ON'
+      - run:
+          name: Creating Binary Files
+          command: 'cd svgnative && cmake --build build/mac'
 workflows:
   version: 2
   build_and_test:
@@ -68,3 +84,4 @@ workflows:
       - build+test
       - build_with_style_support
       - build_with_clang
+      - build_with_cocoa
