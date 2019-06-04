@@ -42,38 +42,14 @@
         [path Rect(60,20,20,20)
             fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
             stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
-        [path Rect(80,20,20,20)
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
-        [path Rect(100,20,20,20)
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
         [group
             [path Rect(120,20,20,20)
-                fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
-                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
-        ]
-        [group
-            [path Rect(140,20,20,20)
-                fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
-                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
-        ]
-        [group
-            [path Rect(160,20,20,20)
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                 stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
         ]
         [path Rect(180,20,20,20)
             fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
             stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
-        [path Rect(0,40,20,20)
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
-        [group
-            [path Rect(20,40,20,20)
-                fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
-                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0.502,0,1)}]
-        ]
         [group
             [path Rect(40,40,20,20)
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}

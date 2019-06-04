@@ -159,50 +159,52 @@ def readLine(p):
         c = p.stdout.read(1)
     return line
 
-def exportTestFilesSequential(files, args, hasError):
-    p = None
-    isExpectedFileMissing = False
-    inputFile = files.nextPath()
-    if not inputFile or not os.path.exists(inputFile):
-        return 0
-
-    (expectedDir, fname) = os.path.split(inputFile)
-    (fbase, fext) = os.path.splitext(fname)
-
-    expectedFile = os.path.abspath(os.path.join(expectedDir, fbase + '.txt'))
-    # TODO: preserve sub-dirs
-    actualFile = os.path.abspath(os.path.join(args.result_dir, fbase + '.txt'))
-    diffFile = os.path.abspath(os.path.join(args.result_dir, fbase + '-diff.txt'))
-    if not os.path.exists(expectedFile):
-        isExpectedFileMissing = True
-        p = Popen([args.program, inputFile, expectedFile])
-        if p == None:
-            print('Error opening testapp')
-            hasError = -1
+def exportTestFilesSequential(files, args):
+    hasError = 0
+    while True:
+        p = None
+        isExpectedFileMissing = False
+        inputFile = files.nextPath()
+        if not inputFile or not os.path.exists(inputFile):
             return hasError
-        print('Created missing expectation file: ' + expectedFile)
-    else:
-        p = Popen([args.program, inputFile, actualFile])
-        if p == None:
-            print('Error opening testapp')
-            hasError = -1
-            return hasError
-        p.wait()
-        if not compare_text_files(expectedFile, actualFile, diffFile):
-            print('   ' + inputFile + ' FAILED.')
-            hasError = -1
+    
+        (expectedDir, fname) = os.path.split(inputFile)
+        (fbase, fext) = os.path.splitext(fname)
+    
+        expectedFile = os.path.abspath(os.path.join(expectedDir, fbase + '.txt'))
+        # TODO: preserve sub-dirs
+        actualFile = os.path.abspath(os.path.join(args.result_dir, fbase + '.txt'))
+        diffFile = os.path.abspath(os.path.join(args.result_dir, fbase + '-diff.txt'))
+        if not os.path.exists(expectedFile):
+            isExpectedFileMissing = True
+            p = Popen([args.program, inputFile, expectedFile])
+            if p == None:
+                print('Error opening testapp')
+                hasError = -1
+                continue
+            print('Created missing expectation file: ' + expectedFile)
         else:
-            print('   ' + inputFile + ' passed.')
+            p = Popen([args.program, inputFile, actualFile])
+            if p == None:
+                print('Error opening testapp')
+                hasError = -1
+                continue
+            p.wait()
+            if not compare_text_files(expectedFile, actualFile, diffFile):
+                print('   ' + inputFile + ' FAILED.')
+                hasError = -1
+            else:
+                print('   ' + inputFile + ' passed.')
 
-    hasError = exportTestFilesSequential(files, args, hasError)
     return hasError
+    
 
 def runTestApp(args):
     filesIterator = DirectoryIterator(args.path, args.recursive)
     files = filesIterator.fileArray()
     testexpectations = filesIterator.testExpectations()
 
-    error = exportTestFilesSequential(filesIterator, args, 0)
+    error = exportTestFilesSequential(filesIterator, args)
     if error == -1:
         return error
 
