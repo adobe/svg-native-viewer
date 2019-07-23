@@ -317,9 +317,15 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         if (!href)
             return;
 
-        auto resourceIt = mResourceIDs.find(href->value());
+        if (href->value()[0] != '#')
+            return;
+
+        auto resourceIt = mResourceIDs.find((href->value() + 1));
         if (resourceIt == mResourceIDs.end())
             return;
+
+        mFillStyleStack.push(fillStyle);
+        mStrokeStyleStack.push(strokeStyle);
 
         auto transform = mRenderer->CreateTransform(
             1, 0, 0, 1, ParseLengthFromAttr(child, "x", LengthType::kHorrizontal), ParseLengthFromAttr(child, "y", LengthType::kVertical));
@@ -328,12 +334,18 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         graphicStyle.transform = std::move(transform);
 
         auto group = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-        mGroupStack.push(group.get());
+        auto tempGroupPtr = group.get();
         AddChildToCurrentGroup(std::move(group));
+        mGroupStack.push(tempGroupPtr);
 
-        ParseChildren(resourceIt->second);
+        if(resourceIt->second->first_node() == 0)
+          ParseChild(resourceIt->second);
+        else
+          ParseChildren(resourceIt->second);
 
         mGroupStack.pop();
+        mFillStyleStack.pop();
+        mStrokeStyleStack.pop();
     }
     else if (elementName == "symbol")
     {
