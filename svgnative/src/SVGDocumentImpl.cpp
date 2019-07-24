@@ -339,9 +339,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mGroupStack.push(tempGroupPtr);
 
         if(resourceIt->second->first_node() == 0)
-          ParseChild(resourceIt->second);
+            ParseChild(resourceIt->second);
         else
-          ParseChildren(resourceIt->second);
+            ParseChildren(resourceIt->second);
 
         mGroupStack.pop();
         mFillStyleStack.pop();
