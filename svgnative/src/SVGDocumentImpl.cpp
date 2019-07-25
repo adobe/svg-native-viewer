@@ -370,8 +370,11 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         mGroupStack.pop();
     }
-    else if (elementName == "style")
-        ParseStyle(child);
+    else if (elementName == "style" ||
+             elementName == "linearGradient" ||
+             elementName == "radialGradient" ||
+             elementName == "clipPath")
+        ParseResource(child);
 }
 
 void SVGDocumentImpl::ParseResources(XMLNode* node)
