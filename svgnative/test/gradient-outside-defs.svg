@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="150" height="250" viewBox="0 0 150 250">
+    <linearGradient id="g1" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#0000FF" offset="0"/>
+        <stop stop-color="#00FF00" offset="1"/>
+    </linearGradient>
+    <radialGradient id="g2" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#0000FF" offset="0"/>
+        <stop stop-color="#00FF00" offset="1"/>
+    </radialGradient>
+    <rect width="150" height="10" fill="url(#g1)" y="180"/>
+    <rect width="150" height="10" fill="url(#g2)" y="180"/>
+</svg>
