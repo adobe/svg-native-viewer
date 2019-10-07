@@ -162,7 +162,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     // or path first.
     if (auto path = ParseShape(child))
     {
-        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))), idString);
+        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))), std::move(idString));
         return;
     }
 
@@ -174,7 +174,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mStrokeStyleStack.push(strokeStyle);
 
         auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
-        AddChildToCurrentGroup(group, idString);
+        AddChildToCurrentGroup(group, std::move(idString));
         mGroupStack.push(group);
 
         ParseChildren(child);
@@ -310,7 +310,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             if (imageWidth && imageHeight && clipArea.width && clipArea.height && fillArea.width && fillArea.height)
             {
                 auto image = std::unique_ptr<Image>(new Image(graphicStyle, classNames, std::move(imageData), clipArea, fillArea));
-                AddChildToCurrentGroup(std::move(image), idString);
+                AddChildToCurrentGroup(std::move(image), std::move(idString));
             }
         }
     }
@@ -338,7 +338,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
         mGroupStack.push(group);
-        AddChildToCurrentGroup(group, idString);
+        AddChildToCurrentGroup(group, std::move(idString));
 
         if(resourceIt->second->first_node() == 0)
             ParseChild(resourceIt->second);
@@ -366,7 +366,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
         mGroupStack.push(group);
-        AddChildToCurrentGroup(group, idString);
+        AddChildToCurrentGroup(group, std::move(idString));
 
         ParseChildren(child);
 
