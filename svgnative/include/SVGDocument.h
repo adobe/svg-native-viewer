@@ -151,6 +151,11 @@ public:
      */
     void Render(const ColorMap& colorMap, float width, float height);
 
+    // TODO: Rather use an option based struct design?
+    void Render(const std::string& id, float width, float height);
+    void Render(const std::string& id, const ColorMap& colorMap);
+    void Render(const std::string& id, const ColorMap& colorMap, float width, float height);
+
 private:
     SVGDocument();
 

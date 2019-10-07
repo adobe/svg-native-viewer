@@ -173,6 +173,7 @@ public:
     void ClearCustomCSS();
 #endif
     void Render(const ColorMap& colorMap, float width, float height);
+    void Render(const std::string& id, const ColorMap& colorMap, float width, float height);
 
     XMLDocument mXMLDocument;
     std::array<float, 4> mViewBox;
@@ -201,6 +202,8 @@ private:
     void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const PropertySet& propertySet);
 
     PropertySet ParsePresentationAttributes(XMLNode* node);
+
+    void RenderElement(const Element* element, const ColorMap& colorMap, float width, float height);
 
     void TraverseTree(const ColorMap& colorMap, const Element*);
 

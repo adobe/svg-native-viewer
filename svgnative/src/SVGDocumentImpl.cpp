@@ -983,6 +983,22 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     SVG_ASSERT(mGroup);
     if (!mGroup)
         return;
+    
+    RenderElement(mGroup.get(), colorMap, width, height);
+}
+
+void SVGDocumentImpl::Render(const std::string& id, const ColorMap& colorMap, float width, float height)
+{
+    // TODO: We do not take transformations on ancestors into account. OT is unclear of we should.
+    auto elementIter = mIdToElementToMap.find(id);
+    if (elementIter != mIdToElementToMap.end())
+        RenderElement(elementIter->second.get(), colorMap, width, height);
+}
+
+void SVGDocumentImpl::RenderElement(const Element* element, const ColorMap& colorMap, float width, float height)
+{
+    if (!element)
+        return;
 
     float scale = width / mViewBox[2];
     if (scale > height / mViewBox[3])
@@ -995,7 +1011,7 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
 
     mRenderer->Save(graphicStyle);
 
-    TraverseTree(colorMap, mGroup.get());
+    TraverseTree(colorMap, element);
 
     mRenderer->Restore();
 }
