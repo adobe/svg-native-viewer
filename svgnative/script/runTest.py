@@ -175,16 +175,23 @@ def exportTestFilesSequential(files, args):
         # TODO: preserve sub-dirs
         actualFile = os.path.abspath(os.path.join(args.result_dir, fbase + '.txt'))
         diffFile = os.path.abspath(os.path.join(args.result_dir, fbase + '-diff.txt'))
+        elementRef = fbase.startswith('elem-')
         if not os.path.exists(expectedFile):
             isExpectedFileMissing = True
-            p = Popen([args.program, inputFile, expectedFile])
+            if not elementRef:
+                p = Popen([args.program, inputFile, expectedFile])
+            else:
+                p = Popen([args.program, inputFile, expectedFile, 'ref'])                
             if p == None:
                 print('Error opening testapp')
                 hasError = -1
                 continue
             print('Created missing expectation file: ' + expectedFile)
         else:
-            p = Popen([args.program, inputFile, actualFile])
+            if not elementRef:
+                p = Popen([args.program, inputFile, actualFile])
+            else:
+                p = Popen([args.program, inputFile, actualFile, 'ref'])    
             if p == None:
                 print('Error opening testapp')
                 hasError = -1
