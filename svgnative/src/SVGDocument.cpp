@@ -72,6 +72,12 @@ void SVGDocument::Render(const ColorMap& colorMap)
 
 void SVGDocument::Render(const ColorMap& colorMap, float width, float height) { mDocument->Render(colorMap, width, height); }
 
+void SVGDocument::Render(const std::string& id)
+{
+    ColorMap colorMap;
+    mDocument->Render(id, colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
+}
+
 void SVGDocument::Render(const std::string& id, float width, float height)
 {
     ColorMap colorMap;

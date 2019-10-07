@@ -989,7 +989,12 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
 
 void SVGDocumentImpl::Render(const std::string& id, const ColorMap& colorMap, float width, float height)
 {
-    // TODO: We do not take transformations on ancestors into account. OT is unclear of we should.
+    // Referenced glyph identifiers shall be rendered as if they were contained in a <defs> section under
+    // the root SVG element:
+    // Therefore, the referenced shape/group should:
+    // * inherit property values from the root SVG element,
+    // * ignore all styling and transforms on ancestors.
+    // https://docs.microsoft.com/en-us/typography/opentype/spec/svg#glyph-identifiers
     auto elementIter = mIdToElementToMap.find(id);
     if (elementIter != mIdToElementToMap.end())
         RenderElement(elementIter->second.get(), colorMap, width, height);

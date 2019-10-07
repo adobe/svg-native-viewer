@@ -25,7 +25,7 @@
 
 int main(int argc, char* const argv[])
 {
-    if (argc != 3)
+    if (argc != 3 && argc != 4)
     {
         std::cout << "Incorrect number of arguments." << std::endl;
         return 0;
@@ -50,7 +50,13 @@ int main(int argc, char* const argv[])
     auto renderer = std::make_shared<SVGNative::StringSVGRenderer>();
 
     auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
-    doc->Render(colorMap);
+    if (argc == 3)
+        doc->Render(colorMap);
+    else
+    {
+        std::string id{argv[3]};
+        doc->Render(id, colorMap);
+    }
 
     std::fstream outputStream;
     outputStream.open(argv[2], std::fstream::out);

@@ -151,9 +151,27 @@ public:
      */
     void Render(const ColorMap& colorMap, float width, float height);
 
-    // TODO: Rather use an option based struct design?
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     */
+    void Render(const std::string& id);
+
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     * See /ref Render(float width, float height) for details.
+     */
     void Render(const std::string& id, float width, float height);
+
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     * See /ref Render(const ColorMap& colorMap) for details.
+     */
     void Render(const std::string& id, const ColorMap& colorMap);
+
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     * See /ref Render(const ColorMap& colorMap, float width, float height) for details.
+     */
     void Render(const std::string& id, const ColorMap& colorMap, float width, float height);
 
 private:
