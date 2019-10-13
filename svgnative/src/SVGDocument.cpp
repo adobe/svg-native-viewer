@@ -72,24 +72,24 @@ void SVGDocument::Render(const ColorMap& colorMap)
 
 void SVGDocument::Render(const ColorMap& colorMap, float width, float height) { mDocument->Render(colorMap, width, height); }
 
-void SVGDocument::Render(const std::string& id)
+void SVGDocument::Render(const char* id)
 {
     ColorMap colorMap;
     mDocument->Render(id, colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
-void SVGDocument::Render(const std::string& id, float width, float height)
+void SVGDocument::Render(const char* id, float width, float height)
 {
     ColorMap colorMap;
     mDocument->Render(id, colorMap, width, height);
 }
 
-void SVGDocument::Render(const std::string& id, const ColorMap& colorMap)
+void SVGDocument::Render(const char* id, const ColorMap& colorMap)
 {
     mDocument->Render(id, colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
-void SVGDocument::Render(const std::string& id, const ColorMap& colorMap, float width, float height) { mDocument->Render(id, colorMap, width, height); }
+void SVGDocument::Render(const char* id, const ColorMap& colorMap, float width, float height) { mDocument->Render(id, colorMap, width, height); }
 
 std::int32_t SVGDocument::Width() const { return static_cast<std::int32_t>(mDocument->mViewBox[2]); }
 

@@ -55,7 +55,7 @@ int main(int argc, char* const argv[])
     else
     {
         std::string id{argv[3]};
-        doc->Render(id, colorMap);
+        doc->Render(id.c_str(), colorMap);
     }
 
     std::fstream outputStream;

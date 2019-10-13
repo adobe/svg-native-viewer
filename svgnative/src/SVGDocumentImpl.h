@@ -173,7 +173,7 @@ public:
     void ClearCustomCSS();
 #endif
     void Render(const ColorMap& colorMap, float width, float height);
-    void Render(const std::string& id, const ColorMap& colorMap, float width, float height);
+    void Render(const char* id, const ColorMap& colorMap, float width, float height);
 
     XMLDocument mXMLDocument;
     std::array<float, 4> mViewBox;

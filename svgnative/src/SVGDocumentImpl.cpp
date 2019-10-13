@@ -987,7 +987,7 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     RenderElement(mGroup.get(), colorMap, width, height);
 }
 
-void SVGDocumentImpl::Render(const std::string& id, const ColorMap& colorMap, float width, float height)
+void SVGDocumentImpl::Render(const char* id, const ColorMap& colorMap, float width, float height)
 {
     // Referenced glyph identifiers shall be rendered as if they were contained in a <defs> section under
     // the root SVG element:
