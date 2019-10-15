@@ -21,6 +21,7 @@ governing permissions and limitations under the License.
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "SkShader.h"
+#include "SkDashPathEffect.h"
 #include <math.h>
 
 namespace SVGNative
@@ -201,6 +202,12 @@ void SkiaSVGRenderer::DrawPath(
         SkPaint stroke;
         stroke.setStyle(SkPaint::kStroke_Style);
         stroke.setStrokeWidth(strokeStyle.lineWidth);
+        if (!strokeStyle.dashArray.empty())
+        {
+            stroke.setPathEffect(SkDashPathEffect::Make((SkScalar*)(strokeStyle.dashArray.data()),
+                                                        strokeStyle.dashArray.size(),
+                                                        (SkScalar)strokeStyle.dashOffset));
+        }
         CreateSkPaint(strokeStyle.paint, strokeStyle.strokeOpacity, stroke);
         mCanvas->drawPath(static_cast<const SkiaSVGPath&>(path).mPath, stroke);
     }

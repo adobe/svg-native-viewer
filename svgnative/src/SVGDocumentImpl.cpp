@@ -762,6 +762,15 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
                 break;
             }
         }
+        auto sizeOfDashArray = strokeStyle.dashArray.size();
+        if (sizeOfDashArray % 2 != 0)
+        {
+            // If stroke-dasharray[] is odd-sized, the array should be twiced.
+            // See SVG 1.1 (2nd ed), 11.4 "Stroke Properties" for detail.
+            strokeStyle.dashArray.reserve(sizeOfDashArray * 2);
+            for (size_t i = 0; i < sizeOfDashArray; ++i)
+                strokeStyle.dashArray.push_back( strokeStyle.dashArray[i] );
+        }
     }
 
     prop = propertySet.find("stroke-opacity");
