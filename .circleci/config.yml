@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   win: circleci/windows@1.0.0
 jobs:
-  build+test:
+  build_and_test:
     docker:
       - image: debian:stretch
     steps:
@@ -80,9 +80,8 @@ jobs:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/mac'
   build_with_windraw:
-    build:
-      executer: win/vs2019
-      shell: cmd.exe
+    executer: win/vs2019
+    shell: cmd.exe
     steps:
       - checkout
       - run: git submodule sync
@@ -105,9 +104,9 @@ jobs:
             cmake --build build/win64
 workflows:
   version: 2
-  build_and_test:
+  run_all_tests:
     jobs:
-      - build+test
+      - build_and_test
       - build_with_style_support
       - build_with_clang
       - build_with_cocoa
