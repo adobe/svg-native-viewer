@@ -86,21 +86,27 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run:
+          name: Installing dependencies
+          command: |
+            curl -L https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-win64-x64.zip -o cmake.zip
+            Expand-Archive .\cmake.zip cmake
+
+      - run:
           name: Build windraw
           command: |
             cd third_party/
-            cmake -Bbuild/win64 -H. -G "Visual Studio 16 2019" -DWINDRAWLIB_BUILD_EXAMPLES=OFF
-            cmake --build build/win64
+            .\cmake\cmake-3.15.4-win64-x64\bin cmake.exe -Bbuild/win64 -H. -G "Visual Studio 16 2019" -DWINDRAWLIB_BUILD_EXAMPLES=OFF
+            .\cmake\cmake-3.15.4-win64-x64\bin cmake.exe --build build/win64
       - run:
           name: Creating Build Files
           command: |
             cd svgnative
-            cmake -Bbuild/win64 -H. -DWINDRAW=ON
+            .\cmake\cmake-3.15.4-win64-x64\bin cmake.exe -Bbuild/win64 -H. -DWINDRAW=ON
       - run:
           name: Creating Binary Files
           command: |
             cd svgnative
-            cmake --build build/win64
+            .\cmake\cmake-3.15.4-win64-x64\bin cmake.exe --build build/win64
 workflows:
   version: 2
   run_all_tests:
