@@ -88,7 +88,7 @@ jobs:
       - run:
           name: Installing dependencies
           command: |
-            Invoke-RestMethod -Uri https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-win64-x64.zip -Method Get -Out-File cmake.zip
+            Invoke-RestMethod -Uri https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-win64-x64.zip -Method Get -OutFile cmake.zip
             Expand-Archive .\cmake.zip cmake
 
       - run:
