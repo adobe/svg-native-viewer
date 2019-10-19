@@ -81,7 +81,6 @@ jobs:
           command: 'cd svgnative && cmake --build build/mac'
   build_with_windraw:
     executor: win/vs2019
-    shell: cmd.exe
     steps:
       - checkout
       - run: git submodule sync
