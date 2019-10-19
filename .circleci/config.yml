@@ -80,7 +80,7 @@ jobs:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/mac'
   build_with_windraw:
-    executer: win/vs2019
+    executor: win/vs2019
     shell: cmd.exe
     steps:
       - checkout
