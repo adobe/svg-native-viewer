@@ -15,6 +15,7 @@ governing permissions and limitations under the License.
 #include "SVGRenderer.h"
 #ifdef USE_CG
 #include "CGSVGRenderer.h"
+#include <ApplicationServices/ApplicationServices.h>
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 #ifdef USE_SKIA
