@@ -46,6 +46,7 @@ CMAKE_DEPENDENT_OPTION(USE_GDIPLUS "GDI+ port" TRUE "MSVC;GDIPLUS" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_TEXT_EXAMPLE "Text port for testing" TRUE "NOT LIB_ONLY;TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG_EXAMPLE "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "NOT LIB_ONLY;USE_CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY;GDIPLUS" FALSE)
 
 ################################
 # Other Attributes
@@ -89,6 +90,9 @@ add_subdirectory(example/testCocoaCG)
 endif()
 if (USE_SKIA_EXAMPLE)
 add_subdirectory(example/testSkia)
+endif()
+if (USE_GDIPLUS_EXAMPLE)
+add_subdirectory(example/testGDIPlus)
 endif()
 
 ##############################
@@ -148,6 +152,8 @@ if (USE_GDIPLUS)
 file(GLOB gdiplus_port
     ports/gdiplus/GDIPlusSVGRenderer.h
     ports/gdiplus/GDIPlusSVGRenderer.cpp
+    ../third_party/cpp-base64/base64.h
+    ../third_party/cpp-base64/base64.cpp
 )
 endif()
 

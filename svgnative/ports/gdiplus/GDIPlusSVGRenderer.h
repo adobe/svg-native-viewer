@@ -18,11 +18,11 @@ governing permissions and limitations under the License.
 
 namespace SVGNative
 {
-class GIDPlusSVGPath final : public Path
+class GDIPlusSVGPath final : public Path
 {
 public:
-    GIDPlusSVGPath();
-    ~GIDPlusSVGPath();
+    GDIPlusSVGPath();
+    ~GDIPlusSVGPath();
 
     void Rect(float x, float y, float width, float height) override;
     void RoundedRect(float x, float y, float width, float height, float cornerRadius) override;
@@ -42,10 +42,10 @@ private:
     float mCurrentY{};
 };
 
-class GIDPlusSVGTransform final : public Transform
+class GDIPlusSVGTransform final : public Transform
 {
 public:
-    GIDPlusSVGTransform(float a, float b, float c, float d, float tx, float ty);
+    GDIPlusSVGTransform(float a, float b, float c, float d, float tx, float ty);
 
     void Set(float a, float b, float c, float d, float tx, float ty) override;
     void Rotate(float r) override;
@@ -59,11 +59,11 @@ private:
     Gdiplus::Matrix mTransform;
 };
 
-class GIDPlusSVGImageData final : public ImageData
+class GDIPlusSVGImageData final : public ImageData
 {
 public:
-    GIDPlusSVGImageData(const std::string& base64, ImageEncoding encoding);
-    ~GIDPlusSVGImageData();
+    GDIPlusSVGImageData(const std::string& base64, ImageEncoding encoding);
+    ~GDIPlusSVGImageData();
 
     float Width() const override;
     float Height() const override;
@@ -74,29 +74,29 @@ private:
     std::unique_ptr<Gdiplus::Image> mImage;
 };
 
-class GIDPlusSVGRenderer final : public SVGRenderer
+class GDIPlusSVGRenderer final : public SVGRenderer
 {
 public:
-    GIDPlusSVGRenderer();
+    GDIPlusSVGRenderer();
 
-    virtual ~GIDPlusSVGRenderer() 
+    virtual ~GDIPlusSVGRenderer() 
     { 
     }
 
     std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override 
     { 
-        return std::unique_ptr<GIDPlusSVGImageData>(new GIDPlusSVGImageData(base64, encoding)); 
+        return std::unique_ptr<GDIPlusSVGImageData>(new GDIPlusSVGImageData(base64, encoding)); 
     }
 
     std::unique_ptr<Path> CreatePath() override 
     { 
-        return std::unique_ptr<GIDPlusSVGPath>(new GIDPlusSVGPath); 
+        return std::unique_ptr<GDIPlusSVGPath>(new GDIPlusSVGPath); 
     }
 
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override
     {
-        return std::unique_ptr<GIDPlusSVGTransform>(new GIDPlusSVGTransform(a, b, c, d, tx, ty));
+        return std::unique_ptr<GDIPlusSVGTransform>(new GDIPlusSVGTransform(a, b, c, d, tx, ty));
     }
 
     void Save(const GraphicStyle& graphicStyle) override;
