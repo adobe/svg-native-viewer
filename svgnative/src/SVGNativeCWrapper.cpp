@@ -15,6 +15,7 @@ governing permissions and limitations under the License.
 #include "SVGRenderer.h"
 #ifdef USE_CG
 #include "CGSVGRenderer.h"
+#include <CoreGraphics/CoreGraphics.h>
 #endif
 #ifdef USE_SKIA
 #include "SkiaSVGRenderer.h"
@@ -125,7 +126,7 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
     {
         if (auto nativeRenderer = dynamic_cast<CGContextRef>(renderer))
         {
-            std::dynamic_pointer_cast<SVGNative::CGSVGRenderer>(_sn->mRenderer))->SetGraphicsContext(nativeRenderer);
+            std::dynamic_pointer_cast<SVGNative::CGSVGRenderer>(_sn->mRenderer)->SetGraphicsContext(nativeRenderer);
             return;
         }
     }
@@ -135,7 +136,7 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
     {
         if (auto nativeRenderer = dynamic_cast<SkCanvas*>(renderer))
         {
-            std::dynamic_pointer_cast<SVGNative::SkiaSVGRenderer>(_sn->mRenderer))->SetSkCanvas(nativeRenderer);
+            std::dynamic_pointer_cast<SVGNative::SkiaSVGRenderer>(_sn->mRenderer)->SetSkCanvas(nativeRenderer);
             return;
         }
     }
