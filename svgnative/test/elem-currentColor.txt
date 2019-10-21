@@ -1,0 +1,5 @@
+[group transform: matrix(1,0,0,1,0,0)
+    [path Rect(0,0,200,200)
+        fill: {hasFill: true winding: nonzero paint: rgba(1,0,0,1)}
+        stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+]

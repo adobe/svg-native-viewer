@@ -53,8 +53,8 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
 
     GraphicStyleImpl graphicStyle{};
     std::set<std::string> classNames;
-    mGroup = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-    mGroupStack.push(mGroup.get());
+    mGroup = std::make_shared<Group>(graphicStyle, classNames);
+    mGroupStack.push(mGroup);
 }
 
 void SVGDocumentImpl::TraverseSVGTree()
@@ -154,11 +154,15 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     std::set<std::string> classNames;
     auto graphicStyle = ParseGraphic(child, fillStyle, strokeStyle, classNames);
 
+    std::string idString;
+    if (auto idAttr = child->first_attribute("id"))
+        idString = idAttr->value();
+
     // Check if we have a shape rect, circle, ellipse, line, polygon, polyline
     // or path first.
     if (auto path = ParseShape(child))
     {
-        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))));
+        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))), std::move(idString));
         return;
     }
 
@@ -169,10 +173,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mFillStyleStack.push(fillStyle);
         mStrokeStyleStack.push(strokeStyle);
 
-        auto group = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-        auto tempGroupPtr = group.get();
-        AddChildToCurrentGroup(std::move(group));
-        mGroupStack.push(tempGroupPtr);
+        auto group = std::make_shared<Group>(graphicStyle, classNames);
+        AddChildToCurrentGroup(group, std::move(idString));
+        mGroupStack.push(group);
 
         ParseChildren(child);
 
@@ -307,7 +310,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             if (imageWidth && imageHeight && clipArea.width && clipArea.height && fillArea.width && fillArea.height)
             {
                 auto image = std::unique_ptr<Image>(new Image(graphicStyle, classNames, std::move(imageData), clipArea, fillArea));
-                AddChildToCurrentGroup(std::move(image));
+                AddChildToCurrentGroup(std::move(image), std::move(idString));
             }
         }
     }
@@ -333,10 +336,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             transform->Concat(*graphicStyle.transform);
         graphicStyle.transform = std::move(transform);
 
-        auto group = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-        auto tempGroupPtr = group.get();
-        AddChildToCurrentGroup(std::move(group));
-        mGroupStack.push(tempGroupPtr);
+        auto group = std::make_shared<Group>(graphicStyle, classNames);
+        mGroupStack.push(group);
+        AddChildToCurrentGroup(group, std::move(idString));
 
         if(resourceIt->second->first_node() == 0)
             ParseChild(resourceIt->second);
@@ -362,9 +364,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             }
         }
 
-        auto group = std::unique_ptr<Group>(new Group(graphicStyle, classNames));
-        mGroupStack.push(group.get());
-        AddChildToCurrentGroup(std::move(group));
+        auto group = std::make_shared<Group>(graphicStyle, classNames);
+        mGroupStack.push(group);
+        AddChildToCurrentGroup(group, std::move(idString));
 
         ParseChildren(child);
 
@@ -981,7 +983,25 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     SVG_ASSERT(mGroup);
     if (!mGroup)
         return;
+    
+    RenderElement(*mGroup, colorMap, width, height);
+}
 
+void SVGDocumentImpl::Render(const char* id, const ColorMap& colorMap, float width, float height)
+{
+    // Referenced glyph identifiers shall be rendered as if they were contained in a <defs> section under
+    // the root SVG element:
+    // Therefore, the referenced shape/group should:
+    // * inherit property values from the root SVG element,
+    // * ignore all styling and transforms on ancestors.
+    // https://docs.microsoft.com/en-us/typography/opentype/spec/svg#glyph-identifiers
+    auto elementIter = mIdToElementToMap.find(id);
+    if (elementIter != mIdToElementToMap.end())
+        RenderElement(*elementIter->second, colorMap, width, height);
+}
+
+void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colorMap, float width, float height)
+{
     float scale = width / mViewBox[2];
     if (scale > height / mViewBox[3])
         scale = height / mViewBox[3];
@@ -993,18 +1013,21 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
 
     mRenderer->Save(graphicStyle);
 
-    TraverseTree(colorMap, mGroup.get());
+    TraverseTree(colorMap, element);
 
     mRenderer->Restore();
 }
 
-void SVGDocumentImpl::AddChildToCurrentGroup(std::unique_ptr<Element> element)
+void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString)
 {
     SVG_ASSERT(!mGroupStack.empty());
     if (mGroupStack.empty())
         return;
 
-    mGroupStack.top()->children.push_back(std::move(element));
+    mGroupStack.top()->children.push_back(element);
+
+    if (!idString.empty() && mIdToElementToMap.find(idString) == mIdToElementToMap.end())
+        mIdToElementToMap.emplace(std::move(idString), element);
 }
 
 static void ResolveColorImpl(const ColorMap& colorMap, const ColorImpl& colorImpl, Color& color)
@@ -1065,54 +1088,50 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
         SVG_ASSERT_MSG(false, "Unhandled PaintImpl type");
 }
 
-void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element* element)
+void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& element)
 {
-    SVG_ASSERT(element);
-    if (!element)
-        return;
-
     // Inheritance doesn't work for override styles. Since override styles
     // are deprecated, we are not going to fix this nor is this expected by
     // (still existing) clients.
-    auto graphicStyle = element->graphicStyle;
+    auto graphicStyle = element.graphicStyle;
     FillStyleImpl fillStyle{};
     StrokeStyleImpl strokeStyle{};
     // Do not draw element if an applied clipPath has no content.
     if (graphicStyle.clippingPath && !graphicStyle.clippingPath->hasClipContent)
         return;
-    switch (element->Type())
+    switch (element.Type())
     {
     case ElementType::kGraphic:
     {
-        const auto graphic = static_cast<const Graphic*>(element);
+        const auto& graphic = static_cast<const Graphic&>(element);
         // TODO: Since we keep the original fill, stroke and color property values
         // we should be able to do w/o a copy.
-        fillStyle = graphic->fillStyle;
-        strokeStyle = graphic->strokeStyle;
-        ApplyCSSStyle(graphic->classNames, graphicStyle, fillStyle, strokeStyle);
+        fillStyle = graphic.fillStyle;
+        strokeStyle = graphic.strokeStyle;
+        ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
         // If we habe a CSS var() function we need to replace the placeholder with
         // an actual color from our externally provided color map here.
         Color color{{0.0f, 0.0f, 0.0f, 1.0f}};
         ResolveColorImpl(colorMap, fillStyle.color, color);
         ResolvePaintImpl(colorMap, fillStyle.internalPaint, color, fillStyle.paint);
         ResolvePaintImpl(colorMap, strokeStyle.internalPaint, color, strokeStyle.paint);
-        mRenderer->DrawPath(*(graphic->path.get()), graphicStyle, fillStyle, strokeStyle);
+        mRenderer->DrawPath(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
         break;
     }
     case ElementType::kImage:
     {
-        const auto image = static_cast<const Image*>(element);
-        ApplyCSSStyle(image->classNames, graphicStyle, fillStyle, strokeStyle);
-        mRenderer->DrawImage(*(image->imageData.get()), graphicStyle, image->clipArea, image->fillArea);
+        const auto& image = static_cast<const Image&>(element);
+        ApplyCSSStyle(image.classNames, graphicStyle, fillStyle, strokeStyle);
+        mRenderer->DrawImage(*(image.imageData.get()), graphicStyle, image.clipArea, image.fillArea);
         break;
     }
     case ElementType::kGroup:
     {
-        const auto group = static_cast<const Group*>(element);
-        ApplyCSSStyle(group->classNames, graphicStyle, fillStyle, strokeStyle);
-        mRenderer->Save(group->graphicStyle);
-        for (const auto& child : group->children)
-            TraverseTree(colorMap, child.get());
+        const auto& group = static_cast<const Group&>(element);
+        ApplyCSSStyle(group.classNames, graphicStyle, fillStyle, strokeStyle);
+        mRenderer->Save(group.graphicStyle);
+        for (const auto& child : group.children)
+            TraverseTree(colorMap, *child);
         mRenderer->Restore();
         break;
     }

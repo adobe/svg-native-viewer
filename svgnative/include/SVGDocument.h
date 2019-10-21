@@ -151,6 +151,29 @@ public:
      */
     void Render(const ColorMap& colorMap, float width, float height);
 
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     */
+    void Render(const char* id);
+
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     * See /ref Render(float width, float height) for details.
+     */
+    void Render(const char* id, float width, float height);
+
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     * See /ref Render(const ColorMap& colorMap) for details.
+     */
+    void Render(const char* id, const ColorMap& colorMap);
+
+    /**
+     * Renders the subtree of an element with the given XML ID.
+     * See /ref Render(const ColorMap& colorMap, float width, float height) for details.
+     */
+    void Render(const char* id, const ColorMap& colorMap, float width, float height);
+
 private:
     SVGDocument();
 

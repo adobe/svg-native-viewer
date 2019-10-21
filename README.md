@@ -72,6 +72,16 @@ renderer->SetSkCanvas(skRasterCanvas);
 
 // Pass drawing commands for SVG document to renderer.
 doc->Render();
+
+// Pass drawing commands for SVG document to renderer the element (and its descendants)
+// with the XML ID "ref1".
+std::string id1{"ref1"}
+doc->Render(id1);
+
+// The Render() function may get called multiple times. This can be used to render a
+// combination of glyphs specified in the same SVG document.
+std::string id2{"ref2"}
+doc->Render(id2);
 ```
 
 Refer to the examples in the `example/` directory for other port examples.

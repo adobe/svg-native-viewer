@@ -105,7 +105,7 @@ public:
 
     struct Image : public Element
     {
-        Image(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, std::unique_ptr<ImageData> aImageData,
+        Image(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, std::shared_ptr<ImageData> aImageData,
             const Rect& aClipArea, const Rect& aFillArea)
             : Element(aGraphicStyle, aClasses)
             , imageData{std::move(aImageData)}
@@ -114,7 +114,7 @@ public:
         {
         }
 
-        std::unique_ptr<ImageData> imageData;
+        std::shared_ptr<ImageData> imageData;
         Rect clipArea;
         Rect fillArea;
         ElementType Type() const override { return ElementType::kImage; }
@@ -127,14 +127,14 @@ public:
         {
         }
 
-        std::vector<std::unique_ptr<Element>> children;
+        std::vector<std::shared_ptr<Element>> children;
         ElementType Type() const override { return ElementType::kGroup; }
     };
 
     struct Graphic : public Element
     {
         Graphic(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
-            std::unique_ptr<Path> aPath)
+            std::shared_ptr<Path> aPath)
             : Element(aGraphicStyle, aClasses)
             , fillStyle{aFillStyle}
             , strokeStyle{aStrokeStyle}
@@ -144,7 +144,7 @@ public:
 
         FillStyleImpl fillStyle;
         StrokeStyleImpl strokeStyle;
-        std::unique_ptr<Path> path;
+        std::shared_ptr<Path> path;
 
         ElementType Type() const override { return ElementType::kGraphic; }
     };
@@ -173,6 +173,7 @@ public:
     void ClearCustomCSS();
 #endif
     void Render(const ColorMap& colorMap, float width, float height);
+    void Render(const char* id, const ColorMap& colorMap, float width, float height);
 
     XMLDocument mXMLDocument;
     std::array<float, 4> mViewBox;
@@ -202,14 +203,16 @@ private:
 
     PropertySet ParsePresentationAttributes(XMLNode* node);
 
-    void TraverseTree(const ColorMap& colorMap, const Element*);
+    void RenderElement(const Element& element, const ColorMap& colorMap, float width, float height);
+
+    void TraverseTree(const ColorMap& colorMap, const Element&);
 
     void ApplyCSSStyle(
         const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle);
     void ParseStyleAttr(XMLNode* node, std::vector<PropertySet>& propertySets, std::set<std::string>& classNames);
     void ParseStyle(XMLNode* child);
 
-    void AddChildToCurrentGroup(std::unique_ptr<Element> element);
+    void AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString);
 
 private:
     // All stroke and fill CSS properties are so called
@@ -227,12 +230,15 @@ private:
     StyleSheet::CssDocument mCustomCSSInfo;
 #endif
 
+    // Temporary resources. Will get cleaned-up after parsing.
     std::map<std::string, GradientImpl> mGradients;
     std::map<std::string, XMLNode*> mResourceIDs;
     std::map<std::string, std::shared_ptr<ClippingPath>> mClippingPaths;
+    std::stack<std::shared_ptr<Group>> mGroupStack;
 
-    std::stack<Group*> mGroupStack;
-    std::unique_ptr<Group> mGroup;
+    // Render tree created during parsing.
+    std::shared_ptr<Group> mGroup;
+    std::map<std::string, std::shared_ptr<Element>> mIdToElementToMap;
 
 #if DEBUG
     std::string mTitle;
