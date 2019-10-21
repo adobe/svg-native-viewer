@@ -203,9 +203,9 @@ private:
 
     PropertySet ParsePresentationAttributes(XMLNode* node);
 
-    void RenderElement(const Element* element, const ColorMap& colorMap, float width, float height);
+    void RenderElement(const Element& element, const ColorMap& colorMap, float width, float height);
 
-    void TraverseTree(const ColorMap& colorMap, const Element*);
+    void TraverseTree(const ColorMap& colorMap, const Element&);
 
     void ApplyCSSStyle(
         const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle);

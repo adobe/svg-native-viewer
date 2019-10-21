@@ -53,7 +53,7 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
 
     GraphicStyleImpl graphicStyle{};
     std::set<std::string> classNames;
-    mGroup = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+    mGroup = std::make_shared<Group>(graphicStyle, classNames);
     mGroupStack.push(mGroup);
 }
 
@@ -173,7 +173,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mFillStyleStack.push(fillStyle);
         mStrokeStyleStack.push(strokeStyle);
 
-        auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+        auto group = std::make_shared<Group>(graphicStyle, classNames);
         AddChildToCurrentGroup(group, std::move(idString));
         mGroupStack.push(group);
 
@@ -336,7 +336,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             transform->Concat(*graphicStyle.transform);
         graphicStyle.transform = std::move(transform);
 
-        auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+        auto group = std::make_shared<Group>(graphicStyle, classNames);
         mGroupStack.push(group);
         AddChildToCurrentGroup(group, std::move(idString));
 
@@ -364,7 +364,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             }
         }
 
-        auto group = std::shared_ptr<Group>(new Group(graphicStyle, classNames));
+        auto group = std::make_shared<Group>(graphicStyle, classNames);
         mGroupStack.push(group);
         AddChildToCurrentGroup(group, std::move(idString));
 
@@ -984,7 +984,7 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     if (!mGroup)
         return;
     
-    RenderElement(mGroup.get(), colorMap, width, height);
+    RenderElement(*mGroup, colorMap, width, height);
 }
 
 void SVGDocumentImpl::Render(const char* id, const ColorMap& colorMap, float width, float height)
@@ -997,14 +997,11 @@ void SVGDocumentImpl::Render(const char* id, const ColorMap& colorMap, float wid
     // https://docs.microsoft.com/en-us/typography/opentype/spec/svg#glyph-identifiers
     auto elementIter = mIdToElementToMap.find(id);
     if (elementIter != mIdToElementToMap.end())
-        RenderElement(elementIter->second.get(), colorMap, width, height);
+        RenderElement(*elementIter->second, colorMap, width, height);
 }
 
-void SVGDocumentImpl::RenderElement(const Element* element, const ColorMap& colorMap, float width, float height)
+void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colorMap, float width, float height)
 {
-    if (!element)
-        return;
-
     float scale = width / mViewBox[2];
     if (scale > height / mViewBox[3])
         scale = height / mViewBox[3];
@@ -1091,54 +1088,50 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
         SVG_ASSERT_MSG(false, "Unhandled PaintImpl type");
 }
 
-void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element* element)
+void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& element)
 {
-    SVG_ASSERT(element);
-    if (!element)
-        return;
-
     // Inheritance doesn't work for override styles. Since override styles
     // are deprecated, we are not going to fix this nor is this expected by
     // (still existing) clients.
-    auto graphicStyle = element->graphicStyle;
+    auto graphicStyle = element.graphicStyle;
     FillStyleImpl fillStyle{};
     StrokeStyleImpl strokeStyle{};
     // Do not draw element if an applied clipPath has no content.
     if (graphicStyle.clippingPath && !graphicStyle.clippingPath->hasClipContent)
         return;
-    switch (element->Type())
+    switch (element.Type())
     {
     case ElementType::kGraphic:
     {
-        const auto graphic = static_cast<const Graphic*>(element);
+        const auto& graphic = static_cast<const Graphic&>(element);
         // TODO: Since we keep the original fill, stroke and color property values
         // we should be able to do w/o a copy.
-        fillStyle = graphic->fillStyle;
-        strokeStyle = graphic->strokeStyle;
-        ApplyCSSStyle(graphic->classNames, graphicStyle, fillStyle, strokeStyle);
+        fillStyle = graphic.fillStyle;
+        strokeStyle = graphic.strokeStyle;
+        ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
         // If we habe a CSS var() function we need to replace the placeholder with
         // an actual color from our externally provided color map here.
         Color color{{0.0f, 0.0f, 0.0f, 1.0f}};
         ResolveColorImpl(colorMap, fillStyle.color, color);
         ResolvePaintImpl(colorMap, fillStyle.internalPaint, color, fillStyle.paint);
         ResolvePaintImpl(colorMap, strokeStyle.internalPaint, color, strokeStyle.paint);
-        mRenderer->DrawPath(*(graphic->path.get()), graphicStyle, fillStyle, strokeStyle);
+        mRenderer->DrawPath(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
         break;
     }
     case ElementType::kImage:
     {
-        const auto image = static_cast<const Image*>(element);
-        ApplyCSSStyle(image->classNames, graphicStyle, fillStyle, strokeStyle);
-        mRenderer->DrawImage(*(image->imageData.get()), graphicStyle, image->clipArea, image->fillArea);
+        const auto& image = static_cast<const Image&>(element);
+        ApplyCSSStyle(image.classNames, graphicStyle, fillStyle, strokeStyle);
+        mRenderer->DrawImage(*(image.imageData.get()), graphicStyle, image.clipArea, image.fillArea);
         break;
     }
     case ElementType::kGroup:
     {
-        const auto group = static_cast<const Group*>(element);
-        ApplyCSSStyle(group->classNames, graphicStyle, fillStyle, strokeStyle);
-        mRenderer->Save(group->graphicStyle);
-        for (const auto& child : group->children)
-            TraverseTree(colorMap, child.get());
+        const auto& group = static_cast<const Group&>(element);
+        ApplyCSSStyle(group.classNames, graphicStyle, fillStyle, strokeStyle);
+        mRenderer->Save(group.graphicStyle);
+        for (const auto& child : group.children)
+            TraverseTree(colorMap, *child);
         mRenderer->Restore();
         break;
     }
