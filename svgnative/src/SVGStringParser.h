@@ -23,9 +23,9 @@ namespace SVGStringParser
 {
 std::unique_ptr<Transform> ParseTransform(const std::string& transformString, std::function<std::unique_ptr<Transform>()> createTransform);
 bool ParseNumber(const std::string& numberString, float& number);
-bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptinoal = true);
+bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional = true);
 bool ParseListOfLengthOrPercentage(
-    const std::string& lengthOrPercentageListString, float relDimensionLength, std::vector<float>& numberList, bool isAllOptinoal = true);
+    const std::string& lengthOrPercentageListString, float relDimensionLength, std::vector<float>& numberList, bool isAllOptional = true);
 bool ParseListOfStrings(const std::string& stringListString, std::vector<std::string>& stringList);
 bool ParseLengthOrPercentage(const std::string& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks = false);
 void ParsePathString(const std::string& pathString, Path& p);

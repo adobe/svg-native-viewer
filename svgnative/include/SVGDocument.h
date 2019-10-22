@@ -94,7 +94,7 @@ public:
      * color variables.
      * The viewport of the SVG document will be scaled uniformly to fit into the area
      * defined by the width and height arguments.
-     * @param width Horrizontal dimension of surface.
+     * @param width Horizontal dimension of surface.
      * @param height Vertical dimension of surface.
      */
     void Render(float width, float height);
@@ -118,7 +118,7 @@ public:
      * //     <rect width="200" height="200" fill="var(--myCustomFillColor, #F00)"/>
      * //     <rect width="200" height="200" stroke="var(--myCustomStrokeColor, #0F0)"/>
      * // </svg>
-     * // Note: var() consists of a custom name and, optionally, a comma separaetd fallback CSS color.
+     * // Note: var() consists of a custom name and, optionally, a comma separated fallback CSS color.
      * @encode
      */
     void Render(const ColorMap& colorMap);
@@ -131,7 +131,7 @@ public:
      * defined by the width and height arguments.
      * @param colorMap A string-to-Color map for pre-defined colors that replace
      *      CSS custom properties in the SVG file.
-     * @param width Horrizontal dimension of surface.
+     * @param width Horizontal dimension of surface.
      * @param height Vertical dimension of surface.
      *
      * @code
@@ -146,7 +146,7 @@ public:
      * //     <rect width="200" height="200" fill="var(--myCustomFillColor, #F00)"/>
      * //     <rect width="200" height="200" stroke="var(--myCustomStrokeColor, #0F0)"/>
      * // </svg>
-     * // Note: var() consists of a custom name and, optionally, a comma separaetd fallback CSS color.
+     * // Note: var() consists of a custom name and, optionally, a comma separated fallback CSS color.
      * @encode
      */
     void Render(const ColorMap& colorMap, float width, float height);

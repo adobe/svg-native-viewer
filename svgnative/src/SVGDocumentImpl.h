@@ -163,7 +163,7 @@ public:
 
     enum class LengthType
     {
-        kHorrizontal,
+        kHorizontal,
         kVertical,
         kDiagonal
     };
@@ -181,7 +181,7 @@ public:
 
 private:
     bool HasAttr(XMLNode* node, const char* attrName);
-    float ParseLengthFromAttr(XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorrizontal, float fallback = 0);
+    float ParseLengthFromAttr(XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);
     float RelativeLength(LengthType lengthType) const;
 
     float ParseColorStop(XMLNode* node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
@@ -217,10 +217,10 @@ private:
 private:
     // All stroke and fill CSS properties are so called
     // inherited CSS properties. Ancestors can define the
-    // stroke properties for desandents. Decendants override
+    // stroke properties for descendants. Descendants override
     // specifies from ancestors.
     // We need to keep the stack of settings in based on DOM
-    // hiearchy.
+    // hierarchy.
     std::stack<StrokeStyleImpl> mStrokeStyleStack;
     std::stack<FillStyleImpl> mFillStyleStack;
 

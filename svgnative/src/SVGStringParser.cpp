@@ -179,7 +179,7 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
 static bool ParseCoordinate(CharIt& pos, const CharIt& end, float& coord)
 {
     // FIXME: Remove initial SkipOptWspOrDelimiter call. Keep it here to keep
-    // behavior consitent to previous implementation.
+    // behavior consistent to previous implementation.
     if (!SkipOptWspOrDelimiter(pos, end))
         return false;
     if (!ParseScientificNumber(pos, end, coord))
@@ -190,7 +190,7 @@ static bool ParseCoordinate(CharIt& pos, const CharIt& end, float& coord)
 static bool ParseCoordinatePair(CharIt& pos, const CharIt& end, float& x, float& y)
 {
     // FIXME: Remove initial SkipOptWspOrDelimiter call. Keep it here to keep
-    // behavior consitent to previous implementation.
+    // behavior consistent to previous implementation.
     if (!SkipOptWspOrDelimiter(pos, end))
         return false;
     if (!ParseScientificNumber(pos, end, x))
@@ -1072,7 +1072,7 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
                     paint = std::get<1>(gradient.internalColorStops.front());
                 else
                 {
-                    // Percentage values that do neither correlate to horrizontal nor vertical dimensions
+                    // Percentage values that do neither correlate to horizontal nor vertical dimensions
                     // need to be relative to the hypotenuse of both. Example: r="50%"
                     float sqr = sqrtf(viewBox[2] * viewBox[2] + viewBox[3] * viewBox[3]);
                     if (gradient.type == GradientType::kLinearGradient)
