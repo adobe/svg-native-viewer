@@ -19,7 +19,7 @@
     <path fill="green" d="m20,120,20,0l0,20,-20,0z"/>
     <path fill="green" d="m.4e2.12e3.2e2.0.0.2e2-.2e2.0z"/>
 
-    <!-- negetive tests -->
+    <!-- negative tests -->
     <!-- Comma before segment identifier supported by WebKit & Blink; not by spec -->
     <path fill="green" d="M60,120,L80,120,L80,140,L60,140,z"/>
     <!-- Comma right after segment identifier not supported anywhere -->

@@ -104,7 +104,7 @@ Submodules are located in the `third_party/` directory. Used submodules:
 Install:
 * [CMake](https://cmake.org) Download and run the installer
 * [Boost](https://www.boost.org) Download the ZIP-package and extract the package into `C:>\Platform Files\boost\`
-* [MS Visual Studio 2017 or up](https://visualstudio.microsoft.com/vs/whatsnew/) Download and install with the installer. Make sure Visual C++ gets installed. (You maybe be able to use the "Community" version for free for non-comercial/enterprise use. See the website from MS for license details.)
+* [MS Visual Studio 2017 or up](https://visualstudio.microsoft.com/vs/whatsnew/) Download and install with the installer. Make sure Visual C++ gets installed. (You maybe be able to use the "Community" version for free for non-commercial/enterprise use. See the website from MS for license details.)
 ### OSX
 With Homebrew:
 ```

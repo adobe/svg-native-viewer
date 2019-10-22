@@ -66,11 +66,11 @@ void SVGDocumentImpl::TraverseSVGTree()
     if (!HasAttr(rootNode, "viewBox"))
     {
         if (HasAttr(rootNode, "x"))
-            mViewBox[0] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "x", LengthType::kHorrizontal);
+            mViewBox[0] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "x", LengthType::kHorizontal);
         if (HasAttr(rootNode, "y"))
             mViewBox[1] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "y", LengthType::kVertical);
         if (HasAttr(rootNode, "width"))
-            mViewBox[2] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "width", LengthType::kHorrizontal);
+            mViewBox[2] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "width", LengthType::kHorizontal);
         if (HasAttr(rootNode, "height"))
             mViewBox[3] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "height", LengthType::kVertical);
     }
@@ -111,7 +111,7 @@ float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
     float relLength{};
     switch (lengthType)
     {
-    case LengthType::kHorrizontal:
+    case LengthType::kHorizontal:
         relLength = mViewBox[2];
         break;
     case LengthType::kVertical:
@@ -227,9 +227,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             float imageWidth = imageData->Width();
             float imageHeight = imageData->Height();
 
-            Rect clipArea{ParseLengthFromAttr(child, "x", LengthType::kHorrizontal),
+            Rect clipArea{ParseLengthFromAttr(child, "x", LengthType::kHorizontal),
                 ParseLengthFromAttr(child, "y", LengthType::kVertical),
-                ParseLengthFromAttr(child, "width", LengthType::kHorrizontal, imageWidth),
+                ParseLengthFromAttr(child, "width", LengthType::kHorizontal, imageWidth),
                 ParseLengthFromAttr(child, "height", LengthType::kVertical, imageHeight)};
 
             std::string align;
@@ -331,7 +331,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mStrokeStyleStack.push(strokeStyle);
 
         auto transform = mRenderer->CreateTransform(
-            1, 0, 0, 1, ParseLengthFromAttr(child, "x", LengthType::kHorrizontal), ParseLengthFromAttr(child, "y", LengthType::kVertical));
+            1, 0, 0, 1, ParseLengthFromAttr(child, "x", LengthType::kHorizontal), ParseLengthFromAttr(child, "y", LengthType::kVertical));
         if (graphicStyle.transform)
             transform->Concat(*graphicStyle.transform);
         graphicStyle.transform = std::move(transform);
@@ -462,10 +462,10 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
     std::string elementName = child->name();
     if (elementName == "rect")
     {
-        float x = ParseLengthFromAttr(child, "x", LengthType::kHorrizontal);
+        float x = ParseLengthFromAttr(child, "x", LengthType::kHorizontal);
         float y = ParseLengthFromAttr(child, "y", LengthType::kVertical);
 
-        float width = ParseLengthFromAttr(child, "width", LengthType::kHorrizontal);
+        float width = ParseLengthFromAttr(child, "width", LengthType::kHorizontal);
         float height = ParseLengthFromAttr(child, "height", LengthType::kVertical);
 
         bool hasRx = HasAttr(child, "rx");
@@ -475,14 +475,14 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
         float ry{};
         if (hasRx && hasRy)
         {
-            rx = ParseLengthFromAttr(child, "rx", LengthType::kHorrizontal);
+            rx = ParseLengthFromAttr(child, "rx", LengthType::kHorizontal);
             ry = ParseLengthFromAttr(child, "ry", LengthType::kVertical);
         }
         else if (hasRx)
         {
             // the svg spec says that rect elements that specify a rx but not a ry
             // should use the rx value for ry
-            rx = ParseLengthFromAttr(child, "rx", LengthType::kHorrizontal);
+            rx = ParseLengthFromAttr(child, "rx", LengthType::kHorizontal);
             ry = rx;
         }
         else if (hasRy)
@@ -519,7 +519,7 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 
         if (elementName == "ellipse")
         {
-            rx = ParseLengthFromAttr(child, "rx", LengthType::kHorrizontal);
+            rx = ParseLengthFromAttr(child, "rx", LengthType::kHorizontal);
             ry = ParseLengthFromAttr(child, "ry", LengthType::kVertical);
         }
         else
@@ -528,7 +528,7 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
             ry = rx;
         }
 
-        float cx = ParseLengthFromAttr(child, "cx", LengthType::kHorrizontal);
+        float cx = ParseLengthFromAttr(child, "cx", LengthType::kHorizontal);
         float cy = ParseLengthFromAttr(child, "cy", LengthType::kVertical);
 
         auto path = mRenderer->CreatePath();
@@ -576,8 +576,8 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
     else if (elementName == "line")
     {
         auto path = mRenderer->CreatePath();
-        path->MoveTo(ParseLengthFromAttr(child, "x1", LengthType::kHorrizontal), ParseLengthFromAttr(child, "y1", LengthType::kVertical));
-        path->LineTo(ParseLengthFromAttr(child, "x2", LengthType::kHorrizontal), ParseLengthFromAttr(child, "y2", LengthType::kVertical));
+        path->MoveTo(ParseLengthFromAttr(child, "x1", LengthType::kHorizontal), ParseLengthFromAttr(child, "y1", LengthType::kVertical));
+        path->LineTo(ParseLengthFromAttr(child, "x2", LengthType::kHorizontal), ParseLengthFromAttr(child, "y2", LengthType::kVertical));
 
         return path;
     }
@@ -921,7 +921,7 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
         return;
     }
 
-    // TODO: Do we want to support `gradientUnits="objectBoundnigBox"` at all?
+    // TODO: Do we want to support `gradientUnits="objectBoundingBox"` at all?
     // This would require us to get the bounding box of the filled/stroked shape
     // when the gradient gets applied.
 
@@ -929,11 +929,11 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
     {
         // https://www.w3.org/TR/SVG11/pservers.html#LinearGradients
         if (HasAttr(node, "x1"))
-            gradient.x1 = ParseLengthFromAttr(node, "x1", LengthType::kHorrizontal);
+            gradient.x1 = ParseLengthFromAttr(node, "x1", LengthType::kHorizontal);
         if (HasAttr(node, "y1"))
             gradient.y1 = ParseLengthFromAttr(node, "y1", LengthType::kVertical);
         if (HasAttr(node, "x2"))
-            gradient.x2 = ParseLengthFromAttr(node, "x2", LengthType::kHorrizontal);
+            gradient.x2 = ParseLengthFromAttr(node, "x2", LengthType::kHorizontal);
         if (HasAttr(node, "y2"))
             gradient.y2 = ParseLengthFromAttr(node, "y2", LengthType::kVertical);
     }
@@ -941,11 +941,11 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
     {
         // https://www.w3.org/TR/SVG11/pservers.html#RadialGradients
         if (HasAttr(node, "cx"))
-            gradient.cx = ParseLengthFromAttr(node, "cx", LengthType::kHorrizontal);
+            gradient.cx = ParseLengthFromAttr(node, "cx", LengthType::kHorizontal);
         if (HasAttr(node, "cy"))
             gradient.cy = ParseLengthFromAttr(node, "cy", LengthType::kVertical);
         if (HasAttr(node, "fx"))
-            gradient.fx = ParseLengthFromAttr(node, "fx", LengthType::kHorrizontal);
+            gradient.fx = ParseLengthFromAttr(node, "fx", LengthType::kHorizontal);
         if (HasAttr(node, "fy"))
             gradient.fy = ParseLengthFromAttr(node, "fy", LengthType::kVertical);
         if (HasAttr(node, "r"))
@@ -1109,7 +1109,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         fillStyle = graphic.fillStyle;
         strokeStyle = graphic.strokeStyle;
         ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
-        // If we habe a CSS var() function we need to replace the placeholder with
+        // If we have a CSS var() function we need to replace the placeholder with
         // an actual color from our externally provided color map here.
         Color color{{0.0f, 0.0f, 0.0f, 1.0f}};
         ResolveColorImpl(colorMap, fillStyle.color, color);

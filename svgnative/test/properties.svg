@@ -7,7 +7,7 @@
     <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="  
     0.5e2  "/>
 
-    <!-- stroke-miterlimit: negetive tests -->
+    <!-- stroke-miterlimit: negative tests -->
     <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="-4"/>
     <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="0"/>
     <line x1="5" y1="5" x2="145" y2="5" stroke-miterlimit="0.99"/>
@@ -25,7 +25,7 @@
     <line x1="5" y1="19" x2="145" y2="19" stroke="black" stroke-opacity="   
     2e-1  "/>
 
-    <!-- stroke-opacity: negetive tests -->
+    <!-- stroke-opacity: negative tests -->
     <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="20%"/>
     <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2px"/>
     <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2pc"/>
@@ -40,7 +40,7 @@
     <rect x="5" y="39" width="140" height="2" opacity="   
     2e-1  "/>
 
-    <!-- opacity: negetive tests -->
+    <!-- opacity: negative tests -->
     <rect x="5" y="40" width="140" height="2" opacity="20%"/>
     <rect x="5" y="40" width="140" height="2" opacity="2px"/>
     <rect x="5" y="40" width="140" height="2" opacity="2pc"/>
@@ -55,7 +55,7 @@
     <rect x="5" y="39" width="140" height="2" fill-opacity="   
     2e-1  "/>
 
-    <!-- fill-opacity: negetive tests -->
+    <!-- fill-opacity: negative tests -->
     <rect x="5" y="42" width="140" height="2" fill-opacity="20%"/>
     <rect x="5" y="42" width="140" height="2" fill-opacity="2px"/>
     <rect x="5" y="42" width="140" height="2" fill-opacity="2pc"/>
@@ -79,7 +79,7 @@
     <!-- stroke-width: reset stroke -->
     <line x2="200" y1="100" y2="100" stroke="black" stroke-width="0"/>
 
-    <!-- stroke-width: negetive tests -->
+    <!-- stroke-width: negative tests -->
     <line x2="200" y1="105" y2="105" stroke="black" stroke-width="-3.0e2"/>
     <line x2="200" y1="105" y2="105" stroke="black" stroke-width="-300.0e-2"/>
 </svg>

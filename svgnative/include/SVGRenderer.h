@@ -25,7 +25,7 @@ governing permissions and limitations under the License.
 namespace SVGNative
 {
 /**
- * Supported image encoding foramts are PNG and JPEG.
+ * Supported image encoding formats are PNG and JPEG.
  * The assumed encoding format based on the base64 string.
  */
 enum class ImageEncoding
@@ -200,8 +200,8 @@ struct ClippingPath
  */
 struct GraphicStyle
 {
-    // Add blend modes and other graohic style options here.
-    float opacity = 1.0; /** Corresponds to the "opacty" CSS property. **/
+    // Add blend modes and other graphic style options here.
+    float opacity = 1.0; /** Corresponds to the "opacity" CSS property. **/
     std::shared_ptr<Transform> transform; /** Joined transformation matrix based to the "transform" attribute. **/
     std::shared_ptr<ClippingPath> clippingPath;
 };
