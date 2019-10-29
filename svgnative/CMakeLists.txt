@@ -35,15 +35,18 @@ option(LIB_ONLY "Create a project for library only" OFF)
 option(TEXT "Enable Text port for testing" ON)
 option(CG "Enable CoreGraphics/Quartz2D port")
 option(SKIA "Enable Skia port")
+option(GDIPLUS "Enable GDI+ port")
 option(STYLE "Enable deprecated CSS Styling support")
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA "Skia" TRUE "APPLE;SKIA" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_GDIPLUS "GDI+ port" TRUE "MSVC;GDIPLUS" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT_EXAMPLE "Text port for testing" TRUE "NOT LIB_ONLY;TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG_EXAMPLE "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "NOT LIB_ONLY;USE_CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY;GDIPLUS" FALSE)
 
 ################################
 # Other Attributes
@@ -87,6 +90,9 @@ add_subdirectory(example/testCocoaCG)
 endif()
 if (USE_SKIA_EXAMPLE)
 add_subdirectory(example/testSkia)
+endif()
+if (USE_GDIPLUS_EXAMPLE)
+add_subdirectory(example/testGDIPlus)
 endif()
 
 ##############################
@@ -141,17 +147,28 @@ file(GLOB skia_port
 )
 endif()
 
+set(gdiplus_port)
+if (USE_GDIPLUS)
+file(GLOB gdiplus_port
+    ports/gdiplus/GDIPlusSVGRenderer.h
+    ports/gdiplus/GDIPlusSVGRenderer.cpp
+    ../third_party/cpp-base64/base64.h
+    ../third_party/cpp-base64/base64.cpp
+)
+endif()
+
 ##############################
 # Library settings
 ##############################
 add_library(
-    SVGNativeViewerLib STATIC    
+    SVGNativeViewerLib STATIC
     ${gl_public}
     ${gl_deprecated_styling}
     ${gl_source}
     ${text_port}
     ${cg_port}
     ${skia_port}
+    ${gdiplus_port}
 )
 
 ##############################
@@ -178,6 +195,10 @@ target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/effects")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/encode")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/gpu")
+endif()
+if (USE_GDIPLUS)
+target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/gdiplus")
+target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 endif()
 
 ##############################
