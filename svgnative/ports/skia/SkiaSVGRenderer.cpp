@@ -191,11 +191,12 @@ void SkiaSVGRenderer::DrawPath(
     Save(graphicStyle);
     if (fillStyle.hasFill)
     {
-        // FIXME: Handle winding rules.
         SkPaint fill;
         fill.setStyle(SkPaint::kFill_Style);
         CreateSkPaint(fillStyle.paint, fillStyle.fillOpacity, fill);
-        mCanvas->drawPath(static_cast<const SkiaSVGPath&>(path).mPath, fill);
+        SkPath mPath = (static_cast<const SkiaSVGPath&>(path).mPath);
+        mPath.setFillType(fillStyle.fillRule == WindingRule::kNonZero ? SkPath::kWinding_FillType : SkPath::kEvenOdd_FillType);
+        mCanvas->drawPath(mPath, fill);
     }
     if (strokeStyle.hasStroke)
     {
