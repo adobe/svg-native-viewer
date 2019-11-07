@@ -14,13 +14,16 @@ governing permissions and limitations under the License.
 #include "base64.h"
 #include "Config.h"
 #include "SkCanvas.h"
+#include "SkCodec.h"
 #include "SkData.h"
+#include "SkEncodedOrigin.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkDashPathEffect.h"
 #include <math.h>
 
@@ -81,11 +84,68 @@ void SkiaSVGTransform::Scale(float sx, float sy) { mMatrix.preScale(sx, sy, 0.0,
 
 void SkiaSVGTransform::Concat(const Transform& other) { mMatrix.preConcat(static_cast<const SkiaSVGTransform&>(other).mMatrix); }
 
+inline sk_sp<SkImage> getOrientedImage(sk_sp<SkImage> srcImg, SkEncodedOrigin origin)
+{
+    int width = 0, height = 0;
+    int offsetX = 0, offsetY = 0;
+    int rot = 0;
+    int centerX = 0, centerY = 0;
+
+    switch (origin)
+    {
+    case SkEncodedOrigin::kBottomRight_SkEncodedOrigin:
+        width = srcImg->width();
+        height = srcImg->height();
+        rot = 180;
+        centerX = width / 2;
+        centerY = height / 2;
+        break;
+
+    case SkEncodedOrigin::kLeftBottom_SkEncodedOrigin:
+        width = srcImg->height();
+        height = srcImg->width();
+        offsetX = width;
+        rot = 90;
+        break;
+
+    case SkEncodedOrigin::kRightTop_SkEncodedOrigin:
+        width = srcImg->height();
+        height = srcImg->width();
+        offsetY = height;
+        rot = 270;
+        break;
+
+    default:
+        return nullptr;
+    }
+
+    auto skRasterSurface = SkSurface::MakeRasterN32Premul(width, height);
+    auto skRasterCanvas = skRasterSurface->getCanvas();
+    if (offsetX != 0 || offsetY != 0)
+        skRasterCanvas->translate(offsetX, offsetY);
+    if (rot != 0)
+    {
+        if (centerX != 0 || centerY != 0)
+            skRasterCanvas->rotate(rot, centerX, centerY);
+        else
+            skRasterCanvas->rotate(rot);
+    }
+    skRasterCanvas->drawImage(srcImg, 0, 0);
+    return skRasterSurface->makeImageSnapshot();
+}
+
 SkiaSVGImageData::SkiaSVGImageData(const std::string& base64, ImageEncoding /*encoding*/)
 {
     std::string imageString = base64_decode(base64);
     auto skData = SkData::MakeWithCopy(imageString.data(), imageString.size());
-    mImageData = SkImage::MakeFromEncoded(skData);
+    SkEncodedOrigin origin = SkCodec::MakeFromData(skData, nullptr)->getOrigin();
+    if (origin == SkEncodedOrigin::kTopLeft_SkEncodedOrigin)
+        mImageData = SkImage::MakeFromEncoded(skData);
+    else
+    {
+        auto rawImg = SkImage::MakeFromEncoded(skData);
+        mImageData = getOrientedImage(rawImg, origin);
+    }
 }
 
 float SkiaSVGImageData::Width() const
