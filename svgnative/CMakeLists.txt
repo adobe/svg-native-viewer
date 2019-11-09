@@ -1,4 +1,4 @@
-#[[ 
+#[[
 cd build
 cmake -Bbuild/win64 -H. -G "Visual Studio 15 2017 Win64"
 cmake -Bbuild/win32 -H. -G "Visual Studio 15 2017"
@@ -53,14 +53,14 @@ CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY
 CMAKE_DEPENDENT_OPTION(USE_CAIRO_EXAMPLE "Cairo example" TRUE "NOT LIB_ONLY;CAIRO" FALSE)
 
 ################################
-# setting for Cairo 
+# setting for Cairo
 ################################
 if(CAIRO)
     find_package(PkgConfig)
     include(FindCairo)
     if(NOT CAIRO_FOUND)
-        set(CAIRO_INCLUDE_DIRS "/usr/include/cairo")     
-        set(CAIRO_LIBRARIES "-lcairo")     
+        set(CAIRO_INCLUDE_DIRS "/usr/include/cairo")
+        set(CAIRO_LIBRARIES "-lcairo")
     endif()
 endif()
 
