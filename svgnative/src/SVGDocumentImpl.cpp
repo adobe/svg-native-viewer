@@ -983,7 +983,7 @@ void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height
     SVG_ASSERT(mGroup);
     if (!mGroup)
         return;
-    
+
     RenderElement(*mGroup, colorMap, width, height);
 }
 

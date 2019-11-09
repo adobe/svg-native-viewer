@@ -127,7 +127,7 @@ void CGSVGRenderer::Save(const GraphicStyle& graphicStyle)
             CGPathRelease(newPath);
         }
         else
-            CGContextAddPath(mContext, path);   
+            CGContextAddPath(mContext, path);
         if (graphicStyle.clippingPath->clipRule == WindingRule::kEvenOdd)
             CGContextEOClip(mContext);
         else

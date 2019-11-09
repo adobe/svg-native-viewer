@@ -68,14 +68,14 @@ void CairoSVGPath::Ellipse(float cx, float cy, float rx, float ry)
     // https://cairographics.org/cookbook/ellipses/
 
     cairo_matrix_t  save_matrix;
-    cairo_get_matrix(mPathCtx, &save_matrix); 
+    cairo_get_matrix(mPathCtx, &save_matrix);
 
     cairo_translate(mPathCtx, cx, cy);
     cairo_scale(mPathCtx, rx, ry);
     cairo_new_sub_path(mPathCtx);
     cairo_arc(mPathCtx, 0, 0, 1, 0, 2 * M_PI);
 
-    cairo_set_matrix(mPathCtx, &save_matrix); 
+    cairo_set_matrix(mPathCtx, &save_matrix);
 }
 
 void CairoSVGPath::MoveTo(float x, float y)
@@ -141,7 +141,7 @@ void CairoSVGTransform::Concat(const Transform& other)
     cairo_matrix_t  result;
     cairo_matrix_multiply(&result, &mMatrix, &(static_cast<const CairoSVGTransform&>(other).mMatrix));
     // Cairo has no simple API to copy a matrix to another
-    cairo_matrix_init(&mMatrix, result.xx, result.yx, result.xy, result.yy, result.x0, result.y0); 
+    cairo_matrix_init(&mMatrix, result.xx, result.yx, result.xy, result.yy, result.x0, result.y0);
 }
 
 CairoSVGImageData::CairoSVGImageData(const std::string& base64, ImageEncoding encoding)
@@ -308,7 +308,7 @@ inline void createCairoPattern(const Paint& paint, float opacity, cairo_pattern_
     if (gradient.transform)
         cairo_pattern_set_matrix(*pat, &(static_cast<CairoSVGTransform*>(gradient.transform.get())->mMatrix));
 
-    // set "stop"s of gradient 
+    // set "stop"s of gradient
     for (const auto& stop : gradient.colorStops)
     {
         // here, ColorStop is a pair of offset (in float) and color

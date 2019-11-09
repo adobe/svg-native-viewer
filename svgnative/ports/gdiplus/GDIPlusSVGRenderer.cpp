@@ -34,15 +34,15 @@ Gdiplus::Color ColorToGdiplusColor(const Color& inColor)
 /******************************************************************************/
 
 GDIPlusSVGPath::GDIPlusSVGPath()
-{ 
+{
 }
 
-GDIPlusSVGPath::~GDIPlusSVGPath() 
-{ 
+GDIPlusSVGPath::~GDIPlusSVGPath()
+{
 }
 
-void GDIPlusSVGPath::Rect(float x, float y, float width, float height) 
-{ 
+void GDIPlusSVGPath::Rect(float x, float y, float width, float height)
+{
     mPath.AddRectangle(Gdiplus::RectF(x, y, width, height));
 }
 
@@ -98,8 +98,8 @@ void GDIPlusSVGPath::CurveToV(float x2, float y2, float x3, float y3)
     mCurrentY = y3;
 }
 
-void GDIPlusSVGPath::ClosePath() 
-{ 
+void GDIPlusSVGPath::ClosePath()
+{
     mPath.CloseFigure();
 }
 
@@ -110,28 +110,28 @@ const Gdiplus::GraphicsPath& GDIPlusSVGPath::GetGraphicsPath() const
 
 /******************************************************************************/
 
-GDIPlusSVGTransform::GDIPlusSVGTransform(float a, float b, float c, float d, float tx, float ty) 
-{ 
+GDIPlusSVGTransform::GDIPlusSVGTransform(float a, float b, float c, float d, float tx, float ty)
+{
     mTransform.SetElements(a, b, c, d, tx, ty);
 }
 
-void GDIPlusSVGTransform::Set(float a, float b, float c, float d, float tx, float ty) 
-{ 
+void GDIPlusSVGTransform::Set(float a, float b, float c, float d, float tx, float ty)
+{
     mTransform.SetElements(a, b, c, d, tx, ty);
 }
 
-void GDIPlusSVGTransform::Rotate(float r) 
-{ 
+void GDIPlusSVGTransform::Rotate(float r)
+{
     mTransform.Rotate(r);
 }
 
-void GDIPlusSVGTransform::Translate(float tx, float ty) 
-{ 
+void GDIPlusSVGTransform::Translate(float tx, float ty)
+{
     mTransform.Translate(tx, ty);
 }
 
-void GDIPlusSVGTransform::Scale(float sx, float sy) 
-{ 
+void GDIPlusSVGTransform::Scale(float sx, float sy)
+{
     mTransform.Scale(sx, sy);
 }
 
@@ -155,7 +155,7 @@ GDIPlusSVGImageData::GDIPlusSVGImageData(const std::string& base64, ImageEncodin
         if (imageData)
         {
             std::memcpy(imageData, imageString.c_str(), imageString.size());
-            
+
             IStream* pImageStream{};
             if (::CreateStreamOnHGlobal(hImageData, FALSE, &pImageStream) == S_OK)
             {
@@ -187,7 +187,7 @@ const std::unique_ptr<Gdiplus::Image>& GDIPlusSVGImageData::GetImage() const
     return mImage;
 }
 
-GDIPlusSVGRenderer::GDIPlusSVGRenderer() 
+GDIPlusSVGRenderer::GDIPlusSVGRenderer()
 {
 }
 
@@ -200,7 +200,7 @@ void GDIPlusSVGRenderer::Save(const GraphicStyle& graphicStyle)
         const Gdiplus::Matrix* matrix = &dynamic_cast<GDIPlusSVGTransform*>(graphicStyle.transform.get())->GetMatrix();
         if (matrix != nullptr)
         {
-            mContext->SetTransform(matrix);   
+            mContext->SetTransform(matrix);
         }
     }
 
@@ -415,14 +415,14 @@ void GDIPlusSVGRenderer::DrawImage(const ImageData& image, const GraphicStyle& g
     {
         Save(graphicStyle);
 
-        if (clipArea.width < fillArea.width || clipArea.height < fillArea.height)   
+        if (clipArea.width < fillArea.width || clipArea.height < fillArea.height)
         {
             mContext->SetClip(Gdiplus::RectF(clipArea.x, clipArea.y, clipArea.width, clipArea.height));
         }
 
         mContext->DrawImage(gdiPlusImage.GetImage().get(), Gdiplus::RectF(fillArea.x, 0, fillArea.width, fillArea.height));
 
-        Restore();  
+        Restore();
     }
 }
 
