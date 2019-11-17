@@ -39,7 +39,6 @@ A valid SVG Native document is always a valid SVG1.1/2.0 document.
 
 ### Known limitations in SVG Native Viewer
 * Referenced elements need to be declared first. Example: A `<linearGradient>` element must be defined in the SVG document before its first reference (`fill="url(#gradient)"`).
-* `viewBox` on `<svg>` element does not take translation values into account yet.
 * `preserveAspectRatio` is not supported on the `<svg>` element yet.
 * Furthermore, there might be limitations on certain platforms. (E.g. missing spread-method support on CoreGraphics.)
 
@@ -51,6 +50,8 @@ For rendering, SVG Native Viewer requires a rendering port. Already existing por
 * **StringSVGRenderer** for testing purposes,
 * **CGSVGRenderer** a rendering port using CoreGraphics (Quartz 2D).
 * **SkiaSVGRenderer** a rendering port using Skia.
+* **CairoSVGRenderer** a rendering port using Cairo Graphics.
+* **GDIPlusSVGRenderer** a rendering port using GDI+.
 
 New ports need to inherit from **SVGRenderer** and implement the virtual functions.
 
@@ -148,12 +149,15 @@ On Linux you may choose to use GCC or Clang/LLVM. Add the following to the comma
 * `-DCMAKE_CXX_COMPILER=clang` for Clang/LLVM
 
 The following arguments can be passed with the `-D` flag and the options `ON` or `OFF`:
+* `LIB_ONLY` Only compile the library withoug examples. Default `OFF`.
+* `SHARED` If `ON`, builds a dynamic library. Static otherwise. Default `OFF`.
 * `TEXT` adds the _Text_ port to the library. Default `ON`.
 * `CG` adds the _CoreGraphics/Quartz2D_ port to the library. Default `OFF`.
-* `Skia` adds the _Skia_ port to the library. Default `OFF`.
+* `SKIA` adds the _Skia_ port to the library. Default `OFF`.
+* `GDIPLUS` adds the _GDI+_ port to the library. Default `OFF`.
+* `CAIRO` adds the _Cairo Graphics_ port to the library. Default `OFF`.
 
 Each port includes an example project using the port. To disable the example projects set the following option to `OFF`. Default `ON`.
-* `LIBRARY_ONLY`
 
 To enable deprecated CSS styling support:
 * `STYLE` adds limited, deprecated support for `<style>` element and `style` attribute.
@@ -164,7 +168,7 @@ The following example creates project files for the library with the Text, CoreG
 cmake -Bbuild/mac -H. -G "Xcode" -DCG=ON -DSKIA=ON
 ```
 
-**Note:** For testing, build with the `TEXT` option set to `ON` and `LIBRARY_ONLY` option set to `OFF`. (The default for both.)
+**Note:** For testing, build with the `TEXT` option set to `ON` and `LIB_ONLY` option set to `OFF`. (The default for both.)
 
 ### Build
 

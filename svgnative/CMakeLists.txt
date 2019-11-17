@@ -8,6 +8,9 @@ cmake -Bbuild/linux -H.
 cmake --build build/win64 --config Release
 ]]
 
+# Version of SVGNativeViewerLib based on semver (major-, minor-, patch-release)
+set(VERSION "0.9.0")
+
 cmake_minimum_required(VERSION 3.5.0)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 project(SVGNativeViewer)
@@ -20,6 +23,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         message(FATAL_ERROR "Minimum supported GCC version: 4.8.1. Currently used version: ${CMAKE_CXX_COMPILER_VERSION}")
     endif()
 endif()
+message(STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 message(STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
@@ -32,6 +36,7 @@ message(STATUS "CMAKE_CXX_COMPILER_VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
 include(CMakeDependentOption)
 
 option(LIB_ONLY "Create a project for library only" OFF)
+option(SHARED "Make library dynamic")
 
 option(TEXT "Enable Text port for testing" ON)
 option(CG "Enable CoreGraphics/Quartz2D port")
@@ -39,6 +44,8 @@ option(SKIA "Enable Skia port")
 option(GDIPLUS "Enable GDI+ port")
 option(STYLE "Enable deprecated CSS Styling support")
 option(CAIRO "Enable Cairo port")
+
+CMAKE_DEPENDENT_OPTION(USE_SHARED "Dynamic library" TRUE "SHARED" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
@@ -88,6 +95,19 @@ elseif(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
+endif()
+
+set(dll_version)
+if(WIN32)
+  set(dll_version ${dll_version} src/win/version.rc)
+
+  string(REPLACE "." "," VER_FILEVERSION ${VERSION})
+
+  add_definitions(-DVER_FILEVERSION=${VER_FILEVERSION})
+  add_definitions(-DVER_FILEVERSION_STR="${VERSION}")
+  add_definitions(-DVER_PRODUCTVERSION=${VER_FILEVERSION})
+  add_definitions(-DVER_PRODUCTVERSION_STR="${VERSION}")
+
 endif()
 
 if(STYLE)
@@ -193,8 +213,7 @@ endif()
 ##############################
 # Library settings
 ##############################
-add_library(
-    SVGNativeViewerLib STATIC
+set(svgNative_src
     ${gl_public}
     ${gl_deprecated_styling}
     ${gl_source}
@@ -203,8 +222,13 @@ add_library(
     ${skia_port}
     ${gdiplus_port}
     ${cairo_port}
+    ${dll_version}
 )
-
+if (USE_SHARED)
+add_library(SVGNativeViewerLib SHARED ${svgNative_src})
+else()
+add_library(SVGNativeViewerLib STATIC ${svgNative_src})
+endif()
 ##############################
 # Header search paths
 ##############################
