@@ -104,7 +104,7 @@ Submodules are located in the `third_party/` directory. Used submodules:
 
 Install:
 * [CMake](https://cmake.org) Download and run the installer
-* [Boost](https://www.boost.org) Download the ZIP-package and extract the package into `C:>\Platform Files\boost\`
+* [Boost](https://www.boost.org) Download the ZIP-package and extract the package into `C:>\Program Files\boost_x.y.z\` (See below how to specify a different Boost installation directory by a CMake option.)
 * [MS Visual Studio 2017 or up](https://visualstudio.microsoft.com/vs/whatsnew/) Download and install with the installer. Make sure Visual C++ gets installed. (You maybe be able to use the "Community" version for free for non-commercial/enterprise use. See the website from MS for license details.)
 ### OSX
 With Homebrew:
@@ -147,6 +147,9 @@ cmake -BBuild/linux -H.
 On Linux you may choose to use GCC or Clang/LLVM. Add the following to the command above to choose between one and the other:
 * `-DCMAKE_CXX_COMPILER=g++` for GCC
 * `-DCMAKE_CXX_COMPILER=clang` for Clang/LLVM
+
+To specify a different Boost installation directory on Windows use the following command:
+* `-DBOOST_ROOT=X:\path\to\boost`
 
 The following arguments can be passed with the `-D` flag and the options `ON` or `OFF`:
 * `LIB_ONLY` Only compile the library withoug examples. Default `OFF`.
