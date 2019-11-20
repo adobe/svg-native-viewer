@@ -295,3 +295,13 @@ if(NOT Boost_FOUND)
 else()
     target_include_directories(SVGNativeViewerLib PUBLIC ${Boost_INCLUDE_DIRS})
 endif()
+
+##############################
+# Creating pkg-config file
+##############################
+
+# TODO: Add includes and libraries for individual ports.
+set(BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(PRIVATE_LIBS)
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib.pc.in" "${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib.pc" @ONLY)

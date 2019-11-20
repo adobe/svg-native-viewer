@@ -2,3 +2,4 @@
 svgnative/build/
 viewer/
 .vscode
+SVGNativeViewerLib.pc
