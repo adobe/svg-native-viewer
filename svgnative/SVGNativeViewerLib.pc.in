@@ -1,0 +1,10 @@
+prefix=@SOURCE_DIR@
+exec_prefix=@BINARY_DIR@
+libdir=${exec_prefix}
+includedir=${prefix}/include
+
+Name: SVGNativeViewerLib
+Description: Parser and renderer for SVG Native documents
+Version: @VERSION@
+
+Cflags: -I${includedir}
