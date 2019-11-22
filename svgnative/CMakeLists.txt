@@ -64,10 +64,15 @@ CMAKE_DEPENDENT_OPTION(USE_CAIRO_EXAMPLE "Cairo example" TRUE "NOT LIB_ONLY;CAIR
 ################################
 if(CAIRO)
     find_package(PkgConfig)
-    include(FindCairo)
+    # include(FindCairo)
+    pkg_check_modules(CAIRO cairo)
     if(NOT CAIRO_FOUND)
-        set(CAIRO_INCLUDE_DIRS "/usr/include/cairo")
-        set(CAIRO_LIBRARIES "-lcairo")
+        message(FATAL_ERROR "Fatal error: Cairo port is requested, but CAIRO developers' files are missing.")
+    else()
+       pkg_check_modules(LIBJPEG libjpeg)
+       if (NOT LIBJPEG_FOUND)
+           message(FATAL_ERROR "Fatal error: Cairo port requires LIBJPEG developers' files.")
+       endif()
     endif()
 endif()
 
@@ -157,15 +162,18 @@ file(GLOB gl_deprecated_styling
 )
 endif()
 
-##############################
-# Rendering ports
-##############################
+#####################################################
+# Rendering ports, and collect gl_headers to install
+#####################################################
+file(GLOB gl_headers ${PROJECT_SOURCE_DIR}/include/*.h)
+
 set(text_port)
 if(USE_TEXT)
 file(GLOB text_port
     ports/string/StringSVGRenderer.h
     ports/string/StringSVGRenderer.cpp
 )
+set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/string/StringSVGRenderer.h)
 endif()
 
 set(cg_port)
@@ -176,6 +184,7 @@ file(GLOB cg_port
     ../third_party/cpp-base64/base64.h
     ../third_party/cpp-base64/base64.cpp
 )
+set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/cg/CGSVGRenderer.h)
 endif()
 
 set(skia_port)
@@ -184,6 +193,7 @@ file(GLOB skia_port
     ports/skia/SkiaSVGRenderer.h
     ports/skia/SkiaSVGRenderer.cpp
 )
+set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/skia/SkiaSVGRenderer.h)
 if (NOT MSVC)
     set_source_files_properties(ports/skia/SkiaSVGRenderer.cpp PROPERTIES COMPILE_FLAGS -Wno-pedantic)
 endif()
@@ -197,6 +207,7 @@ file(GLOB gdiplus_port
     ../third_party/cpp-base64/base64.h
     ../third_party/cpp-base64/base64.cpp
 )
+set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/gdiplus/GDIPlusSVGRenderer.h)
 endif()
 set(cairo_port)
 if (USE_CAIRO)
@@ -208,6 +219,7 @@ file(GLOB cairo_port
     ../third_party/cpp-base64/base64.h
     ../third_party/cpp-base64/base64.cpp
 )
+set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/cairo/CairoSVGRenderer.h)
 endif()
 
 ##############################
@@ -268,20 +280,41 @@ endif()
 ##############################
 # Library search paths
 ##############################
+set(PRIVATE_LIBS)
+set(REQUIRES)
+set(PRIVATE_REQUIRES)
+set(PORTS_INCLUDES)
 
 if(USE_CG)
-target_link_libraries(SVGNativeViewerLib "-framework CoreGraphics")
+    target_link_libraries(SVGNativeViewerLib "-framework CoreGraphics")
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} -framework CoreGraphics")
+    set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/cg")
 endif()
+
 if (USE_SKIA)
-if(MSVC)
-target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/skia.lib")
-else()
-target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/libskia.a")
+    if(MSVC)
+        target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/skia.lib")
+        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/ -lskia")
+    else()
+        target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/libskia.a")
+        # XXX: how to list the libraries which libskia.a depends?
+        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/ -lskia")
+    endif()
+    set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/skia")
 endif()
-endif()
+
 if (USE_CAIRO)
-target_link_libraries(SVGNativeViewerLib "${CAIRO_LIBRARIES}")
-target_link_libraries(SVGNativeViewerLib "-ljpeg")
+    target_link_libraries(SVGNativeViewerLib "${CAIRO_LIBRARIES}")
+    target_link_libraries(SVGNativeViewerLib "${LIBJPEG_LIBRARIES}")
+    set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES} cairo libjpeg")
+    set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/cairo")
+endif()
+
+# CMake has no additional file to record the dependency for the static library,
+# we have to put direct dependencies into pkg-config files.
+if (NOT USE_SHARED)
+    set(REQUIRES "${PRIVATE_REQUIRES}")
+    set(PRIVATE_REQUIRES "")
 endif()
 
 set_target_properties(SVGNativeViewerLib PROPERTIES LINKER_LANGUAGE CXX)
@@ -297,9 +330,46 @@ endif()
 ##############################
 # Creating pkg-config file
 ##############################
+include(GNUInstallDirs)
 
-# TODO: Add includes and libraries for individual ports.
 set(BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(PRIVATE_LIBS)
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib.pc.in" "${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib.pc" @ONLY)
+set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+set(CMAKE_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
+set(PRIVATE_LIBS "${PRIVATE_LIBS}")
+set(REQUIRES "${REQUIRES}")
+set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES}")
+set(PORTS_INCLUDES "${PORTS_INCLUDES}")
+set(HEADER_SUBDIR "svgnative")
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib.pc.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/SVGNativeViewerLib.pc" @ONLY)
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib-uninstalled.pc.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/SVGNativeViewerLib-uninstalled.pc" @ONLY)
+
+##############################
+# Installation
+##############################
+
+# library
+install(
+    TARGETS SVGNativeViewerLib
+      EXPORT SVGNativeViewerLib-targets
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      COMPONENT libraries)
+
+# headers
+install(
+    FILES ${gl_headers}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${HEADER_SUBDIR}
+    COMPONENT headers)
+
+# pkg-config file
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/SVGNativeViewerLib.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+    COMPONENT pkgconfig)
+
