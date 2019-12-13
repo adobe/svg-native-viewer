@@ -55,51 +55,106 @@ SVGDocument::~SVGDocument() {}
 
 void SVGDocument::Render()
 {
+    if (!mDocument)
+        return;
+
     ColorMap colorMap;
     mDocument->Render(colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
 void SVGDocument::Render(float width, float height)
 {
+    if (!mDocument)
+        return;
+
     ColorMap colorMap;
     mDocument->Render(colorMap, width, height);
 }
 
 void SVGDocument::Render(const ColorMap& colorMap)
 {
+    if (!mDocument)
+        return;
+
     mDocument->Render(colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
-void SVGDocument::Render(const ColorMap& colorMap, float width, float height) { mDocument->Render(colorMap, width, height); }
+void SVGDocument::Render(const ColorMap& colorMap, float width, float height) {
+    if (!mDocument)
+        return;
+
+    mDocument->Render(colorMap, width, height);
+}
 
 void SVGDocument::Render(const char* id)
 {
+    if (!mDocument)
+        return;
+
     ColorMap colorMap;
     mDocument->Render(id, colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
 void SVGDocument::Render(const char* id, float width, float height)
 {
+    if (!mDocument)
+        return;
+
     ColorMap colorMap;
     mDocument->Render(id, colorMap, width, height);
 }
 
 void SVGDocument::Render(const char* id, const ColorMap& colorMap)
 {
+    if (!mDocument)
+        return;
+
     mDocument->Render(id, colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
 }
 
-void SVGDocument::Render(const char* id, const ColorMap& colorMap, float width, float height) { mDocument->Render(id, colorMap, width, height); }
+void SVGDocument::Render(const char* id, const ColorMap& colorMap, float width, float height)
+{
+    if (!mDocument)
+        return;
 
-std::int32_t SVGDocument::Width() const { return static_cast<std::int32_t>(mDocument->mViewBox[2]); }
+    mDocument->Render(id, colorMap, width, height);
+}
 
-std::int32_t SVGDocument::Height() const { return static_cast<std::int32_t>(mDocument->mViewBox[3]); }
+std::int32_t SVGDocument::Width() const
+{
+    return static_cast<std::int32_t>(mDocument->mViewBox[2]);
+}
 
-SVGRenderer* SVGDocument::Renderer() const { return mDocument->mRenderer.get(); }
+std::int32_t SVGDocument::Height() const {
+    if (!mDocument)
+        return 0;
+
+    return static_cast<std::int32_t>(mDocument->mViewBox[3]);
+}
+
+SVGRenderer* SVGDocument::Renderer() const
+{
+    if (!mDocument)
+        return 0;
+
+    return mDocument->mRenderer.get();
+}
 
 #ifdef STYLE_SUPPORT
-void SVGDocument::AddCustomCSS(const StyleSheet::CssDocument* cssDocument) { mDocument->AddCustomCSS(cssDocument); }
+void SVGDocument::AddCustomCSS(const StyleSheet::CssDocument* cssDocument)
+{
+    if (!mDocument)
+        return;
 
-void SVGDocument::ClearCustomCSS() { mDocument->ClearCustomCSS(); }
+    mDocument->AddCustomCSS(cssDocument);
+}
+
+void SVGDocument::ClearCustomCSS()
+{
+    if (!mDocument)
+        return;
+
+    mDocument->ClearCustomCSS();
+}
 #endif
 } // namespace SVGNative
