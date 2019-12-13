@@ -404,6 +404,7 @@ void ParsePathString(const std::string& pathString, Path& p)
             return;
         if (!isDigit(*pos) && *pos != ',' && *pos != '-' && *pos != '.')
             prev = *pos++;
+        SVG_PARSE_TRACE("previous operator: " << prev);
         switch (prev)
         {
         case 'M':
@@ -455,6 +456,7 @@ void ParsePathString(const std::string& pathString, Path& p)
                 currentY = startY;
             }
 
+            prev = *pos++;
             break;
         case 'L':
             if (!ParseCoordinatePair(pos, end, currentX, currentY))
