@@ -32,6 +32,11 @@ void StringSVGPath::RoundedRect(float x, float y, float width, float height, flo
     mStringStream << " RoundedRect(" << x << ',' << y << ',' << width << ',' << height << ',' << cornerRadius << ')';
 }
 
+void StringSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadiusX, float cornerRadiusY)
+{
+    mStringStream << " RoundedRect(" << x << ',' << y << ',' << width << ',' << height << ',' << cornerRadiusX << ',' << cornerRadiusY << ')';
+}
+
 void StringSVGPath::Ellipse(float cx, float cy, float rx, float ry)
 {
     mStringStream << " Ellipse(" << cx << ',' << cy << ',' << rx << ',' << ry << ')';

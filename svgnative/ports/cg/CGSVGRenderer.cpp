@@ -27,6 +27,11 @@ void CGSVGPath::RoundedRect(float x, float y, float width, float height, float c
     CGPathAddRoundedRect(mPath, nullptr, {{x, y}, {width, height}}, cornerRadius, cornerRadius);
 }
 
+void CGSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadiusX, float cornerRadiusY)
+{
+    CGPathAddRoundedRect(mPath, nullptr, {{x, y}, {width, height}}, cornerRadiusX, cornerRadiusY);
+}
+
 void CGSVGPath::Ellipse(float cx, float cy, float rx, float ry)
 {
     CGPathAddEllipseInRect(mPath, nullptr, {{cx - rx, cy - ry}, {2 * rx, 2 * ry}});

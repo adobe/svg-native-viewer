@@ -61,6 +61,22 @@ void GDIPlusSVGPath::RoundedRect(float x, float y, float w, float h, float r)
     mPath.CloseFigure();
 }
 
+void GDIPlusSVGPath::RoundedRect(float x, float y, float w, float h, float rx, float ry)
+{
+    const float dx = rx + rx;
+    const float dy = ry + ry;
+
+    mPath.AddLine(x + rx, y, x + w - dx, y);
+    mPath.AddArc(x + w - dx, y, dx, dy, 270, 90);
+    mPath.AddLine(x + w, y + ry, x + w, y + h - dy);
+    mPath.AddArc(x + w - dx, y + h - dy, dx, dy, 0, 90);
+    mPath.AddLine(x + w - dx, y + h, x + rx, y + h);
+    mPath.AddArc(x, y + h - dy, dx, dy, 90, 90);
+    mPath.AddLine(x, y + h - dy, x, y + ry);
+    mPath.AddArc(x, y, dx, dy, 180, 90);
+    mPath.CloseFigure();
+}
+
 void GDIPlusSVGPath::Ellipse(float cx, float cy, float rx, float ry)
 {
     mPath.AddEllipse(cx - rx, cy - ry, rx + rx, ry + ry);

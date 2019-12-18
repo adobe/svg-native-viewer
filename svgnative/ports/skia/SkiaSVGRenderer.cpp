@@ -40,6 +40,13 @@ void SkiaSVGPath::RoundedRect(float x, float y, float width, float height, float
     mPath.addRRect(rrect);
 }
 
+void SkiaSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadiusX, float cornerRadiusY)
+{
+    SkRRect rrect;
+    rrect.setRectXY({x, y, x + width, y + height}, cornerRadiusX, cornerRadiusY);
+    mPath.addRRect(rrect);
+}
+
 void SkiaSVGPath::Ellipse(float cx, float cy, float rx, float ry) { mPath.addOval({cx - rx, cy - ry, cx + rx, cy + ry}); }
 
 void SkiaSVGPath::MoveTo(float x, float y)
