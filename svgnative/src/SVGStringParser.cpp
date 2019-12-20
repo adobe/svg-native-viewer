@@ -49,11 +49,11 @@ inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOpti
     if (!isAllOptional && !isWsp(*pos) && *pos != delimiter)
         return false;
 
-    while (pos != end && isWsp(*pos))
+    while (pos < end && isWsp(*pos))
         pos++;
     if (*pos == delimiter)
         pos++;
-    while (pos != end && isWsp(*pos))
+    while (pos < end && isWsp(*pos))
         pos++;
     return pos != end;
 }
@@ -61,21 +61,21 @@ inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOpti
 inline bool SkipOptWspDelimiterOptWsp(CharIt& pos, const CharIt& end, char delimiter = ',')
 {
     bool hasDelimiter{};
-    while (pos != end && isWsp(*pos))
+    while (pos < end && isWsp(*pos))
         pos++;
     if (*pos == delimiter)
     {
         hasDelimiter = true;
         pos++;
     }
-    while (pos != end && isWsp(*pos))
+    while (pos < end && isWsp(*pos))
         pos++;
     return pos != end && hasDelimiter;
 }
 
 inline bool SkipOptWsp(CharIt& pos, const CharIt& end)
 {
-    while (pos != end && isWsp(*pos))
+    while (pos < end && isWsp(*pos))
         ++pos;
     return pos != end;
 }
@@ -84,7 +84,7 @@ inline bool ParseDigit(CharIt& pos, const CharIt& end, std::int32_t& digit)
 {
     if (pos == end || !isDigit(*pos))
         return false;
-    while (pos != end && isDigit(*pos))
+    while (pos < end && isDigit(*pos))
     {
         digit *= 10;
         digit += static_cast<std::int32_t>(*pos++ - '0');
@@ -114,7 +114,7 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
 
     bool hasNumber{};
     bool hasFraction{};
-    while (pos != end && isDigit(*pos))
+    while (pos < end && isDigit(*pos))
     {
         hasNumber = true;
         number *= 10;
@@ -133,7 +133,7 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
             return false;
 
         float division = 10;
-        while (pos != end && isDigit(*pos))
+        while (pos < end && isDigit(*pos))
         {
             hasFraction = true;
             number += static_cast<float>(*pos++ - '0') / division;
@@ -164,7 +164,7 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     if (!isDigit(*pos))
         return false;
 
-    while (pos != end && isDigit(*pos))
+    while (pos < end && isDigit(*pos))
     {
         exponent *= 10.0f;
         exponent += static_cast<float>(*pos++ - '0');
@@ -281,7 +281,7 @@ static void ParseListOfNumbers(CharIt& pos, const CharIt& end, std::vector<float
         return;
     pos = temp;
     numberList.push_back(number);
-    while (pos != end)
+    while (pos < end)
     {
         temp = pos;
         if (!SkipOptWspOrDelimiter(temp, end, isAllOptional))
@@ -347,7 +347,7 @@ bool ParseListOfLengthOrPercentage(const std::string& lengthOrPercentageListStri
         return false;
     pos = temp;
     numberList.push_back(number);
-    while (pos != end)
+    while (pos < end)
     {
         temp = pos;
         if (!SkipOptWspOrDelimiter(temp, end, isAllOptional))
@@ -369,10 +369,10 @@ bool ParseListOfStrings(const std::string& stringListString, std::vector<std::st
 
     if (!SkipOptWsp(pos, end))
         return false;
-    while (pos != end)
+    while (pos < end)
     {
         auto start = pos;
-        while (pos != end && !isWsp(*pos))
+        while (pos < end && !isWsp(*pos))
             pos++;
         stringList.push_back({start, pos});
         SkipOptWsp(pos, end);
@@ -398,7 +398,7 @@ void ParsePathString(const std::string& pathString, Path& p)
     float prevCurvePointY{};
     char prev = 'm';
 
-    while (pos != end)
+    while (pos < end)
     {
         if (!SkipOptWsp(pos, end))
             return;
@@ -731,7 +731,7 @@ std::unique_ptr<Transform> ParseTransform(const std::string& transformString, st
 
     auto matrix = createTransform();
     bool isFirstTransform{true};
-    while (pos != end)
+    while (pos < end)
     {
         if (!SkipOptWsp(pos, end))
             return matrix;
@@ -890,7 +890,7 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
     if (*pos == '#')
     {
         auto start = ++pos;
-        while (pos != end && isHex(*pos))
+        while (pos < end && isHex(*pos))
             pos++;
         std::string hexString(start, pos);
         auto num = stoi(hexString, nullptr, 16);
