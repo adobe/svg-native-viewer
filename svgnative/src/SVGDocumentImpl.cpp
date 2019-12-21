@@ -101,8 +101,7 @@ void SVGDocumentImpl::TraverseSVGTree()
 
 bool SVGDocumentImpl::HasAttr(XMLNode* node, const char* attrName)
 {
-    if (!node)
-        return false;
+    SVG_ASSERT(node != nullptr);
 
     auto attr = node->first_attribute(attrName);
     return attr != nullptr;
@@ -131,8 +130,7 @@ float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
 
 float SVGDocumentImpl::ParseLengthFromAttr(XMLNode* node, const char* attrName, LengthType lengthType, float fallback)
 {
-    if (!node)
-        return fallback;
+    SVG_ASSERT(node != nullptr);
 
     auto attr = node->first_attribute(attrName);
     if (!attr)
@@ -147,8 +145,7 @@ float SVGDocumentImpl::ParseLengthFromAttr(XMLNode* node, const char* attrName, 
 
 void SVGDocumentImpl::ParseChildren(XMLNode* node)
 {
-    if (!node)
-        return;
+    SVG_ASSERT(node != nullptr);
 
     for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
     {
@@ -158,8 +155,7 @@ void SVGDocumentImpl::ParseChildren(XMLNode* node)
 
 void SVGDocumentImpl::ParseChild(XMLNode* child)
 {
-    if (!child)
-        return;
+    SVG_ASSERT(child != nullptr);
 
     auto fillStyle = mFillStyleStack.top();
     auto strokeStyle = mStrokeStyleStack.top();
@@ -393,8 +389,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
 void SVGDocumentImpl::ParseResources(XMLNode* node)
 {
-    if (!node)
-        return;
+    SVG_ASSERT(node != nullptr);
 
     for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
     {
@@ -404,8 +399,7 @@ void SVGDocumentImpl::ParseResources(XMLNode* node)
 
 void SVGDocumentImpl::ParseResource(XMLNode* child)
 {
-    if (!child)
-        return;
+    SVG_ASSERT(child != nullptr);
 
     auto fillStyle = mFillStyleStack.top();
     auto strokeStyle = mStrokeStyleStack.top();
@@ -477,8 +471,7 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
 
 std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 {
-    if (!child)
-        return nullptr;
+    SVG_ASSERT(child != nullptr);
 
     std::string elementName = child->name();
     if (elementName == "rect")
@@ -860,9 +853,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
 
 float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
 {
-    /* XXX */
-    if (!node)
-        return 0;
+    SVG_ASSERT(node != nullptr);
 
     auto fillStyle = mFillStyleStack.top();
     auto strokeStyle = mStrokeStyleStack.top();
@@ -892,8 +883,7 @@ float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>&
 
 void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
 {
-    if (!node)
-        return;
+    SVG_ASSERT(node != nullptr);
 
     // Return early if we don't have children.
     if (!node->first_node())
@@ -924,8 +914,7 @@ void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
 
 void SVGDocumentImpl::ParseGradient(XMLNode* node)
 {
-    if (!node)
-        return;
+    SVG_ASSERT(node != nullptr);
 
     GradientImpl gradient{};
 
