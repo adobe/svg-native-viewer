@@ -60,7 +60,7 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
 void SVGDocumentImpl::TraverseSVGTree()
 {
     auto rootNode = mXMLDocument.first_node();
-    if (std::string(rootNode->name()) != "svg")
+    if (!rootNode || std::string(rootNode->name()) != "svg")
         return;
 
     if (!HasAttr(rootNode, "viewBox"))
@@ -101,6 +101,8 @@ void SVGDocumentImpl::TraverseSVGTree()
 
 bool SVGDocumentImpl::HasAttr(XMLNode* node, const char* attrName)
 {
+    SVG_ASSERT(node != nullptr);
+
     auto attr = node->first_attribute(attrName);
     return attr != nullptr;
 }
@@ -128,6 +130,8 @@ float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
 
 float SVGDocumentImpl::ParseLengthFromAttr(XMLNode* node, const char* attrName, LengthType lengthType, float fallback)
 {
+    SVG_ASSERT(node != nullptr);
+
     auto attr = node->first_attribute(attrName);
     if (!attr)
         return fallback;
@@ -141,6 +145,8 @@ float SVGDocumentImpl::ParseLengthFromAttr(XMLNode* node, const char* attrName, 
 
 void SVGDocumentImpl::ParseChildren(XMLNode* node)
 {
+    SVG_ASSERT(node != nullptr);
+
     for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
     {
         ParseChild(child);
@@ -149,6 +155,8 @@ void SVGDocumentImpl::ParseChildren(XMLNode* node)
 
 void SVGDocumentImpl::ParseChild(XMLNode* child)
 {
+    SVG_ASSERT(child != nullptr);
+
     auto fillStyle = mFillStyleStack.top();
     auto strokeStyle = mStrokeStyleStack.top();
     std::set<std::string> classNames;
@@ -381,6 +389,8 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
 void SVGDocumentImpl::ParseResources(XMLNode* node)
 {
+    SVG_ASSERT(node != nullptr);
+
     for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
     {
         ParseResource(child);
@@ -389,6 +399,8 @@ void SVGDocumentImpl::ParseResources(XMLNode* node)
 
 void SVGDocumentImpl::ParseResource(XMLNode* child)
 {
+    SVG_ASSERT(child != nullptr);
+
     auto fillStyle = mFillStyleStack.top();
     auto strokeStyle = mStrokeStyleStack.top();
     std::set<std::string> classNames;
@@ -459,6 +471,8 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
 
 std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 {
+    SVG_ASSERT(child != nullptr);
+
     std::string elementName = child->name();
     if (elementName == "rect")
     {
@@ -587,6 +601,8 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames)
 {
+    SVG_ASSERT(node != nullptr);
+
     std::vector<PropertySet> propertySets;
     propertySets.push_back(ParsePresentationAttributes(node));
     ParseStyleAttr(node, propertySets, classNames);
@@ -614,6 +630,8 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
 
 PropertySet SVGDocumentImpl::ParsePresentationAttributes(XMLNode* node)
 {
+    SVG_ASSERT(node != nullptr);
+
     PropertySet propertySet;
     auto attributeHandler = [&](const std::string& propertyName) {
         auto attr = node->first_attribute(propertyName.c_str());
@@ -835,6 +853,8 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
 
 float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
 {
+    SVG_ASSERT(node != nullptr);
+
     auto fillStyle = mFillStyleStack.top();
     auto strokeStyle = mStrokeStyleStack.top();
     std::set<std::string> classNames;
@@ -863,6 +883,8 @@ float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>&
 
 void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
 {
+    SVG_ASSERT(node != nullptr);
+
     // Return early if we don't have children.
     if (!node->first_node())
         return;
@@ -892,6 +914,8 @@ void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
 
 void SVGDocumentImpl::ParseGradient(XMLNode* node)
 {
+    SVG_ASSERT(node != nullptr);
+
     GradientImpl gradient{};
 
     // SVG allows referencing other gradients. For now, we only look at already parsed
