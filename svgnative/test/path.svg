@@ -19,6 +19,7 @@
     <path fill="green" d="m20,120,20,0l0,20,-20,0z"/>
     <path fill="green" d="m.4e2.12e3.2e2.0.0.2e2-.2e2.0z"/>
     <path fill="green" d="M0,0ZZ ZM100,100 L 150,100 L 150 150 z"/>
+    <path fill="green" d="   M0,0 L100,100    "/>
 
     <!-- negative tests -->
     <!-- Comma before segment identifier supported by WebKit & Blink; not by spec -->
@@ -29,4 +30,8 @@
     <path fill="green" d="M0,0L60,60L60,120z2.1e3L.1e3.1e3L.1e3.1.8e2.12e3z"/>
     <!-- No commma after closePath -->
     <path fill="green" d="M100,100Z,M100,100 L 150,100 L 150 150 z"/>
+    <!--The first segment must be a moveTo -->
+    <path fill="green" d="    100,100"/>
+    <path fill="green" d="100,100 150,100 150,150"/>
+    <path fill="green" d="  L100,100 100,100"/>
 </svg>
