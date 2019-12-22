@@ -16,6 +16,7 @@ governing permissions and limitations under the License.
 #include "SVGStringParser.h"
 
 #include <cmath>
+#include <limits>
 
 namespace SVGNative
 {
@@ -55,6 +56,12 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
     std::set<std::string> classNames;
     mGroup = std::make_shared<Group>(graphicStyle, classNames);
     mGroupStack.push(mGroup);
+}
+
+template <typename T>
+bool isCloseToZero(T x)
+{
+    return std::abs(x) < std::numeric_limits<T>::epsilon();
 }
 
 void SVGDocumentImpl::TraverseSVGTree()
@@ -482,6 +489,10 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
         float width = ParseLengthFromAttr(child, "width", LengthType::kHorizontal);
         float height = ParseLengthFromAttr(child, "height", LengthType::kVertical);
 
+        // SVG requires to disable rendering if width or height are 0.
+        if (isCloseToZero(width) || isCloseToZero(height))
+            return nullptr;
+
         bool hasRx = HasAttr(child, "rx");
         bool hasRy = HasAttr(child, "ry");
 
@@ -516,13 +527,13 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
         ry = std::min(ry, height / 2.0f);
 
         auto path = mRenderer->CreatePath();
+        // TODO: Create path for rectangle if rx != ry.
         if (rx == 0 && ry == 0)
         {
             path->Rect(x, y, width, height);
         }
         else
         {
-            SVG_ASSERT(rx == ry);
             path->RoundedRect(x, y, width, height, std::max(rx, ry));
         }
         return path;
@@ -541,6 +552,10 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
             rx = ParseLengthFromAttr(child, "r", LengthType::kDiagonal);
             ry = rx;
         }
+
+        // SVG requires to disable rendering if rx or ry are 0.
+        if (isCloseToZero(rx) || isCloseToZero(ry))
+            return nullptr;
 
         float cx = ParseLengthFromAttr(child, "cx", LengthType::kHorizontal);
         float cy = ParseLengthFromAttr(child, "cy", LengthType::kVertical);

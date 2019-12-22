@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="250" viewBox="0 0 150 250">
+    <!-- test that we disable rendering for certain values close to 0 -->
+    <rect width="1" height="1"/>
+    <rect width="1e20" height="1"/>
+    <rect width="1" height="1e20"/>
+    <rect width="1e40" height="1"/>
+    <rect width="1" height="1e40"/>
+    <rect width="1e60" height="1"/>
+    <rect width="1" height="1e60"/>
+    <rect width="0" height="1"/>
+    <rect width="1" height="0"/>
+    <ellipse rx="1" ry="1"/>
+    <ellipse rx="1e20" ry="1"/>
+    <ellipse rx="1" ry="1e20"/>
+    <ellipse rx="1e40" ry="1"/>
+    <ellipse rx="1" ry="1e40"/>
+    <ellipse rx="1e60" ry="1"/>
+    <ellipse rx="1" ry="1e60"/>
+    <ellipse rx="0" ry="1"/>
+    <ellipse rx="1" ry="0"/>
+    <circle r="1"/>
+    <circle r="1e20"/>
+    <circle r="1e40"/>
+    <circle r="1e60"/>
+    <circle r="0"/>
+</svg>
