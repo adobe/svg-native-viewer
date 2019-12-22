@@ -73,9 +73,11 @@ _cairo_image_surface_create_from_jpeg_stream(const unsigned char* data,
         /* Cairo has no special format for grayscale, we must use RGB24 */
         cairo_color_format = CAIRO_FORMAT_RGB24;
         break;
+#ifdef JCS_EXT_ARGB
     case JCS_EXT_ARGB:
         cairo_color_format = CAIRO_FORMAT_ARGB32;
         break;
+#endif
     case JCS_RGB:
     default:
         cairo_color_format = CAIRO_FORMAT_RGB24;
