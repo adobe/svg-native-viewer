@@ -64,13 +64,21 @@ CMAKE_DEPENDENT_OPTION(USE_CAIRO_EXAMPLE "Cairo example" TRUE "NOT LIB_ONLY;CAIR
 ################################
 if(CAIRO)
     find_package(PkgConfig)
-    # include(FindCairo)
-    pkg_check_modules(CAIRO cairo)
+    # cmake wants to have full pathname of libcairo, instead of compiler flags.
+    # thus FindCairo.cmake works better than pkg_check_modules(CAIRO cairo)
+    include(FindCairo)
     if(NOT CAIRO_FOUND)
         message(FATAL_ERROR "Fatal error: Cairo port is requested, but CAIRO developers' files are missing.")
     else()
-       pkg_check_modules(LIBJPEG libjpeg)
-       if (NOT LIBJPEG_FOUND)
+       # FindJPEG.cmake does not use pkg-config, we do as FindCairo.cmake.
+       pkg_check_modules(PC_JPEG libjpeg)
+       if (PC_JPEG_FOUND)
+           FIND_PATH(JPEG_INCLUDE_DIRS NAMES jpeglib.h HINTS ${PC_JPEG_INCLUDEDIR})
+           FIND_LIBRARY(JPEG_LIBRARY NAMES jpeg HINTS ${PC_JPEG_LIBDIR})
+       else()
+           include(FindJPEG)
+       endif()
+       if (NOT PC_JPEG_FOUND AND NOT JPEG_FOUND)
            message(FATAL_ERROR "Fatal error: Cairo port requires LIBJPEG developers' files.")
        endif()
     endif()
@@ -305,9 +313,19 @@ endif()
 
 if (USE_CAIRO)
     target_link_libraries(SVGNativeViewerLib "${CAIRO_LIBRARIES}")
-    target_link_libraries(SVGNativeViewerLib "${LIBJPEG_LIBRARIES}")
-    set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES} cairo libjpeg")
+    target_link_libraries(SVGNativeViewerLib "${JPEG_LIBRARY}")
+    target_include_directories(SVGNativeViewerLib PUBLIC "${CAIRO_INCLUDE_DIRS}")
+    target_include_directories(SVGNativeViewerLib PRIVATE "${JPEG_INCLUDE_DIRS}")
+    set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES} cairo")
     set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/cairo")
+
+    # sometimes JPEG is not managed by pkg-config
+    if (PC_JPEG_FOUND)
+        set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES} libjpeg")
+    else()
+        get_filename_component(JPEG_LIBRARY_DIR ${JPEG_LIBRARY} DIRECTORY)
+        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${JPEG_LIBRARY_DIR} -ljpeg")
+    endif()
 endif()
 
 # CMake has no additional file to record the dependency for the static library,
