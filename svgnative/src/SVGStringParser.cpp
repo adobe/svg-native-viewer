@@ -404,6 +404,8 @@ void ParsePathString(const std::string& pathString, Path& p)
             return;
         if (!isDigit(*pos) && *pos != ',' && *pos != '-' && *pos != '.')
             prev = *pos++;
+        else if (prev == 'z' || prev == 'Z')
+            break;
         switch (prev)
         {
         case 'M':
