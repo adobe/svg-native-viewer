@@ -59,11 +59,12 @@ CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY;GDIPLUS" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CAIRO_EXAMPLE "Cairo example" TRUE "NOT LIB_ONLY;CAIRO" FALSE)
 
+find_package(PkgConfig)
+
 ################################
 # setting for Cairo
 ################################
 if(CAIRO)
-    find_package(PkgConfig)
     # cmake wants to have full pathname of libcairo, instead of compiler flags.
     # thus FindCairo.cmake works better than pkg_check_modules(CAIRO cairo)
     include(FindCairo)
