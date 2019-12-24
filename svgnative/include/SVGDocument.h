@@ -34,7 +34,7 @@ class SVGDocumentImpl;
 class SVGRenderer;
 using ColorMap = std::map<std::string, std::array<float, 4>>;
 
-class SVGDocument
+class SVG_IMP_EXP SVGDocument
 {
 public:
     /**

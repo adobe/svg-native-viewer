@@ -13,6 +13,8 @@ governing permissions and limitations under the License.
 #ifndef SVGViewer_SVGRenderer_h
 #define SVGViewer_SVGRenderer_h
 
+#include "Config.h"
+
 #include <array>
 #include <boost/variant.hpp>
 #include <limits>

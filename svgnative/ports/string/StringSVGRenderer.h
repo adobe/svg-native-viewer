@@ -102,7 +102,7 @@ private:
     std::string mBase64;
 };
 
-class StringSVGRenderer final : public SVGRenderer
+class SVG_IMP_EXP StringSVGRenderer final : public SVGRenderer
 {
 public:
     StringSVGRenderer();
