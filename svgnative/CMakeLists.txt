@@ -122,9 +122,6 @@ if(WIN32)
   add_definitions(-DVER_PRODUCTVERSION=${VER_FILEVERSION})
   add_definitions(-DVER_PRODUCTVERSION_STR="${VERSION}")
 
-  if(USE_SHARED)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
-  endif()
 endif()
 
 if(STYLE)
