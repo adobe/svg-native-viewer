@@ -70,7 +70,7 @@ jobs:
       - run: git submodule update --init
       - run:
           name: Installing dependencies
-          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake boost
+          command: HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install cmake boost
       - run:
           name: Creating Build Files
           command: 'cd svgnative && cmake -Bbuild/mac -H. -DCG=ON'
