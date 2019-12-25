@@ -74,7 +74,7 @@ private:
     std::unique_ptr<Gdiplus::Image> mImage;
 };
 
-class GDIPlusSVGRenderer final : public SVGRenderer
+class SVG_IMP_EXP GDIPlusSVGRenderer final : public SVGRenderer
 {
 public:
     GDIPlusSVGRenderer();

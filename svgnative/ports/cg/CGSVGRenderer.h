@@ -69,7 +69,7 @@ public:
     CGImageRef mImage{};
 };
 
-class CGSVGRenderer final : public SVGRenderer
+class SVG_IMP_EXP CGSVGRenderer final : public SVGRenderer
 {
 public:
     CGSVGRenderer();

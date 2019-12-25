@@ -75,7 +75,7 @@ public:
     cairo_surface_t* mImageData{};
 };
 
-class CairoSVGRenderer final : public SVGRenderer
+class SVG_IMP_EXP CairoSVGRenderer final : public SVGRenderer
 {
 public:
     CairoSVGRenderer();

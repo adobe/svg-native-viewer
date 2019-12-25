@@ -70,7 +70,7 @@ public:
     sk_sp<SkImage> mImageData;
 };
 
-class SkiaSVGRenderer final : public SVGRenderer
+class SVG_IMP_EXP SkiaSVGRenderer final : public SVGRenderer
 {
 public:
     SkiaSVGRenderer();

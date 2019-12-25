@@ -17,6 +17,7 @@ project(SVGNativeViewer)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8.1)
@@ -225,6 +226,7 @@ set(svgNative_src
     ${dll_version}
 )
 if (USE_SHARED)
+add_definitions(-DBUILDING_DLL)
 add_library(SVGNativeViewerLib SHARED ${svgNative_src})
 else()
 add_library(SVGNativeViewerLib STATIC ${svgNative_src})
