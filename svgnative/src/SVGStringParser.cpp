@@ -397,6 +397,9 @@ void ParsePathString(const std::string& pathString, Path& p)
     float prevCurvePointX{};
     float prevCurvePointY{};
     char prev = 'm';
+    // First segment must be a moveTo
+    if (!SkipOptWsp(pos, end) || (*pos != 'm' && *pos != 'M'))
+        return;
 
     while (pos < end)
     {
@@ -404,6 +407,8 @@ void ParsePathString(const std::string& pathString, Path& p)
             return;
         if (!isDigit(*pos) && *pos != ',' && *pos != '-' && *pos != '.')
             prev = *pos++;
+        else if (prev == 'z' || prev == 'Z')
+            break;
         switch (prev)
         {
         case 'M':
