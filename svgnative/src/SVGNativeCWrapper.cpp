@@ -135,7 +135,7 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
     case SVG_RENDERER_CAIRO:
 #ifdef USE_CAIRO
     {
-        if (auto nativeRenderer = dynamic_cast<cairo_t*>(renderer))
+        if (auto nativeRenderer = static_cast<cairo_t*>(renderer))
         {
             std::dynamic_pointer_cast<SVGNative::CairoSVGRenderer>(_sn->mRenderer)->SetCairo(nativeRenderer);
             return;
@@ -146,7 +146,7 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
     case SVG_RENDERER_CG:
 #ifdef USE_CG
     {
-        if (auto nativeRenderer = dynamic_cast<CGContextRef>(renderer))
+        if (auto nativeRenderer = static_cast<CGContextRef>(renderer))
         {
             std::dynamic_pointer_cast<SVGNative::CGSVGRenderer>(_sn->mRenderer)->SetGraphicsContext(nativeRenderer);
             return;
@@ -156,7 +156,7 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
     case SVG_RENDERER_SKIA:
 #ifdef USE_SKIA
     {
-        if (auto nativeRenderer = dynamic_cast<SkCanvas*>(renderer))
+        if (auto nativeRenderer = static_cast<SkCanvas*>(renderer))
         {
             std::dynamic_pointer_cast<SVGNative::SkiaSVGRenderer>(_sn->mRenderer)->SetSkCanvas(nativeRenderer);
             return;
