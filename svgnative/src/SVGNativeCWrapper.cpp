@@ -13,6 +13,9 @@ governing permissions and limitations under the License.
 #include "SVGNativeCWrapper.h"
 #include "SVGDocument.h"
 #include "SVGRenderer.h"
+#ifdef USE_CAIRO
+#include "CairoSVGRenderer.h"
+#endif
 #ifdef USE_CG
 #include "CGSVGRenderer.h"
 #include <ApplicationServices/ApplicationServices.h>
@@ -73,6 +76,13 @@ svg_native_t* svg_native_create(svg_native_renderer_type_t renderer_type, const 
 
     switch (renderer_type)
     {
+    case SVG_RENDERER_CAIRO:
+#ifdef USE_CAIRO
+    {
+        sn->mRenderer = std::make_shared<SVGNative::CairoSVGRenderer>();
+        sn->mRendererType = renderer_type;
+    }
+#endif
     case SVG_RENDERER_CG:
 #ifdef USE_CG
     {
@@ -122,6 +132,17 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
 
     switch (_sn->mRendererType)
     {
+    case SVG_RENDERER_CAIRO:
+#ifdef USE_CAIRO
+    {
+        if (auto nativeRenderer = dynamic_cast<cairo_t*>(renderer))
+        {
+            std::dynamic_pointer_cast<SVGNative::CairoSVGRenderer>(_sn->mRenderer)->SetCairo(nativeRenderer);
+            return;
+        }
+    
+    }
+#endif
     case SVG_RENDERER_CG:
 #ifdef USE_CG
     {
