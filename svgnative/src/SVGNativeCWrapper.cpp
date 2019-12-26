@@ -21,6 +21,9 @@ governing permissions and limitations under the License.
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreGraphics/CoreGraphics.h>
 #endif
+#ifdef USE_GDIPLUS
+#include "GDIPlusSVGRenderer.h"
+#endif
 #ifdef USE_SKIA
 #include "SkiaSVGRenderer.h"
 class SkCanvas;
@@ -77,33 +80,45 @@ svg_native_t* svg_native_create(svg_native_renderer_type_t renderer_type, const 
     switch (renderer_type)
     {
     case SVG_RENDERER_CAIRO:
-#ifdef USE_CAIRO
     {
+#ifdef USE_CAIRO
         sn->mRenderer = std::make_shared<SVGNative::CairoSVGRenderer>();
         sn->mRendererType = renderer_type;
-    }
 #endif
+        break;
+    }
     case SVG_RENDERER_CG:
-#ifdef USE_CG
     {
+#ifdef USE_CG
         sn->mRenderer = std::make_shared<SVGNative::CGSVGRenderer>();
         sn->mRendererType = renderer_type;
-    }
 #endif
-    case SVG_RENDERER_SKIA:
-#ifdef USE_SKIA
+        break;
+    }
+    case SVG_RENDERER_GDIPLUS:
     {
+#ifdef USE_GDIPLUS
+        sn->mRenderer = std::make_shared<SVGNative::GDIPlusSVGRenderer>();
+        sn->mRendererType = renderer_type;
+#endif
+        break;
+    }
+    case SVG_RENDERER_SKIA:
+    {
+#ifdef USE_SKIA
         sn->mRenderer = std::make_shared<SVGNative::SkiaSVGRenderer>();
         sn->mRendererType = renderer_type;
-    }
 #endif
+        break;
+    }
     case SVG_RENDERER_STRING:
-#ifdef USE_STRING
     {
+#ifdef USE_STRING
         sn->mRenderer = std::make_shared<SVGNative::StringSVGRenderer>();
         sn->mRendererType = renderer_type;
-    }
 #endif
+        break;
+    }
     default:
         break;
     }
@@ -133,42 +148,54 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
     switch (_sn->mRendererType)
     {
     case SVG_RENDERER_CAIRO:
-#ifdef USE_CAIRO
     {
+#ifdef USE_CAIRO
         if (auto nativeRenderer = static_cast<cairo_t*>(renderer))
         {
             std::dynamic_pointer_cast<SVGNative::CairoSVGRenderer>(_sn->mRenderer)->SetCairo(nativeRenderer);
             return;
         }
-    
-    }
 #endif
+        break;
+    }
     case SVG_RENDERER_CG:
-#ifdef USE_CG
     {
+#ifdef USE_CG
         if (auto nativeRenderer = static_cast<CGContextRef>(renderer))
         {
             std::dynamic_pointer_cast<SVGNative::CGSVGRenderer>(_sn->mRenderer)->SetGraphicsContext(nativeRenderer);
             return;
         }
-    }
 #endif
-    case SVG_RENDERER_SKIA:
-#ifdef USE_SKIA
+        break;
+    }
+    case SVG_RENDERER_GDIPLUS:
     {
+#ifdef USE_GDIPLUS
+        if (auto nativeRenderer = static_cast<Gdiplus::Graphics*>(renderer))
+        {
+            std::dynamic_pointer_cast<SVGNative::GDIPlusSVGRenderer>(_sn->mRenderer)->SetGraphicsContext(nativeRenderer);
+            return;
+        }
+#endif
+        break;
+    }
+    case SVG_RENDERER_SKIA:
+    {
+#ifdef USE_SKIA
         if (auto nativeRenderer = static_cast<SkCanvas*>(renderer))
         {
             std::dynamic_pointer_cast<SVGNative::SkiaSVGRenderer>(_sn->mRenderer)->SetSkCanvas(nativeRenderer);
             return;
         }
-    }
 #endif
+        break;
+    }
     default:
         ignore(renderer);
         break;
     }
 }
-
 
 float svg_native_canvas_width(svg_native_t* sn)
 {

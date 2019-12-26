@@ -18,8 +18,9 @@ extern "C" {
 
 typedef enum svg_native_renderer_type_t_ {
     SVG_RENDERER_UNKNOWN,
-    SVG_RENDERER_CG,
     SVG_RENDERER_CAIRO,
+    SVG_RENDERER_CG,
+    SVG_RENDERER_GDIPLUS,
     SVG_RENDERER_SKIA,
     SVG_RENDERER_STRING
 } svg_native_renderer_type_t;
