@@ -314,7 +314,8 @@ set(PORTS_INCLUDES)
 
 if(USE_CG)
     target_link_libraries(SVGNativeViewerLib "-framework CoreGraphics")
-    set(PRIVATE_LIBS "${PRIVATE_LIBS} -framework CoreGraphics")
+    target_link_libraries(SVGNativeViewerLib "-framework CoreFoundation")
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} -framework CoreGraphics -framework CoreFoundation")
     set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/cg")
 endif()
 
