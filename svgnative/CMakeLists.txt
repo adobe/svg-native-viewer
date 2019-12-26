@@ -130,9 +130,15 @@ if(STYLE)
     # Enable CSS style support. This feature is deprecated and will get removed.
     add_definitions(-DSTYLE_SUPPORT)
 endif()
-
+# Expose CMake definitions as preprocessor macros
+if(USE_CAIRO)
+    add_definitions(-DUSE_CAIRO)
+endif()
 if(USE_CG)
     add_definitions(-DUSE_CG)
+endif()
+if(USE_GDIPLUS)
+    add_definitions(-DUSE_GDIPLUS)
 endif()
 if (USE_SKIA)
     add_definitions(-DUSE_SKIA)
@@ -140,6 +146,7 @@ endif()
 if(USE_TEXT)
     add_definitions(-DUSE_TEXT)
 endif()
+
 
 ##############################
 # Demo/Testing applications
@@ -168,17 +175,17 @@ endif()
 ##############################
 file(GLOB gl_public
     include/SVGDocument.h
-    include/SVGRenderer.h
     include/SVGNativeCWrapper.h
+    include/SVGRenderer.h
 )
 file(GLOB gl_source
     src/SVGDocumentImpl.h
     src/SVGDocumentImpl.cpp
     src/SVGDocument.cpp
+    src/SVGNativeCWrapper.cpp
     src/SVGParserArcToCurve.cpp
     src/SVGStringParser.h
     src/SVGStringParser.cpp
-    src/SVGNativeCWrapper.cpp
 )
 
 set(gl_deprecated_styling)
