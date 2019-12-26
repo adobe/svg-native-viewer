@@ -26,7 +26,8 @@ governing permissions and limitations under the License.
 #endif
 #ifdef USE_SKIA
 #include "SkiaSVGRenderer.h"
-class SkCanvas;
+#include "SkCanvas.h"
+#include "SkImage.h"
 #endif
 #ifdef USE_TEXT
 #include "StringSVGRenderer.h"
