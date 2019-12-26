@@ -114,7 +114,7 @@ svg_native_t* svg_native_create(svg_native_renderer_type_t renderer_type, const 
     }
     case SVG_RENDERER_STRING:
     {
-#ifdef USE_STRING
+#ifdef USE_TEXT
         sn->mRenderer = std::make_shared<SVGNative::StringSVGRenderer>();
         sn->mRendererType = renderer_type;
 #endif
