@@ -55,6 +55,7 @@ CMAKE_DEPENDENT_OPTION(USE_GDIPLUS "GDI+ port" TRUE "MSVC;GDIPLUS" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CAIRO "Cairo" TRUE "CAIRO" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT_EXAMPLE "Text port for testing" TRUE "NOT LIB_ONLY;TEXT" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_C_EXAMPLE "C Wrapper port for demonstration" TRUE "NOT LIB_ONLY;TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG_EXAMPLE "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "NOT LIB_ONLY;USE_CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY;GDIPLUS" FALSE)
@@ -114,14 +115,14 @@ endif()
 
 set(dll_version)
 if(WIN32)
-  set(dll_version ${dll_version} src/win/version.rc)
+    set(dll_version ${dll_version} src/win/version.rc)
 
-  string(REPLACE "." "," VER_FILEVERSION ${VERSION})
+    string(REPLACE "." "," VER_FILEVERSION ${VERSION})
 
-  add_definitions(-DVER_FILEVERSION=${VER_FILEVERSION})
-  add_definitions(-DVER_FILEVERSION_STR="${VERSION}")
-  add_definitions(-DVER_PRODUCTVERSION=${VER_FILEVERSION})
-  add_definitions(-DVER_PRODUCTVERSION_STR="${VERSION}")
+    add_definitions(-DVER_FILEVERSION=${VER_FILEVERSION})
+    add_definitions(-DVER_FILEVERSION_STR="${VERSION}")
+    add_definitions(-DVER_PRODUCTVERSION=${VER_FILEVERSION})
+    add_definitions(-DVER_PRODUCTVERSION_STR="${VERSION}")
 
 endif()
 
@@ -129,24 +130,44 @@ if(STYLE)
     # Enable CSS style support. This feature is deprecated and will get removed.
     add_definitions(-DSTYLE_SUPPORT)
 endif()
+# Expose CMake definitions as preprocessor macros
+if(USE_CAIRO)
+    add_definitions(-DUSE_CAIRO)
+endif()
+if(USE_CG)
+    add_definitions(-DUSE_CG)
+endif()
+if(USE_GDIPLUS)
+    add_definitions(-DUSE_GDIPLUS)
+endif()
+if (USE_SKIA)
+    add_definitions(-DUSE_SKIA)
+endif()
+if(USE_TEXT)
+    add_definitions(-DUSE_TEXT)
+endif()
+
 
 ##############################
 # Demo/Testing applications
 ##############################
 if(USE_TEXT_EXAMPLE)
-add_subdirectory(example/testText)
+    add_subdirectory(example/testText)
 endif()
 if(USE_CG_EXAMPLE)
-add_subdirectory(example/testCocoaCG)
+    add_subdirectory(example/testCocoaCG)
 endif()
 if (USE_SKIA_EXAMPLE)
-add_subdirectory(example/testSkia)
+    add_subdirectory(example/testSkia)
 endif()
 if (USE_GDIPLUS_EXAMPLE)
-add_subdirectory(example/testGDIPlus)
+    add_subdirectory(example/testGDIPlus)
+endif()
+if (USE_C_EXAMPLE)
+    add_subdirectory(example/testC)
 endif()
 if (USE_CAIRO_EXAMPLE)
-add_subdirectory(example/testCairo)
+    add_subdirectory(example/testCairo)
 endif()
 
 ##############################
@@ -154,12 +175,14 @@ endif()
 ##############################
 file(GLOB gl_public
     include/SVGDocument.h
+    include/SVGNativeCWrapper.h
     include/SVGRenderer.h
 )
 file(GLOB gl_source
     src/SVGDocumentImpl.h
     src/SVGDocumentImpl.cpp
     src/SVGDocument.cpp
+    src/SVGNativeCWrapper.cpp
     src/SVGParserArcToCurve.cpp
     src/SVGStringParser.h
     src/SVGStringParser.cpp
@@ -298,7 +321,8 @@ set(PORTS_INCLUDES)
 
 if(USE_CG)
     target_link_libraries(SVGNativeViewerLib "-framework CoreGraphics")
-    set(PRIVATE_LIBS "${PRIVATE_LIBS} -framework CoreGraphics")
+    target_link_libraries(SVGNativeViewerLib "-framework CoreFoundation")
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} -framework CoreGraphics -framework CoreFoundation")
     set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/cg")
 endif()
 
