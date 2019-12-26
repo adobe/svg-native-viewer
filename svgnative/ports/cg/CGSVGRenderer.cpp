@@ -22,14 +22,9 @@ CGSVGPath::~CGSVGPath() { CGPathRelease(mPath); }
 
 void CGSVGPath::Rect(float x, float y, float width, float height) { CGPathAddRect(mPath, 0, {{x, y}, {width, height}}); }
 
-void CGSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadius)
+void CGSVGPath::RoundedRect(float x, float y, float width, float height, float rx, float ry)
 {
-    CGPathAddRoundedRect(mPath, nullptr, {{x, y}, {width, height}}, cornerRadius, cornerRadius);
-}
-
-void CGSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadiusX, float cornerRadiusY)
-{
-    CGPathAddRoundedRect(mPath, nullptr, {{x, y}, {width, height}}, cornerRadiusX, cornerRadiusY);
+    CGPathAddRoundedRect(mPath, nullptr, {{x, y}, {width, height}}, rx, ry);
 }
 
 void CGSVGPath::Ellipse(float cx, float cy, float rx, float ry)

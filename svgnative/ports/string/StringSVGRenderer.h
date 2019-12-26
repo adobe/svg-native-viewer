@@ -27,8 +27,7 @@ public:
     StringSVGPath();
 
     void Rect(float x, float y, float width, float height) override;
-    void RoundedRect(float x, float y, float width, float height, float cornerRadius) override;
-    void RoundedRect(float x, float y, float width, float height, float cornerRadiusX, float cornerRadiusY) override;
+    void RoundedRect(float x, float y, float width, float height, float rx, float ry) override;
     void Ellipse(float cx, float cy, float rx, float ry) override;
 
     void MoveTo(float x, float y) override;

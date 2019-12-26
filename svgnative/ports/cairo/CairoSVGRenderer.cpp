@@ -49,38 +49,37 @@ inline double deg2rad(double deg)
     return (deg * M_PI / 180.0);
 }
 
-void CairoSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadius)
-{
-    // Cairo does not provide single API to draw "rounded rect". See
-    // https://www.cairographics.org/samples/rounded_rectangle/
-
-    cairo_new_sub_path(mPathCtx);
-    cairo_arc(mPathCtx, x - cornerRadius + width, y + cornerRadius,          cornerRadius, deg2rad(-90), deg2rad(  0));
-    cairo_arc(mPathCtx, x - cornerRadius + width, y - cornerRadius + height, cornerRadius, deg2rad(  0), deg2rad( 90));
-    cairo_arc(mPathCtx, x + cornerRadius,         y - cornerRadius + height, cornerRadius, deg2rad( 90), deg2rad(180));
-    cairo_arc(mPathCtx, x + cornerRadius,         y + cornerRadius,          cornerRadius, deg2rad(180), deg2rad(270));
-    cairo_close_path(mPathCtx);
-}
-
 inline void cairo_arc_rx_ry(cairo_t* cr, float cx, float cy, float rx, float ry, float rad1, float rad2)
 {
     // cairo_scale() with too small rx (or ry) breaks Cairo context.
     // they are tested and refused by the caller, SVGDocumentImpl::ParseShape().
 
-    cairo_save(cr);
-    cairo_translate(cr, cx, cy);
-    cairo_scale(cr, rx, ry);
-    cairo_arc(cr, 0, 0, 1, rad1, rad2);
-    cairo_restore(cr);
+    if (rx == ry)
+    {
+        // cairo_scale(), cairo_restore() are heavy calculation for some CPUs.
+        // for the cases we can draw without them, draw like this.
+        cairo_arc(cr, cx, cy, rx, rad1, rad2);
+    }
+    else
+    {
+        cairo_save(cr);
+        cairo_translate(cr, cx, cy);
+        cairo_scale(cr, rx, ry);
+        cairo_arc(cr, 0, 0, 1, rad1, rad2);
+        cairo_restore(cr);
+    }
 }
 
-void CairoSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadiusX, float cornerRadiusY)
+void CairoSVGPath::RoundedRect(float x, float y, float width, float height, float rx, float ry)
 {
+    // Cairo does not provide single API to draw "rounded rect". See
+    // https://www.cairographics.org/samples/rounded_rectangle/
+
     cairo_new_sub_path(mPathCtx);
-    cairo_arc_rx_ry(mPathCtx, x - cornerRadiusX + width, y + cornerRadiusY,          cornerRadiusX, cornerRadiusY, deg2rad(-90), deg2rad(  0));
-    cairo_arc_rx_ry(mPathCtx, x - cornerRadiusX + width, y - cornerRadiusY + height, cornerRadiusX, cornerRadiusY, deg2rad(  0), deg2rad( 90));
-    cairo_arc_rx_ry(mPathCtx, x + cornerRadiusX,         y - cornerRadiusY + height, cornerRadiusX, cornerRadiusY, deg2rad( 90), deg2rad(180));
-    cairo_arc_rx_ry(mPathCtx, x + cornerRadiusX,         y + cornerRadiusY,          cornerRadiusX, cornerRadiusY, deg2rad(180), deg2rad(270));
+    cairo_arc_rx_ry(mPathCtx, x - rx + width, y + ry,          rx, ry, deg2rad(-90), deg2rad(  0));
+    cairo_arc_rx_ry(mPathCtx, x - rx + width, y - ry + height, rx, ry, deg2rad(  0), deg2rad( 90));
+    cairo_arc_rx_ry(mPathCtx, x + rx,         y - ry + height, rx, ry, deg2rad( 90), deg2rad(180));
+    cairo_arc_rx_ry(mPathCtx, x + rx,         y + ry,          rx, ry, deg2rad(180), deg2rad(270));
     cairo_close_path(mPathCtx);
 }
 

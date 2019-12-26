@@ -46,21 +46,6 @@ void GDIPlusSVGPath::Rect(float x, float y, float width, float height)
     mPath.AddRectangle(Gdiplus::RectF(x, y, width, height));
 }
 
-void GDIPlusSVGPath::RoundedRect(float x, float y, float w, float h, float r)
-{
-    const float d = r + r;
-
-    mPath.AddLine(x + r, y, x + w - d, y);
-    mPath.AddArc(x + w - d, y, d, d, 270, 90);
-    mPath.AddLine(x + w, y + r, x + w, y + h - d);
-    mPath.AddArc(x + w - d, y + h - d, d, d, 0, 90);
-    mPath.AddLine(x + w - d, y + h, x + r, y + h);
-    mPath.AddArc(x, y + h - d, d, d, 90, 90);
-    mPath.AddLine(x, y + h - d, x, y + r);
-    mPath.AddArc(x, y, d, d, 180, 90);
-    mPath.CloseFigure();
-}
-
 void GDIPlusSVGPath::RoundedRect(float x, float y, float w, float h, float rx, float ry)
 {
     const float dx = rx + rx;
