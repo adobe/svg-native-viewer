@@ -132,4 +132,4 @@ void svg_native_destroy(svg_native_t*);
 }
 #endif
 
-#endif // SVGViewer_CWrapper_h
+#endif /* SVGViewer_CWrapper_h */
