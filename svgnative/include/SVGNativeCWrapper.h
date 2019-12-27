@@ -120,7 +120,7 @@ void svg_native_render(svg_native_t* sn);
 void svg_native_render_size(svg_native_t* sn, float width, float height);
 
 #ifdef USE_TEXT
-size_t svg_native_render_output(svg_native_t* sn, char* output, size_t length);
+void svg_native_get_output(svg_native_t* sn, const char** output, size_t* length);
 #endif
 
 /**

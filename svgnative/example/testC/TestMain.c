@@ -21,8 +21,6 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#include <cairo.h>
-
 #include "SVGNativeCWrapper.h"
 
 char* read_svg_input(char* pathname)
@@ -53,7 +51,7 @@ char* read_svg_input(char* pathname)
     return buff_input;
 }
 
-size_t write_data(char* pathname, char* buff_output, size_t size_output)
+size_t write_data(char* pathname, const char* buff_output, size_t size_output)
 {
     FILE*   file_output;
     size_t  size_written;
@@ -76,15 +74,8 @@ int main(int argc, char* const argv[])
     svg_native_color_map_t*  colorMap;
 
     char*   buff_input;
-
-#ifdef USE_CAIRO
-    cairo_rectangle_t  doc_extent = {0, 0, 0, 0};
-    cairo_surface_t*   cr_surface;
-    cairo_t*  cr;
-#else
-    char*   buff_output;
     size_t  size_output;
-#endif
+    const char*  buff_output;
 
     if (argc != 3)
     {
@@ -98,37 +89,16 @@ int main(int argc, char* const argv[])
     svg_native_color_map_add(colorMap, "test-green",   0.0, 0.502, 0.0, 1.0);
     svg_native_color_map_add(colorMap, "test-blue",    0.0,   0.0, 1.0, 1.0);
 
-#ifdef USE_CAIRO
-    sn = svg_native_create(SVG_RENDERER_CAIRO, buff_input);
-    doc_extent.width = svg_native_canvas_width(sn);
-    doc_extent.height = svg_native_canvas_height(sn);
-    cr_surface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, &doc_extent);
-    cr = cairo_create(cr_surface);
-    svg_native_set_renderer(sn, cr);
-#elif defined(USE_TEXT)
     sn = svg_native_create(SVG_RENDERER_STRING, buff_input);
-#endif
     svg_native_set_color_map(sn, colorMap);
 
     svg_native_render(sn);
 
-#ifdef USE_CAIRO
-    cairo_surface_write_to_png(cr_surface, argv[2]);
-#elif defined(USE_TEXT)
-    size_output = svg_native_render_output(sn, NULL, 0);
-    buff_output = malloc(size_output + 1);
-    svg_native_render_output(sn, buff_output, size_output);
+    svg_native_get_output(sn, &buff_output, &size_output);
     write_data(argv[2], buff_output, size_output);
-#endif
 
     svg_native_destroy(sn);
     svg_native_color_map_destroy(colorMap);
-#ifdef USE_CAIRO
-    cairo_destroy(cr);
-    cairo_surface_flush(cr_surface);
-    cairo_surface_finish(cr_surface);
-    cairo_surface_destroy(cr_surface);
-#endif
 
     return 0;
 }

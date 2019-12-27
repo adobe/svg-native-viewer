@@ -239,25 +239,30 @@ void svg_native_render_size(svg_native_t* sn, float width, float height)
 }
 
 #ifdef USE_TEXT
-size_t svg_native_render_output(svg_native_t* sn, char* buff, size_t buff_size)
+void svg_native_get_output(svg_native_t* sn, const char** data, size_t* length)
 {
+    if (!length || !data)
+    {
+        return;
+    }
+
+    *data = NULL;
+    *length = 0;
+
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
     if (!_sn || _sn->mRendererType != SVG_RENDERER_STRING)
-        return 0;
+        return;
 
     auto renderer = std::dynamic_pointer_cast<SVGNative::StringSVGRenderer>(_sn->mRenderer);
     if (!renderer)
-        return 0;
+        return;
+
     const auto& string = renderer->String();
 
-    if (!buff)
-        return string.size();
+    *data = string.c_str();
+    *length = string.size();
 
-    auto length = std::min(buff_size, static_cast<size_t>(string.size()));
-    for (size_t i = 0; i < length; i++)
-        buff[i] = string[i]; 
-
-    return length;
+    return;
 }
 #endif
 
