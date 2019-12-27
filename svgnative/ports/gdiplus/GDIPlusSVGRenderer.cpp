@@ -46,18 +46,19 @@ void GDIPlusSVGPath::Rect(float x, float y, float width, float height)
     mPath.AddRectangle(Gdiplus::RectF(x, y, width, height));
 }
 
-void GDIPlusSVGPath::RoundedRect(float x, float y, float w, float h, float r)
+void GDIPlusSVGPath::RoundedRect(float x, float y, float w, float h, float rx, float ry)
 {
-    const float d = r + r;
+    const float dx = rx + rx;
+    const float dy = ry + ry;
 
-    mPath.AddLine(x + r, y, x + w - d, y);
-    mPath.AddArc(x + w - d, y, d, d, 270, 90);
-    mPath.AddLine(x + w, y + r, x + w, y + h - d);
-    mPath.AddArc(x + w - d, y + h - d, d, d, 0, 90);
-    mPath.AddLine(x + w - d, y + h, x + r, y + h);
-    mPath.AddArc(x, y + h - d, d, d, 90, 90);
-    mPath.AddLine(x, y + h - d, x, y + r);
-    mPath.AddArc(x, y, d, d, 180, 90);
+    mPath.AddLine(x + rx, y, x + w - dx, y);
+    mPath.AddArc(x + w - dx, y, dx, dy, 270, 90);
+    mPath.AddLine(x + w, y + ry, x + w, y + h - dy);
+    mPath.AddArc(x + w - dx, y + h - dy, dx, dy, 0, 90);
+    mPath.AddLine(x + w - dx, y + h, x + rx, y + h);
+    mPath.AddArc(x, y + h - dy, dx, dy, 90, 90);
+    mPath.AddLine(x, y + h - dy, x, y + ry);
+    mPath.AddArc(x, y, dx, dy, 180, 90);
     mPath.CloseFigure();
 }
 

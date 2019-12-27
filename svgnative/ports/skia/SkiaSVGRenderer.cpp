@@ -33,10 +33,10 @@ SkiaSVGPath::SkiaSVGPath() {}
 
 void SkiaSVGPath::Rect(float x, float y, float width, float height) { mPath.addRect({x, y, x + width, y + height}); }
 
-void SkiaSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadius)
+void SkiaSVGPath::RoundedRect(float x, float y, float width, float height, float rx, float ry)
 {
     SkRRect rrect;
-    rrect.setNinePatch({x, y, x + width, y + height}, cornerRadius, cornerRadius, cornerRadius, cornerRadius);
+    rrect.setRectXY({x, y, x + width, y + height}, rx, ry);
     mPath.addRRect(rrect);
 }
 

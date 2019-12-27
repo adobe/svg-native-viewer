@@ -217,7 +217,7 @@ public:
     virtual ~Path() = default;
 
     virtual void Rect(float x, float y, float width, float height) = 0;
-    virtual void RoundedRect(float x, float y, float width, float height, float cornerRadius) = 0;
+    virtual void RoundedRect(float x, float y, float width, float height, float cornerRadiusX, float cornerRadiusY) = 0;
     virtual void Ellipse(float cx, float cy, float rx, float ry) = 0;
 
     virtual void MoveTo(float x, float y) = 0;

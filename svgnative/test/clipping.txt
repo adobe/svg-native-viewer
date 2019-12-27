@@ -6,7 +6,7 @@
         [path Rect(80,0,40,40) clipping: { winding: nonzero [path Ellipse(100,20,20,15)]}
             fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
             stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(120,0,40,40) clipping: { winding: nonzero [path RoundedRect(130,10,20,20,5)]}
+        [path Rect(120,0,40,40) clipping: { winding: nonzero [path RoundedRect(130,10,20,20,5,5)]}
             fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
             stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
         [path Rect(160,0,40,40) clipping: { winding: nonzero [path M180,10 L190,35 L170,35]}
