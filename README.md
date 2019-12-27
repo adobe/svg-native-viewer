@@ -55,7 +55,7 @@ For rendering, SVG Native Viewer requires a rendering port. Already existing por
 
 New ports need to inherit from **SVGRenderer** and implement the virtual functions.
 
-Here an example how to use SVG Native Viewer with the Skia **SkiaSVGRenderer**:
+Here an example how to use SVG Native Viewer with Skia **SkiaSVGRenderer**:
 
 ```cpp
 // Create the renderer object
