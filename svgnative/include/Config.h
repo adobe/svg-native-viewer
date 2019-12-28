@@ -34,12 +34,12 @@ governing permissions and limitations under the License.
 #define SVG_CSS_TRACE(_message) void();
 #endif
 
-#if defined _WIN32 || defined __CYGWIN__
+#if defined _MSC_VER || defined __CYGWIN__
 	#ifndef DllImport
-		#define DllImport __declspec( dllimport )
+		#define DllImport __declspec(dllimport)
 	#endif
 	#ifndef DllExport 
-		#define DllExport __declspec( dllexport )
+		#define DllExport __declspec(dllexport)
     #endif
 #else
 	#ifndef DllImport
