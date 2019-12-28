@@ -120,7 +120,14 @@ void svg_native_render(svg_native_t* sn);
 void svg_native_render_size(svg_native_t* sn, float width, float height);
 
 #ifdef USE_TEXT
-void svg_native_get_output(svg_native_t* sn, const char** output, size_t* length);
+/**
+ * Copy the output of Text port to new buffer.
+ * The copied content is not NULL-terminated, and the client must free it after using it.
+ * @param sn The SVG Native context.
+ * @param buff The pointer to store the pointer to the copied content.
+ * @param length The pointer to store the length of the copied content.
+ */
+void svg_native_get_output(svg_native_t* sn, char** buff, size_t* length);
 #endif
 
 /**

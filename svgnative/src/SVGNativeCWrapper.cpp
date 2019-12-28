@@ -239,14 +239,12 @@ void svg_native_render_size(svg_native_t* sn, float width, float height)
 }
 
 #ifdef USE_TEXT
-void svg_native_get_output(svg_native_t* sn, const char** data, size_t* length)
+void svg_native_get_output(svg_native_t* sn, char** buff, size_t* length)
 {
-    if (!length || !data)
-    {
+    if (!buff || !length)
         return;
-    }
 
-    *data = NULL;
+    *buff = NULL;
     *length = 0;
 
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
@@ -258,9 +256,13 @@ void svg_native_get_output(svg_native_t* sn, const char** data, size_t* length)
         return;
 
     const auto& string = renderer->String();
+    auto size = string.length();
+    *buff = (char*)malloc(size * sizeof(char));
+    if (!(*buff))
+        return;
 
-    *data = string.c_str();
-    *length = string.size();
+    memcpy(*buff, string.c_str(), size);
+    *length = size;
 
     return;
 }

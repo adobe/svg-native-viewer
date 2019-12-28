@@ -23,7 +23,7 @@
 
 #include "SVGNativeCWrapper.h"
 
-char* read_svg_input(char* pathname)
+char* read_svg_input(const char* pathname)
 {
     char*   buff_input;
     FILE*   file_input;
@@ -51,7 +51,7 @@ char* read_svg_input(char* pathname)
     return buff_input;
 }
 
-size_t write_data(char* pathname, const char* buff_output, size_t size_output)
+size_t write_data(const char* pathname, const char* buff_output, size_t size_output)
 {
     FILE*   file_output;
     size_t  size_written;
@@ -68,14 +68,14 @@ size_t write_data(char* pathname, const char* buff_output, size_t size_output)
     return size_written;
 }
 
-int main(int argc, char* const argv[])
+int main(int argc, const char* argv[])
 {
     svg_native_t*  sn;
     svg_native_color_map_t*  colorMap;
 
     char*   buff_input;
+    char*   buff_output;
     size_t  size_output;
-    const char*  buff_output;
 
     if (argc != 3)
     {
@@ -96,6 +96,7 @@ int main(int argc, char* const argv[])
 
     svg_native_get_output(sn, &buff_output, &size_output);
     write_data(argv[2], buff_output, size_output);
+    free(buff_output);
 
     svg_native_destroy(sn);
     svg_native_color_map_destroy(colorMap);
