@@ -108,6 +108,17 @@ void StringSVGTransform::Multiply(const AffineTransform& o)
 
 StringSVGRenderer::StringSVGRenderer() { mStringStream.precision(3); }
 
+std::unique_ptr<Path> StringSVGRenderer::CreatePath()
+{
+    return std::unique_ptr<StringSVGPath>(new StringSVGPath);
+}
+
+std::unique_ptr<Transform> StringSVGRenderer::CreateTransform(
+    float a, float b, float c, float d, float tx, float ty)
+{
+    return std::unique_ptr<StringSVGTransform>(new StringSVGTransform(a, b, c, d, tx, ty));
+}
+
 void StringSVGRenderer::Save(const GraphicStyle& graphicStyle)
 {
     WriteIndent();
