@@ -77,6 +77,19 @@ jobs:
       - run:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/mac'
+  build_with_win:
+    orbs:
+      windows: circleci/windows@2.3.0
+    steps:
+      - run: $global:ProgressPreference = 'SilentlyContinue'
+      - run: $cmakeVersion = "3.16.2"
+      - run: $url = "https://github.com/Kitware/CMake/releases/download/v" + $cmakeVersion + "/cmake-" + $cmakeVersion + "-win64-x64.zip"
+      - run: $outputDir = (Get-Item -Path ".\").FullName
+      - run: $outputZip = $outputDir + "\cmake.zip"
+      - run: $cmakePath = $outputDir + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+      - run: (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
+      - run: Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
+      - run: $env:Path += ";" + $cmakePath
 workflows:
   version: 2
   build_and_test:
@@ -85,3 +98,4 @@ workflows:
       - build_with_style_support
       - build_with_clang
       - build_with_cocoa
+      - build_with_win
