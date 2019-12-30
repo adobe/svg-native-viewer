@@ -88,7 +88,7 @@ jobs:
       - run: Expand-Archive -LiteralPath ((Get-Item -Path ".\").FullName + "\cmake.zip") -DestinationPath (Get-Item -Path ".\").FullName -Force
       - run: $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-3.16.2-win64-x64\bin"
       - run: (Get-Item -Path ".\").FullName
-      - run: cmake --version
+      - run: C:\Users\circleci\project\cmake-3.16.2-win64-x64\bin\cmake --version
 workflows:
   version: 2
   build_and_test:
