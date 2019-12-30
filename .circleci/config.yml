@@ -1,5 +1,8 @@
 version: 2
 
+orbs:
+  windows: circleci/windows@2.3.0
+
 jobs:
   build+test:
     docker:
@@ -43,8 +46,6 @@ jobs:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/linux'
   build_with_style_support:
-    docker:
-      - image: debian:stretch
     steps:
       - run:
           name: Installing sudo
@@ -78,8 +79,7 @@ jobs:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/mac'
   build_with_win:
-    orbs:
-      windows: circleci/windows@2.3.0
+    executor: windows/default
     steps:
       - run: $global:ProgressPreference = 'SilentlyContinue'
       - run: $cmakeVersion = "3.16.2"
