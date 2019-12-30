@@ -256,13 +256,14 @@ void svg_native_get_output(svg_native_t* sn, char** buff, size_t* length)
         return;
 
     const auto& string = renderer->String();
-    auto size = string.length();
+
+    auto size = string.length() + 1;
     *buff = (char*)malloc(size * sizeof(char));
     if (!(*buff))
         return;
 
     memcpy(*buff, string.c_str(), size);
-    *length = size;
+    *length = string.length();
 
     return;
 }

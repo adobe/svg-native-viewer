@@ -124,10 +124,10 @@ SVG_IMP_EXP void svg_native_render_size(svg_native_t* sn, float width, float hei
 #ifdef USE_TEXT
 /**
  * Copy the output of Text port to new buffer.
- * The copied content is not NULL-terminated, and the client must free it after using it.
+ * The copied content is NULL-terminated, and the client must free it after using it.
  * @param sn The SVG Native context.
- * @param buff The pointer to store the pointer to the copied content.
- * @param length The pointer to store the length of the copied content.
+ * @param buff The pointer to store the address to the copied content.
+ * @param length The pointer to store the content length without the last NULL.
  */
 SVG_IMP_EXP void svg_native_get_output(svg_native_t* sn, char** buff, size_t* length);
 #endif
