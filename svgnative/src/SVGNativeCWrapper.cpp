@@ -22,6 +22,8 @@ governing permissions and limitations under the License.
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 #ifdef USE_GDIPLUS
+#include <windows.h>
+#include <Gdiplus.h>
 #include "GDIPlusSVGRenderer.h"
 #endif
 #ifdef USE_SKIA
