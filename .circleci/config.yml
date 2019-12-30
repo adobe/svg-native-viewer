@@ -83,11 +83,17 @@ jobs:
   build_with_win:
     executor: windows/default
     steps:
-      - run: $global:ProgressPreference = 'SilentlyContinue'
-      - run: (New-Object System.Net.WebClient).DownloadFile("https://github.com/Kitware/CMake/releases/download/v3.16.2/cmake-3.16.2-win64-x64.zip", (Get-Item -Path ".\").FullName + "\cmake.zip")
-      - run: Expand-Archive -LiteralPath ((Get-Item -Path ".\").FullName + "\cmake.zip") -DestinationPath (Get-Item -Path ".\").FullName -Force
-      - run: $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-3.16.2-win64-x64\bin"
-      - run: (Get-Item -Path ".\").FullName
+      - run:
+          name: Installing CMake
+          command: |
+            $global:ProgressPreference = 'SilentlyContinue'
+            $cmakeVersion = "3.16.2"
+            $url = "https://github.com/Kitware/CMake/releases/download/v" + $cmakeVersion + "/cmake-" + $cmakeVersion + "-win64-x64.zip"
+            $outputDir = (Get-Item -Path ".\").FullName
+            $outputZip = $outputDir + "\cmake.zip"
+            $cmakePath = $outputDir + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
+            Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
       - run: C:\Users\circleci\project\cmake-3.16.2-win64-x64\bin\cmake --version
 workflows:
   version: 2
