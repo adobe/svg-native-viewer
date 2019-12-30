@@ -87,6 +87,7 @@ jobs:
       - run: (New-Object System.Net.WebClient).DownloadFile("https://github.com/Kitware/CMake/releases/download/v3.16.2/cmake-3.16.2-win64-x64.zip", (Get-Item -Path ".\").FullName + "\cmake.zip")
       - run: Expand-Archive -LiteralPath ((Get-Item -Path ".\").FullName + "\cmake.zip") -DestinationPath (Get-Item -Path ".\").FullName -Force
       - run: $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-3.16.2-win64-x64\bin"
+      - run: cmake --version
 workflows:
   version: 2
   build_and_test:
