@@ -60,4 +60,4 @@ governing permissions and limitations under the License.
 	#define SVG_IMP_EXP
 #endif
 
-#endif // SVGViewer_Config_h
+#endif /* SVGViewer_Config_h */
