@@ -51,9 +51,13 @@ governing permissions and limitations under the License.
 #endif
 
 #ifdef BUILDING_DLL
-	#define SVG_IMP_EXP DllExport
+	#ifdef SVG_IMPORT
+		#define SVG_IMP_EXP DllImport
+	#else
+		#define SVG_IMP_EXP DllExport
+	#endif
 #else
-	#define SVG_IMP_EXP DllImport
+	#define SVG_IMP_EXP
 #endif
 
 #endif // SVGViewer_Config_h
