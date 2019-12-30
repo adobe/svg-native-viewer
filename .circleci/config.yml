@@ -83,6 +83,9 @@ jobs:
   build_with_win:
     executor: windows/default
     steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - run:
           name: Installing CMake
           command: |
@@ -94,9 +97,6 @@ jobs:
             $cmakePath = $outputDir + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
             Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
       - run:
           name: Creating Build Files
           command: |
