@@ -27,7 +27,7 @@ public:
     StringSVGPath();
 
     void Rect(float x, float y, float width, float height) override;
-    void RoundedRect(float x, float y, float width, float height, float cornerRadius) override;
+    void RoundedRect(float x, float y, float width, float height, float rx, float ry) override;
     void Ellipse(float cx, float cy, float rx, float ry) override;
 
     void MoveTo(float x, float y) override;
@@ -109,13 +109,10 @@ public:
 
     std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::unique_ptr<StringSVGImageData>(new StringSVGImageData(base64, encoding)); }
 
-    std::unique_ptr<Path> CreatePath() override { return std::unique_ptr<StringSVGPath>(new StringSVGPath); }
+    std::unique_ptr<Path> CreatePath() override;
 
     std::unique_ptr<Transform> CreateTransform(
-        float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override
-    {
-        return std::unique_ptr<StringSVGTransform>(new StringSVGTransform(a, b, c, d, tx, ty));
-    }
+        float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override;
 
     void Save(const GraphicStyle& graphicStyle) override;
     void Restore() override;

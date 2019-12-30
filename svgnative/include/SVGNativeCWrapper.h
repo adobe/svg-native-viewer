@@ -13,6 +13,8 @@ governing permissions and limitations under the License.
 #ifndef SVGViewer_CWrapper_h
 #define SVGViewer_CWrapper_h
 
+#include "Config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,7 +41,7 @@ typedef void svg_native_renderer_t;
  * Create a new color map. Multiple color maps can be created in parallel.
  * @return Pointer to the newly created color map. May be NULL on error.
  */
-svg_native_color_map_t* svg_native_color_map_create();
+SVG_IMP_EXP svg_native_color_map_t* svg_native_color_map_create();
 /**
  * Add a color with the given name key and the float values for red, green, blue and alpha
  * to the given color map.
@@ -52,11 +54,11 @@ svg_native_color_map_t* svg_native_color_map_create();
  * @param green A float value in the range [0..1].
  * @param alpha A float value in the range [0..1].
  */
-void svg_native_color_map_add(svg_native_color_map_t* color_map, const char* color_key, float red, float green, float blue, float alpha);
+SVG_IMP_EXP void svg_native_color_map_add(svg_native_color_map_t* color_map, const char* color_key, float red, float green, float blue, float alpha);
 /**
  * Cleans up the color map with the given pointer. Do not use the pointer afterwards.
  */
-void svg_native_color_map_destroy(svg_native_color_map_t* color_map);
+SVG_IMP_EXP void svg_native_color_map_destroy(svg_native_color_map_t* color_map);
 
 
 /**
@@ -65,7 +67,7 @@ void svg_native_color_map_destroy(svg_native_color_map_t* color_map);
  * @param document_string The SVG document to parse as string. Should be UTF8 encoded. UTF16 maybe supported.
  * @return The pointer to the newly created SVG Native context. May be NULL on error.
  */
-svg_native_t* svg_native_create(svg_native_renderer_type_t renderer_type, const char* document_string);
+SVG_IMP_EXP svg_native_t* svg_native_create(svg_native_renderer_type_t renderer_type, const char* document_string);
 
 /**
  * Sets a color map to the provided SVG Native context. Only one color map can be used at
@@ -73,7 +75,7 @@ svg_native_t* svg_native_create(svg_native_renderer_type_t renderer_type, const 
  * @param sn The SVG Native context.
  * @param color_map A pointer to a color map.
  */
-void svg_native_set_color_map(svg_native_t* sn, svg_native_color_map_t* color_map);
+SVG_IMP_EXP void svg_native_set_color_map(svg_native_t* sn, svg_native_color_map_t* color_map);
 /**
  * Sets the native renderer used for the provided SVG Native context. The renderer
  * must match the renderer type specified for the provided SVG Native context.
@@ -86,20 +88,20 @@ void svg_native_set_color_map(svg_native_t* sn, svg_native_color_map_t* color_ma
  * @param sn The SVG Native context.
  * @param renderer A pointer to the native renderer used by the provided SVG Native context.
  */
-void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer);
+SVG_IMP_EXP void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer);
 
 /**
  * The horizontal dimension of the SVG canvas.
  * @param sn The SVG Native context.
  * @return The horizonal dimension.
  */
-float svg_native_canvas_width(svg_native_t* sn);
+SVG_IMP_EXP float svg_native_canvas_width(svg_native_t* sn);
 /**
  * The vertical dimension of the SVG canvas.
  * @param sn The SVG Native context.
  * @return The vertical dimension.
  */
-float svg_native_canvas_height(svg_native_t* sn);
+SVG_IMP_EXP float svg_native_canvas_height(svg_native_t* sn);
 
 /**
  * Renders the parsed SVG document of the provided SVG Native context to the
@@ -107,7 +109,7 @@ float svg_native_canvas_height(svg_native_t* sn);
  * A renderer must be set first.
  * @param sn The SVG Native context.
  */
-void svg_native_render(svg_native_t* sn);
+SVG_IMP_EXP void svg_native_render(svg_native_t* sn);
 /**
  * Renders the parsed SVG document of the provided SVG Native context to the
  * renderer of that context. The SVG document will be rendered to fit into
@@ -117,7 +119,7 @@ void svg_native_render(svg_native_t* sn);
  * @param width The horizontal dimension the SVG document needs to fit into. Must not be 0 or negetive.
  * @param height The vertical dimension the SVG document needs to fit into. Must not be 0 or negetive.
  */
-void svg_native_render_size(svg_native_t* sn, float width, float height);
+SVG_IMP_EXP void svg_native_render_size(svg_native_t* sn, float width, float height);
 
 #ifdef USE_TEXT
 /**
@@ -127,13 +129,13 @@ void svg_native_render_size(svg_native_t* sn, float width, float height);
  * @param buff The pointer to store the pointer to the copied content.
  * @param length The pointer to store the length of the copied content.
  */
-void svg_native_get_output(svg_native_t* sn, char** buff, size_t* length);
+SVG_IMP_EXP void svg_native_get_output(svg_native_t* sn, char** buff, size_t* length);
 #endif
 
 /**
  * Destroys the provided SVG Native context. Do not use the pointer afterwards.
  */
-void svg_native_destroy(svg_native_t*);
+SVG_IMP_EXP void svg_native_destroy(svg_native_t*);
 
 #ifdef __cplusplus
 }

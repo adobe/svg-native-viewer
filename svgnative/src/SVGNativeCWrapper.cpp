@@ -40,17 +40,17 @@ template <typename T>
 void ignore(T &&)
 { }
 
+struct svg_native_color_map_t_
+{
+    SVGNative::ColorMap mColorMap;
+};
+
 struct svg_native_t_
 {
     std::shared_ptr<SVGNative::SVGRenderer> mRenderer;
     std::unique_ptr<SVGNative::SVGDocument> mDocument;
     svg_native_renderer_type_t mRendererType{SVG_RENDERER_UNKNOWN};
     svg_native_color_map_t* mColorMap{};
-};
-
-struct svg_native_color_map_t_
-{
-    SVGNative::ColorMap mColorMap;
 };
 
 svg_native_color_map_t* svg_native_color_map_create()

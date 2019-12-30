@@ -27,9 +27,9 @@ void StringSVGPath::Rect(float x, float y, float width, float height)
     mStringStream << " Rect(" << x << ',' << y << ',' << width << ',' << height << ')';
 }
 
-void StringSVGPath::RoundedRect(float x, float y, float width, float height, float cornerRadius)
+void StringSVGPath::RoundedRect(float x, float y, float width, float height, float rx, float ry)
 {
-    mStringStream << " RoundedRect(" << x << ',' << y << ',' << width << ',' << height << ',' << cornerRadius << ')';
+    mStringStream << " RoundedRect(" << x << ',' << y << ',' << width << ',' << height << ',' << rx << ',' << ry << ')';
 }
 
 void StringSVGPath::Ellipse(float cx, float cy, float rx, float ry)
@@ -107,6 +107,17 @@ void StringSVGTransform::Multiply(const AffineTransform& o)
 }
 
 StringSVGRenderer::StringSVGRenderer() { mStringStream.precision(3); }
+
+std::unique_ptr<Path> StringSVGRenderer::CreatePath()
+{
+    return std::unique_ptr<StringSVGPath>(new StringSVGPath);
+}
+
+std::unique_ptr<Transform> StringSVGRenderer::CreateTransform(
+    float a, float b, float c, float d, float tx, float ty)
+{
+    return std::unique_ptr<StringSVGTransform>(new StringSVGTransform(a, b, c, d, tx, ty));
+}
 
 void StringSVGRenderer::Save(const GraphicStyle& graphicStyle)
 {
