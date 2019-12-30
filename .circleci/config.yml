@@ -94,7 +94,23 @@ jobs:
             $cmakePath = $outputDir + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
             Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
-      - run: C:\Users\circleci\project\cmake-3.16.2-win64-x64\bin\cmake --version
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run:
+          name: Creating Build Files
+          command: |
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake -Bbuild/win . -DGDIPLUS=ON'
+      - run:
+          name: Creating Binary Files
+          command: |
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake --build build/win
 workflows:
   version: 2
   build_and_test:
