@@ -1,7 +1,10 @@
-version: 2
+version: 2.1
+
+orbs:
+  windows: circleci/windows@2.3.0
 
 jobs:
-  build+test:
+  build_test:
     docker:
       - image: debian:stretch
     steps:
@@ -77,11 +80,57 @@ jobs:
       - run:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/mac'
+  build_with_win:
+    executor: windows/default
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run:
+          name: Installing CMake
+          command: |
+            $global:ProgressPreference = 'SilentlyContinue'
+            $cmakeVersion = "3.16.2"
+            $url = "https://github.com/Kitware/CMake/releases/download/v" + $cmakeVersion + "/cmake-" + $cmakeVersion + "-win64-x64.zip"
+            $outputDir = (Get-Item -Path ".\").FullName
+            $outputZip = $outputDir + "\cmake.zip"
+            (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
+            Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
+      - run:
+          name: Installing Boost
+          command: |
+            $global:ProgressPreference = 'SilentlyContinue'
+            $url = "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.zip"
+            $outputDir = (Get-Item -Path ".\").FullName
+            $outputZip = $outputDir + "\boost_1_72_0.zip"
+            (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
+            Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
+      - run:
+          name: Creating Build Files
+          command: |
+            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
+            $env:BOOST_INCLUDEDIR = $boostDir
+            $env:BOOST_ROOT = $boostDir + "boost"
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake -Bbuild/win . -G "Visual Studio 16 2019"
+      - run:
+          name: Creating Binary Files
+          command: |
+            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
+            $env:BOOST_INCLUDEDIR = $boostDir
+            $env:BOOST_ROOT = $boostDir + "boost"
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake --build build/win
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build+test
+      - build_test
       - build_with_style_support
       - build_with_clang
       - build_with_cocoa
+      - build_with_win
