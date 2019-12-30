@@ -46,6 +46,8 @@ jobs:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/linux'
   build_with_style_support:
+    docker:
+      - image: debian:stretch
     steps:
       - run:
           name: Installing sudo
