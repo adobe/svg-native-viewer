@@ -80,7 +80,7 @@ jobs:
       - run:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/mac'
-  build_with_win:
+  build_with_gdi:
     executor: windows/default
     steps:
       - checkout
@@ -114,7 +114,7 @@ jobs:
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
-            cmake -Bbuild/win . -G "Visual Studio 16 2019"
+            cmake -Bbuild/win . -G "Visual Studio 16 2019" -DGDIPLUS=ON
       - run:
           name: Creating Binary Files
           command: |
@@ -125,6 +125,26 @@ jobs:
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
             cmake --build build/win
+      - run:
+          name: Creating Build Files - Shared Lib
+          command: |
+            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
+            $env:BOOST_INCLUDEDIR = $boostDir
+            $env:BOOST_ROOT = $boostDir + "boost"
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake -Bbuild/win-shared . -G "Visual Studio 16 2019" -DSHARED=ON
+      - run:
+          name: Creating Binary Files - Shared Lib
+          command: |
+            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
+            $env:BOOST_INCLUDEDIR = $boostDir
+            $env:BOOST_ROOT = $boostDir + "boost"
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake --build build/win-shared
 workflows:
   version: 2
   build_and_test:
@@ -133,4 +153,4 @@ workflows:
       - build_with_style_support
       - build_with_clang
       - build_with_cocoa
-      - build_with_win
+      - build_with_gdi
