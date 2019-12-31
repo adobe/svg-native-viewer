@@ -134,7 +134,7 @@ jobs:
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
-            cmake -Bbuild/win . -G "Visual Studio 16 2019" -DGDIPLUS=ON -DSHARED=ON
+            cmake -Bbuild/win . -G "Visual Studio 16 2019" -DSHARED=ON
       - run:
           name: Creating Binary Files - Shared Lib
           command: |
