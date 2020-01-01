@@ -1,0 +1,19 @@
+[group transform: matrix(1,0,0,1,0,0)
+    [group
+        [group transform: matrix(1,0,0,1,0,0)
+            [path M20,100 L40,100 L40,120 L20,120 Z
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        ]
+        [group transform: matrix(1,0,0,1,50,0)
+            [path M20,100 L40,100 L40,120 L20,120 Z
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        ]
+        [group transform: matrix(1,0,0,1,100,0)
+            [path M20,100 L40,100 L40,120 L20,120 Z
+                fill: {hasFill: true winding: nonzero paint: rgba(1,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        ]
+    ]
+]
