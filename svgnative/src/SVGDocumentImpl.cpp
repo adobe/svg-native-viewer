@@ -355,7 +355,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         AddChildToCurrentGroup(group, std::move(idString));
         mGroupStack.push(group);
 
-        if(resourceIt->second->first_node() == 0)
+        if (!resourceIt->second->first_node())
             ParseChild(resourceIt->second);
         else
             ParseChildren(resourceIt->second);
