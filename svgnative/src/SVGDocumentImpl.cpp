@@ -203,8 +203,12 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mFillStyleStack.push(fillStyle);
         mStrokeStyleStack.push(strokeStyle);
 
-        ParseResources(child);
+        // Create dummmy group. All children w/o id will get cleaned up.
+        mGroupStack.push(std::make_shared<Group>(graphicStyle, classNames));
 
+        ParseChildren(child);
+
+        mGroupStack.pop();
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
     }
@@ -376,16 +380,6 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
              elementName == "radialGradient" ||
              elementName == "clipPath")
         ParseResource(child);
-}
-
-void SVGDocumentImpl::ParseResources(XMLNode* node)
-{
-    SVG_ASSERT(node != nullptr);
-
-    for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
-    {
-        ParseResource(child);
-    }
 }
 
 void SVGDocumentImpl::ParseResource(XMLNode* child)

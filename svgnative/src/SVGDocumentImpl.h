@@ -207,7 +207,6 @@ private:
     void ParseColorStops(XMLNode* node, SVGNative::GradientImpl& gradient);
     void ParseGradient(XMLNode* gradient);
 
-    void ParseResources(XMLNode* node);
     void ParseResource(XMLNode* node);
 
     void ParseChildren(XMLNode* node);
