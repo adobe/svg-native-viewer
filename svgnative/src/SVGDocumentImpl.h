@@ -250,7 +250,6 @@ private:
 
     // Temporary resources. Will get cleaned-up after parsing.
     std::map<std::string, GradientImpl> mGradients;
-    std::map<std::string, XMLNode*> mResourceIDs;
     std::map<std::string, std::shared_ptr<ClippingPath>> mClippingPaths;
     std::stack<std::shared_ptr<Group>> mGroupStack;
 

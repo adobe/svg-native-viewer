@@ -102,7 +102,6 @@ void SVGDocumentImpl::TraverseSVGTree()
 
     // Clear all temporary sets
     mGradients.clear();
-    mResourceIDs.clear();
     mClippingPaths.clear();
 }
 
@@ -443,14 +442,6 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
             mClippingPaths[id->value()] = std::make_shared<ClippingPath>(false, WindingRule::kNonZero, nullptr, nullptr);
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
-    }
-    else
-    {
-        auto id = child->first_attribute("id");
-        if (!id)
-            return;
-
-        mResourceIDs[id->value()] = child;
     }
 }
 
