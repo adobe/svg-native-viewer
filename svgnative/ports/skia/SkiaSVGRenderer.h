@@ -53,7 +53,7 @@ public:
     void Rotate(float r) override;
     void Translate(float tx, float ty) override;
     void Scale(float sx, float sy) override;
-    void Concat(const Transform& other) override;
+    void Concat(float a, float b, float c, float d, float tx, float ty) override;
 
     SkMatrix mMatrix;
 };

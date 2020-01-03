@@ -179,7 +179,7 @@ public:
     virtual void Rotate(float r) = 0;
     virtual void Translate(float tx, float ty) = 0;
     virtual void Scale(float sx, float sy) = 0;
-    virtual void Concat(const Transform& other) = 0;
+    virtual void Concat(float a, float b, float c, float d, float tx, float ty) = 0;
 };
 
 struct ClippingPath

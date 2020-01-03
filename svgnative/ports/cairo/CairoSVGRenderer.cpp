@@ -157,12 +157,10 @@ void CairoSVGTransform::Scale(float sx, float sy)
     cairo_matrix_scale(&mMatrix, sx, sy);
 }
 
-void CairoSVGTransform::Concat(const Transform& other)
+void CairoSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
 {
-    cairo_matrix_t  result;
-    cairo_matrix_multiply(&result, &mMatrix, &(static_cast<const CairoSVGTransform&>(other).mMatrix));
-    // Cairo has no simple API to copy a matrix to another
-    cairo_matrix_init(&mMatrix, result.xx, result.yx, result.xy, result.yy, result.x0, result.y0);
+    cairo_matrix_t other{a, b, c, d, tx, ty};
+    cairo_matrix_multiply(&mMatrix, &mMatrix, &other);
 }
 
 CairoSVGImageData::CairoSVGImageData(const std::string& base64, ImageEncoding encoding)

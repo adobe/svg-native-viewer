@@ -19,7 +19,6 @@ governing permissions and limitations under the License.
 #endif
 
 #include <array>
-#include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
 #include <map>
 #include <set>
 #include <stack>
@@ -29,8 +28,10 @@ governing permissions and limitations under the License.
 
 namespace SVGNative
 {
-using XMLNode = boost::property_tree::detail::rapidxml::xml_node<>;
-using XMLDocument = boost::property_tree::detail::rapidxml::xml_document<>;
+namespace xml
+{
+    class XMLNode;
+}
 
 struct GradientImpl;
 
@@ -171,7 +172,7 @@ public:
     SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer);
     ~SVGDocumentImpl() {}
 
-    void TraverseSVGTree();
+    void TraverseSVGTree(const xml::XMLNode* rootNode);
 
     enum class Result
     {
@@ -194,32 +195,28 @@ public:
     void Render(const ColorMap& colorMap, float width, float height);
     void Render(const char* id, const ColorMap& colorMap, float width, float height);
 
-    XMLDocument mXMLDocument;
     std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
 
 private:
-    bool HasAttr(XMLNode* node, const char* attrName);
-    float ParseLengthFromAttr(XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);
+    float ParseLengthFromAttr(const xml::XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);
     float RelativeLength(LengthType lengthType) const;
 
-    float ParseColorStop(XMLNode* node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
-    void ParseColorStops(XMLNode* node, SVGNative::GradientImpl& gradient);
-    void ParseGradient(XMLNode* gradient);
+    float ParseColorStop(const xml::XMLNode* node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
+    void ParseColorStops(const xml::XMLNode* node, SVGNative::GradientImpl& gradient);
+    void ParseGradient(const xml::XMLNode* gradient);
 
-    void ParseResource(XMLNode* node);
+    void ParseChildren(const xml::XMLNode* node);
+    void ParseChild(const xml::XMLNode* node);
 
-    void ParseChildren(XMLNode* node);
-    void ParseChild(XMLNode* node);
+    std::unique_ptr<Path> ParseShape(const xml::XMLNode* node);
 
-    std::unique_ptr<Path> ParseShape(XMLNode* node);
-
-    GraphicStyleImpl ParseGraphic(XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
+    GraphicStyleImpl ParseGraphic(const xml::XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
     void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet);
     void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet);
     void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const PropertySet& propertySet);
 
-    PropertySet ParsePresentationAttributes(XMLNode* node);
+    PropertySet ParsePresentationAttributes(const xml::XMLNode* node);
 
     void RenderElement(const Element& element, const ColorMap& colorMap, float width, float height);
 
@@ -227,8 +224,8 @@ private:
 
     void ApplyCSSStyle(
         const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle);
-    void ParseStyleAttr(XMLNode* node, std::vector<PropertySet>& propertySets, std::set<std::string>& classNames);
-    void ParseStyle(XMLNode* child);
+    void ParseStyleAttr(const xml::XMLNode* node, std::vector<PropertySet>& propertySets, std::set<std::string>& classNames);
+    void ParseStyle(const xml::XMLNode* child);
 
     void AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString);
 

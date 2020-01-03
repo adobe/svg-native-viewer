@@ -18,13 +18,11 @@ governing permissions and limitations under the License.
 #include "StyleSheet/Parser.h"
 #endif
 
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
+#include "xml/XMLParser.h"
+
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
-
-using namespace boost::property_tree::detail::rapidxml;
 
 namespace SVGNative
 {
@@ -32,10 +30,12 @@ std::unique_ptr<SVGDocument> SVGDocument::CreateSVGDocument(const char* s, std::
 {
     try
     {
+        if (!renderer)
+            return nullptr;
+        auto xmlDocument = xml::XMLDocument::CreateXMLDocument(s);
+        auto rootNode = xmlDocument->GetFirstNode();
         auto realSVGDoc = std::unique_ptr<SVGDocumentImpl>(new SVGDocumentImpl(renderer));
-        realSVGDoc->mXMLDocument.parse<0>((char*)s); // 0 means default parse flags
-        realSVGDoc->TraverseSVGTree();
-        realSVGDoc->mXMLDocument.clear();
+        realSVGDoc->TraverseSVGTree(rootNode.get());
 
         auto retval = new SVGDocument();
         retval->mDocument = std::move(realSVGDoc);

@@ -82,7 +82,12 @@ void SkiaSVGTransform::Translate(float tx, float ty) { mMatrix.preTranslate(tx, 
 
 void SkiaSVGTransform::Scale(float sx, float sy) { mMatrix.preScale(sx, sy, 0.0, 0.0); }
 
-void SkiaSVGTransform::Concat(const Transform& other) { mMatrix.preConcat(static_cast<const SkiaSVGTransform&>(other).mMatrix); }
+void SkiaSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
+{
+    SkMatrix other;
+    other.setAll(a, c, tx, b, d, ty, 0, 0, 1);
+    mMatrix.preConcat(other);
+}
 
 inline sk_sp<SkImage> getOrientedImage(sk_sp<SkImage> srcImg, SkEncodedOrigin origin)
 {
