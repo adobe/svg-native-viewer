@@ -83,21 +83,12 @@ public:
     { 
     }
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override 
-    { 
-        return std::unique_ptr<GDIPlusSVGImageData>(new GDIPlusSVGImageData(base64, encoding)); 
-    }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override;
 
-    std::unique_ptr<Path> CreatePath() override 
-    { 
-        return std::unique_ptr<GDIPlusSVGPath>(new GDIPlusSVGPath); 
-    }
+    std::unique_ptr<Path> CreatePath() override;
 
     std::unique_ptr<Transform> CreateTransform(
-        float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override
-    {
-        return std::unique_ptr<GDIPlusSVGTransform>(new GDIPlusSVGTransform(a, b, c, d, tx, ty));
-    }
+        float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override;
 
     void Save(const GraphicStyle& graphicStyle) override;
     void Restore() override;

@@ -192,6 +192,21 @@ GDIPlusSVGRenderer::GDIPlusSVGRenderer()
 {
 }
 
+std::unique_ptr<ImageData> GDIPlusSVGRenderer::CreateImageData(const std::string& base64, ImageEncoding encoding)
+{
+    return std::unique_ptr<GDIPlusSVGImageData>(new GDIPlusSVGImageData(base64, encoding));
+}
+
+std::unique_ptr<Path> GDIPlusSVGRenderer::CreatePath()
+{
+    return std::unique_ptr<GDIPlusSVGPath>(new GDIPlusSVGPath);
+}
+
+std::unique_ptr<Transform> GDIPlusSVGRenderer::CreateTransform(float a, float b, float c, float d, float tx, float ty)
+{
+    return std::unique_ptr<GDIPlusSVGTransform>(new GDIPlusSVGTransform(a, b, c, d, tx, ty));
+}
+
 void GDIPlusSVGRenderer::Save(const GraphicStyle& graphicStyle)
 {
     mStateStack.push_back(mContext->Save());
