@@ -38,7 +38,6 @@ SVG Native is an upcoming specification of the SVG WG based on [SVG OpenType](ht
 A valid SVG Native document is always a valid SVG1.1/2.0 document.
 
 ### Known limitations in SVG Native Viewer
-* Referenced elements need to be declared first. Example: A `<linearGradient>` element must be defined in the SVG document before its first reference (`fill="url(#gradient)"`).
 * `preserveAspectRatio` is not supported on the `<svg>` element yet.
 * Furthermore, there might be limitations on certain platforms. (E.g. missing spread-method support on CoreGraphics.)
 

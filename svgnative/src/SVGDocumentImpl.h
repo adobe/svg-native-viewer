@@ -85,7 +85,8 @@ public:
     {
         kImage,
         kGraphic,
-        kGroup
+        kGroup,
+        kReference
     };
 
     struct Element
@@ -149,6 +150,24 @@ public:
         ElementType Type() const override { return ElementType::kGraphic; }
     };
 
+    struct Reference : public Element
+    {
+        Reference(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
+            std::string aHref)
+            : Element(aGraphicStyle, aClasses)
+            , fillStyle{aFillStyle}
+            , strokeStyle{aStrokeStyle}
+            , href{std::move(aHref)}
+        {
+        }
+
+        FillStyleImpl fillStyle;
+        StrokeStyleImpl strokeStyle;
+        std::string href;
+
+        ElementType Type() const override { return ElementType::kReference; }
+    };
+
     SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer);
     ~SVGDocumentImpl() {}
 
@@ -188,7 +207,6 @@ private:
     void ParseColorStops(XMLNode* node, SVGNative::GradientImpl& gradient);
     void ParseGradient(XMLNode* gradient);
 
-    void ParseResources(XMLNode* node);
     void ParseResource(XMLNode* node);
 
     void ParseChildren(XMLNode* node);
@@ -232,13 +250,15 @@ private:
 
     // Temporary resources. Will get cleaned-up after parsing.
     std::map<std::string, GradientImpl> mGradients;
-    std::map<std::string, XMLNode*> mResourceIDs;
     std::map<std::string, std::shared_ptr<ClippingPath>> mClippingPaths;
     std::stack<std::shared_ptr<Group>> mGroupStack;
 
     // Render tree created during parsing.
     std::shared_ptr<Group> mGroup;
-    std::map<std::string, std::shared_ptr<Element>> mIdToElementToMap;
+    std::map<std::string, std::shared_ptr<Element>> mIdToElementMap;
+
+    // Visited nodes to detect cycles.
+    std::set<const Element*> mVisitedElements;
 
 #if DEBUG
     std::string mTitle;

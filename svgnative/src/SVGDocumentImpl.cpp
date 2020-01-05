@@ -102,7 +102,6 @@ void SVGDocumentImpl::TraverseSVGTree()
 
     // Clear all temporary sets
     mGradients.clear();
-    mResourceIDs.clear();
     mClippingPaths.clear();
 }
 
@@ -203,8 +202,12 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mFillStyleStack.push(fillStyle);
         mStrokeStyleStack.push(strokeStyle);
 
-        ParseResources(child);
+        // Create dummmy group. All children w/o id will get cleaned up.
+        mGroupStack.push(std::make_shared<Group>(graphicStyle, classNames));
 
+        ParseChildren(child);
+
+        mGroupStack.pop();
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
     }
@@ -331,19 +334,14 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     }
     else if (elementName == "use")
     {
-        auto href = child->first_attribute("xlink:href");
-        if (!href)
+        auto hrefAttr = child->first_attribute("xlink:href");
+        if (!hrefAttr)
             return;
 
-        if (href->value()[0] != '#')
+        if (hrefAttr->value()[0] != '#')
             return;
 
-        auto resourceIt = mResourceIDs.find((href->value() + 1));
-        if (resourceIt == mResourceIDs.end())
-            return;
-
-        mFillStyleStack.push(fillStyle);
-        mStrokeStyleStack.push(strokeStyle);
+        std::string href{(hrefAttr->value() + 1)};
 
         auto transform = mRenderer->CreateTransform(
             1, 0, 0, 1, ParseLengthFromAttr(child, "x", LengthType::kHorizontal), ParseLengthFromAttr(child, "y", LengthType::kVertical));
@@ -351,18 +349,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             transform->Concat(*graphicStyle.transform);
         graphicStyle.transform = std::move(transform);
 
-        auto group = std::make_shared<Group>(graphicStyle, classNames);
-        mGroupStack.push(group);
-        AddChildToCurrentGroup(group, std::move(idString));
-
-        if(resourceIt->second->first_node() == 0)
-            ParseChild(resourceIt->second);
-        else
-            ParseChildren(resourceIt->second);
-
-        mGroupStack.pop();
-        mFillStyleStack.pop();
-        mStrokeStyleStack.pop();
+        AddChildToCurrentGroup(std::make_shared<Reference>(graphicStyle, classNames, fillStyle, strokeStyle, std::move(href)), std::move(idString));
     }
     else if (elementName == "symbol")
     {
@@ -392,16 +379,6 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
              elementName == "radialGradient" ||
              elementName == "clipPath")
         ParseResource(child);
-}
-
-void SVGDocumentImpl::ParseResources(XMLNode* node)
-{
-    SVG_ASSERT(node != nullptr);
-
-    for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
-    {
-        ParseResource(child);
-    }
 }
 
 void SVGDocumentImpl::ParseResource(XMLNode* child)
@@ -465,14 +442,6 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
             mClippingPaths[id->value()] = std::make_shared<ClippingPath>(false, WindingRule::kNonZero, nullptr, nullptr);
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
-    }
-    else
-    {
-        auto id = child->first_attribute("id");
-        if (!id)
-            return;
-
-        mResourceIDs[id->value()] = child;
     }
 }
 
@@ -1033,8 +1002,8 @@ void SVGDocumentImpl::Render(const char* id, const ColorMap& colorMap, float wid
     // * inherit property values from the root SVG element,
     // * ignore all styling and transforms on ancestors.
     // https://docs.microsoft.com/en-us/typography/opentype/spec/svg#glyph-identifiers
-    auto elementIter = mIdToElementToMap.find(id);
-    if (elementIter != mIdToElementToMap.end())
+    auto elementIter = mIdToElementMap.find(id);
+    if (elementIter != mIdToElementMap.end())
         RenderElement(*elementIter->second, colorMap, width, height);
 }
 
@@ -1052,6 +1021,7 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
     mRenderer->Save(graphicStyle);
 
     TraverseTree(colorMap, element);
+    SVG_ASSERT(mVisitedElements.empty());
 
     mRenderer->Restore();
 }
@@ -1064,8 +1034,8 @@ void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, s
 
     mGroupStack.top()->children.push_back(element);
 
-    if (!idString.empty() && mIdToElementToMap.find(idString) == mIdToElementToMap.end())
-        mIdToElementToMap.emplace(std::move(idString), element);
+    if (!idString.empty() && mIdToElementMap.find(idString) == mIdToElementMap.end())
+        mIdToElementMap.emplace(std::move(idString), element);
 }
 
 static void ResolveColorImpl(const ColorMap& colorMap, const ColorImpl& colorImpl, Color& color)
@@ -1139,6 +1109,28 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         return;
     switch (element.Type())
     {
+    case ElementType::kReference:
+    {
+        const auto& reference = static_cast<const Reference&>(element);
+        auto it = mVisitedElements.find(&reference);
+        if (it != mVisitedElements.end())
+            break; // We found a cycle. Do not continue rendering.
+        auto insertResult = mVisitedElements.insert(&reference);
+
+        // Render referenced content.
+        auto refIt = mIdToElementMap.find(reference.href);
+        if (refIt != mIdToElementMap.end())
+        {
+            ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
+            mRenderer->Save(reference.graphicStyle);
+            TraverseTree(colorMap, *(refIt->second));
+            mRenderer->Restore();
+        }
+
+        // Done processing current element.
+        mVisitedElements.erase(insertResult.first);
+        break;
+    }
     case ElementType::kGraphic:
     {
         const auto& graphic = static_cast<const Graphic&>(element);

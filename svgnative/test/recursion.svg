@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="100" fill="red"/>
+    
+  <rect width="50" height="50" fill="green"/>
+  <!-- self reference -->
+  <use xlink:href="#a" id="a"/>
+  
+  <g transform="translate(50, 0)">
+    <rect width="50" height="50" fill="green"/>
+    <use xlink:href="#a"/>
+  </g>
+  
+  <defs>
+    <g transform="translate(100, 0)" id="b">
+      <rect width="50" height="50" fill="green"/>
+      <use xlink:href="#b"/>
+    </g>
+  </defs>
+  <use xlink:href="#b" id="c"/>
+  
+  <g id="d" transform="translate(150, 0)">
+    <use xlink:href="#d"/>
+    <rect width="50" height="50" fill="green"/>
+  </g>
+ 
+  <!-- valid references -->
+  <defs>
+    <g id="e" transform="translate(0, 50)">
+      <rect width="50" height="50" fill="green"/>
+    </g>
+    <use xlink:href="#g" id="f"/>
+    <use xlink:href="#e" id="g"/>
+    <use xlink:href="#f" id="i"/>
+    <use xlink:href="#i" id="j"/>
+  </defs>
+  <use xlink:href="#j"/>
+  
+  <!-- valid references -->
+  <defs>
+    <use xlink:href="#l" transform="translate(50, 0)" id="k"/>
+  </defs>
+  <g transform="translate(50, 50)">
+    <use xlink:href="#k"/>
+    <g id="l">
+      <rect width="50" height="50" fill="green"/>
+    </g>
+  </g>
+
+  <defs>
+    <g id="m" transform="translate(150, 50)">
+      <rect width="50" height="50" fill="green"/>
+      <use xlink:href="#n"/>
+      <use xlink:href="#o" id="n"/>
+      <use xlink:href="#p" id="o"/>
+      <use xlink:href="#m" id="p"/>
+    </g>
+  </defs>
+  <use xlink:href="#m"/>
+</svg>
