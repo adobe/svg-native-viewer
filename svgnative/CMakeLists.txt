@@ -338,6 +338,11 @@ if (USE_SKIA)
     set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/skia")
 endif()
 
+if (USE_GDIPLUS)
+    target_link_libraries(SVGNativeViewerLib "gdiplus.lib")
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} gdiplus.lib")
+endif()
+
 if (USE_CAIRO)
     target_link_libraries(SVGNativeViewerLib "${CAIRO_LIBRARIES}")
     target_link_libraries(SVGNativeViewerLib "${JPEG_LIBRARY}")
