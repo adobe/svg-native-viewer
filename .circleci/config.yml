@@ -28,13 +28,13 @@ jobs:
           command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test'
       - run:
           name: Creating Build Files With libxml2
-          command: 'cd svgnative && cmake -Bbuild/linux -H. -DPLATFORM_XML=ON'
+          command: 'cd svgnative && cmake -Bbuild/linux-libxml2 -H. -DPLATFORM_XML=ON'
       - run:
           name: Creating Binary Files With libxml2
-          command: 'cd svgnative && cmake --build build/linux'
+          command: 'cd svgnative && cmake --build build/linux-libxml2'
       - run:
           name: Run Tests With libxml2
-          command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test'
+          command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test --program=build/linux-libxml2/example/testText/testSVGNative'
   build_with_clang:
     docker:
       - image: debian:stretch
