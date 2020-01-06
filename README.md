@@ -37,10 +37,6 @@ SVG Native is an upcoming specification of the SVG WG based on [SVG OpenType](ht
 
 A valid SVG Native document is always a valid SVG1.1/2.0 document.
 
-### Known limitations in SVG Native Viewer
-* `preserveAspectRatio` is not supported on the `<svg>` element yet.
-* Furthermore, there might be limitations on certain platforms. (E.g. missing spread-method support on CoreGraphics.)
-
 ## SVG Native Viewer Library
 
 SVG Native Viewer is a C++11 based project and can either be included in the source code of a client directly or linked statically or dynamically.
@@ -133,6 +129,7 @@ For Windows 32 bit:
 ```
 cmake -Bbuild/win32 -H. -G "Visual Studio 15 2017"
 ```
+_Omit `-H` when running in PowerShell._
 
 For macOS
 ```
@@ -147,22 +144,23 @@ On Linux you may choose to use GCC or Clang/LLVM. Add the following to the comma
 * `-DCMAKE_CXX_COMPILER=g++` for GCC
 * `-DCMAKE_CXX_COMPILER=clang` for Clang/LLVM
 
+On Windows you may choose to use Clang/LLVM as compiler. For help, follow the instructions of the linked MS Visual Studio [LLVM Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain). Add ` -T "LLVM"` to the project generation command above.
+
 To specify a different Boost installation directory on Windows use the following command:
 * `-DBOOST_ROOT=X:\path\to\boost`
 
 The following arguments can be passed with the `-D` flag and the options `ON` or `OFF`:
-* `LIB_ONLY` Only compile the library withoug examples. Default `OFF`.
+* `LIB_ONLY` Only compile the library without examples. Default `OFF`.
 * `SHARED` If `ON`, builds a dynamic library. Static otherwise. Default `OFF`.
+* `PLATFORM_XML` If `ON`, uses libxml2 if provided by the system. Otherwise RapidXML via boost. Default `OFF`.
 * `TEXT` adds the _Text_ port to the library. Default `ON`.
 * `CG` adds the _CoreGraphics/Quartz2D_ port to the library. Default `OFF`.
 * `SKIA` adds the _Skia_ port to the library. Default `OFF`.
 * `GDIPLUS` adds the _GDI+_ port to the library. Default `OFF`.
 * `CAIRO` adds the _Cairo Graphics_ port to the library. Default `OFF`.
 
-Each port includes an example project using the port. To disable the example projects set the following option to `OFF`. Default `ON`.
-
-To enable deprecated CSS styling support:
-* `STYLE` adds limited, deprecated support for `<style>` element and `style` attribute.
+To enable the deprecated CSS styling support:
+* `STYLE` adds limited, deprecated support for `<style>` element and `style` attribute. Default `OFF`. _(This option will get removed eventually.)_
 
 The following example creates project files for the library with the Text, CoreGraphics/Quartz2D and Skia port and the example applications.
 **Example:**
@@ -182,7 +180,7 @@ cmake --build build/win64 --config Release
 ## Boost requirements
 
 Only the header version of Boost is required. The following Boost features are used:
-* Boost RapidXML (could be replace by RapidXML standalone)
+* Boost RapidXML _(Can be replaced by libxml2.)_
 * `boost::variant` to handle different SVG paint types of `fill` and `stroke` as well as different color value types.
 * Boost string functions like `boost::tokenizer`, `boost::trim`. _(Only used by deprecated CSS `<style>` element parsing.)_
 
@@ -198,6 +196,10 @@ Only the header version of Boost is required. The following Boost features are u
   * `--test` the folder with the test files.
   * `--program` the path to **testSVGNative**. If not provided uses the default, relative build path.
   * `--debug` Debug build or Release build of **testSVGNative**. Only relevant if `--program` was not set and defaults to `--debug`.
+
+## Known limitations in SVG Native Viewer
+* `preserveAspectRatio` is not supported on the `<svg>` element yet.
+* Furthermore, there might be limitations on certain platforms. (E.g. missing gradient spread-method support on CoreGraphics.)
 
 ## Contributing
 
