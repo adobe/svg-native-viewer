@@ -24,7 +24,16 @@ jobs:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/linux'
       - run:
-          name: Run tests
+          name: Run Tests
+          command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test'
+      - run:
+          name: Creating Build Files With libxml2
+          command: 'cd svgnative && cmake -Bbuild/linux -H. -DPLATFORM_XML=ON'
+      - run:
+          name: Creating Binary Files With libxml2
+          command: 'cd svgnative && cmake --build build/linux'
+      - run:
+          name: Run Tests With libxml2
           command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test'
   build_with_clang:
     docker:
