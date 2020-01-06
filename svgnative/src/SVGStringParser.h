@@ -13,7 +13,6 @@ governing permissions and limitations under the License.
 #pragma once
 
 #include "SVGDocumentImpl.h"
-#include <functional>
 #include <map>
 #include <string>
 
@@ -21,7 +20,7 @@ namespace SVGNative
 {
 namespace SVGStringParser
 {
-std::unique_ptr<Transform> ParseTransform(const std::string& transformString, std::function<std::unique_ptr<Transform>()> createTransform);
+bool ParseTransform(const std::string& transformString, Transform& matrix);
 bool ParseNumber(const std::string& numberString, float& number);
 bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional = true);
 bool ParseListOfLengthOrPercentage(

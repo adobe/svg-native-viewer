@@ -33,13 +33,12 @@ using CharIt = std::string::const_iterator;
 
 inline bool isDigit(char c)
 {
-    return c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9';
+    return c >= '0' && c <= '9';
 }
 
 inline bool isHex(char c)
 {
-    return isDigit(c) || c == 'a' || c == 'A' || c == 'b' || c == 'B' || c == 'c' || c == 'C' || c == 'd' || c == 'D' || c == 'e'
-        || c == 'E' || c == 'f' || c == 'F';
+    return isDigit(c) || (c >= 'a' && c <= 'f') ||  (c >= 'A' && c <= 'F');
 }
 
 inline bool isWsp(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
@@ -230,11 +229,7 @@ static bool ParseLengthOrPercentage(
     }
 
     if (*pos != '%' && *pos != 'c' && *pos != 'm' && *pos != 'i' && *pos != 'p')
-    {
-        if (useQuirks)
-            return true;
-        return false;
-    }
+        return useQuirks;
 
     auto start = pos++;
     if (*start == '%')
@@ -726,145 +721,138 @@ void ParsePathString(const std::string& pathString, Path& p)
     }
 }
 
-std::unique_ptr<Transform> ParseTransform(const std::string& transformString, std::function<std::unique_ptr<Transform>()> createTransform)
+bool ParseTransform(const std::string& transformString, Transform& matrix)
 {
     // https://www.w3.org/TR/css-transforms-1/#svg-syntax
     auto pos = transformString.begin();
     auto end = transformString.end();
     if (!SkipOptWsp(pos, end))
-        return nullptr;
+        return false;
 
-    auto matrix = createTransform();
     bool isFirstTransform{true};
     while (pos < end)
     {
         if (!SkipOptWsp(pos, end))
-            return matrix;
+            return true;
         if (!isFirstTransform && *pos == ',')
         {
             if (!SkipOptWspOrDelimiter(pos, end, false))
-                return nullptr;
+                return false;
         }
         auto length = std::distance(pos, end);
         if (length >= 6 && std::string(pos, pos + 6).compare("matrix") == 0)
         {
             pos += 6;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != '(')
-                return nullptr;
+                return false;
             std::vector<float> numberList;
             ParseListOfNumbers(pos, end, numberList);
             if (numberList.size() != 6 || !SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != ')')
-                return nullptr;
-            auto newMatrix = createTransform();
-            newMatrix->Set(numberList[0], numberList[1], numberList[2], numberList[3], numberList[4], numberList[5]);
-            matrix->Concat(*newMatrix);
+                return false;
+            matrix.Concat(numberList[0], numberList[1], numberList[2], numberList[3], numberList[4], numberList[5]);
         }
         else if (length >= 9 && std::string(pos, pos + 9).compare("translate") == 0)
         {
             pos += 9;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != '(')
-                return nullptr;
+                return false;
             std::vector<float> numberList;
             ParseListOfNumbers(pos, end, numberList);
             auto size = numberList.size();
             if ((size != 1 && size != 2) || !SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != ')')
-                return nullptr;
-            matrix->Translate(numberList[0], (size == 1 ? 0 : numberList[1]));
+                return false;
+            matrix.Translate(numberList[0], (size == 1 ? 0 : numberList[1]));
         }
         else if (length >= 5 && std::string(pos, pos + 5).compare("scale") == 0)
         {
             pos += 5;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != '(')
-                return nullptr;
+                return false;
             std::vector<float> numberList;
             ParseListOfNumbers(pos, end, numberList);
             auto size = numberList.size();
             if ((size != 1 && size != 2) || !SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != ')')
-                return nullptr;
-            matrix->Scale(numberList[0], (size == 1 ? numberList[0] : numberList[1]));
+                return false;
+            matrix.Scale(numberList[0], (size == 1 ? numberList[0] : numberList[1]));
         }
         else if (length >= 6 && std::string(pos, pos + 6).compare("rotate") == 0)
         {
             pos += 6;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != '(')
-                return nullptr;
+                return false;
             std::vector<float> numberList;
             ParseListOfNumbers(pos, end, numberList);
             auto size = numberList.size();
             if ((size != 1 && size != 3) || !SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != ')')
-                return nullptr;
+                return false;
             if (size == 3)
             {
-                matrix->Translate(numberList[1], numberList[2]);
-                matrix->Rotate(numberList[0]);
-                matrix->Translate(-numberList[1], -numberList[2]);
+                matrix.Translate(numberList[1], numberList[2]);
+                matrix.Rotate(numberList[0]);
+                matrix.Translate(-numberList[1], -numberList[2]);
             }
             else
-                matrix->Rotate(numberList[0]);
+                matrix.Rotate(numberList[0]);
         }
         else if (length >= 5 && std::string(pos, pos + 5).compare("skewX") == 0)
         {
             pos += 5;
             float number{};
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != '(')
-                return nullptr;
+                return false;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (!ParseScientificNumber(pos, end, number))
-                return nullptr;
+                return false;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != ')')
-                return nullptr;
-            auto newMatrix = createTransform();
+                return false;
             number *= M_PI / 180.0f;
-            newMatrix->Set(1.0f, 0.0f, tan(number), 1.0f, 0.0f, 0.0f);
-            matrix->Concat(*newMatrix);
+            matrix.Concat(1.0f, 0.0f, tan(number), 1.0f, 0.0f, 0.0f);
         }
         else if (length >= 5 && std::string(pos, pos + 5).compare("skewY") == 0)
         {
             pos += 5;
             float number{};
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != '(')
-                return nullptr;
+                return false;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (!ParseScientificNumber(pos, end, number))
-                return nullptr;
+                return false;
             if (!SkipOptWsp(pos, end))
-                return nullptr;
+                return false;
             if (*pos++ != ')')
-                return nullptr;
-            auto newMatrix = createTransform();
+                return false;
             number *= M_PI / 180.0f;
-            newMatrix->Set(1.0f, tan(number), 0.0f, 1.0f, 0.0f, 0.0f);
-            matrix->Concat(*newMatrix);
+            matrix.Concat(1.0f, tan(number), 0.0f, 1.0f, 0.0f, 0.0f);
         }
         else
-            return nullptr;
+            return false;
         isFirstTransform = false;
     }
-    return matrix;
+    return true;
 }
 
 static bool ParseCustomPropertyName(CharIt& pos, const CharIt& end, std::string& customPropertyName)

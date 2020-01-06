@@ -38,6 +38,7 @@ include(CMakeDependentOption)
 
 option(LIB_ONLY "Create a project for library only" OFF)
 option(SHARED "Make library dynamic")
+option(PLATFORM_XML "Uses the XML parser provided by the platform" OFF)
 
 option(TEXT "Enable Text port for testing" ON)
 option(CG "Enable CoreGraphics/Quartz2D port")
@@ -47,6 +48,7 @@ option(STYLE "Enable deprecated CSS Styling support")
 option(CAIRO "Enable Cairo port")
 
 CMAKE_DEPENDENT_OPTION(USE_SHARED "Dynamic library" TRUE "SHARED" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_PLATFORM_XML "Platform XML parser" TRUE "PLATFORM_XML" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
@@ -256,6 +258,23 @@ set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/cairo/CairoSVGRenderer.
 endif()
 
 ##############################
+# XML parser
+##############################
+
+set(XML_PARSER_SOURCE "src/xml/RapidXMLParser.cpp")
+if (USE_PLATFORM_XML)
+find_package(LibXml2)
+if (LIBXML2_FOUND)
+    set(XML_PARSER_SOURCE "src/xml/LibXMLParser.cpp")
+endif(LIBXML2_FOUND)
+endif()
+
+file(GLOB xml_parser
+    src/xml/XMLParser.h
+    ${XML_PARSER_SOURCE}
+)
+
+##############################
 # Library settings
 ##############################
 set(svgNative_src
@@ -268,7 +287,9 @@ set(svgNative_src
     ${gdiplus_port}
     ${cairo_port}
     ${dll_version}
+    ${xml_parser}
 )
+
 if (USE_SHARED)
 add_definitions(-DBUILDING_DLL)
 add_library(SVGNativeViewerLib SHARED ${svgNative_src})
@@ -359,6 +380,17 @@ if (USE_CAIRO)
         set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${JPEG_LIBRARY_DIR} -ljpeg")
     endif()
 endif()
+
+if (LIBXML2_FOUND)
+    target_link_libraries(SVGNativeViewerLib "${LIBXML2_LIBRARIES}")
+    target_include_directories(SVGNativeViewerLib PUBLIC  "${LIBXML2_INCLUDE_DIR}")
+    if (PC_LIBXML_VERSION) # if libxml2 is managed by pkg-config
+        set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES} libxml-2.0")
+    else() # if libxml2 is out of pkg-config
+        get_filename_component(LIBXML2_LIB_DIR "${LIBXML2_LIBRARY}" DIRECTORY)
+        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${LIBXML2_LIB_DIR} -lxml2")
+    endif()
+endif(LIBXML2_FOUND)
 
 # CMake has no additional file to record the dependency for the static library,
 # we have to put direct dependencies into pkg-config files.

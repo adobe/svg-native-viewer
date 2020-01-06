@@ -72,9 +72,9 @@ void CGSVGTransform::Translate(float tx, float ty) { mTransform = CGAffineTransf
 
 void CGSVGTransform::Scale(float sx, float sy) { mTransform = CGAffineTransformScale(mTransform, sx, sy); }
 
-void CGSVGTransform::Concat(const Transform& other)
+void CGSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
 {
-    mTransform = CGAffineTransformConcat(mTransform, static_cast<const CGSVGTransform&>(other).mTransform);
+    mTransform = CGAffineTransformConcat(mTransform, {a, b, c, d, tx, ty});
 }
 
 CGSVGImageData::CGSVGImageData(const std::string& base64, ImageEncoding encoding)

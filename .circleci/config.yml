@@ -13,7 +13,7 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build System
-          command: 'apt-get update && apt-get install -y git build-essential libboost-system-dev cmake python2.7'
+          command: 'apt-get update && apt-get install -y git build-essential libboost-system-dev cmake python2.7 libxml2-dev'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
@@ -24,8 +24,17 @@ jobs:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/linux'
       - run:
-          name: Run tests
+          name: Run Tests
           command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test'
+      - run:
+          name: Creating Build Files With libxml2
+          command: 'cd svgnative && cmake -Bbuild/linux-libxml2 -H. -DPLATFORM_XML=ON'
+      - run:
+          name: Creating Binary Files With libxml2
+          command: 'cd svgnative && cmake --build build/linux-libxml2'
+      - run:
+          name: Run Tests With libxml2
+          command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test --program=build/linux-libxml2/example/testText/testSVGNative'
   build_with_clang:
     docker:
       - image: debian:stretch

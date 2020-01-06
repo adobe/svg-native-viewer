@@ -83,7 +83,11 @@ void StringSVGTransform::Scale(float sx, float sy)
     mTransform.d *= sy;
 }
 
-void StringSVGTransform::Concat(const Transform& other) { Multiply(static_cast<const StringSVGTransform&>(other).mTransform); }
+void StringSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
+{
+    AffineTransform other{a, b, c, d, tx, ty};
+    Multiply(other);
+}
 
 std::string StringSVGTransform::String() const
 {

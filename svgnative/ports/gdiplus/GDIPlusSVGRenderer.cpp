@@ -136,9 +136,10 @@ void GDIPlusSVGTransform::Scale(float sx, float sy)
     mTransform.Scale(sx, sy);
 }
 
-void GDIPlusSVGTransform::Concat(const Transform& other)
+void GDIPlusSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
 {
-    mTransform.Multiply(&dynamic_cast<const GDIPlusSVGTransform&>(other).mTransform);
+    Gdiplus::Matrix other{a, b, c, d, tx, ty};
+    mTransform.Multiply(&other);
 }
 
 const Gdiplus::Matrix& GDIPlusSVGTransform::GetMatrix() const

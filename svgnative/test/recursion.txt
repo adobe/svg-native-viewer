@@ -6,23 +6,23 @@
         [path Rect(0,0,50,50)
             fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
             stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [group transform: matrix(1,0,0,1,0,0)
+        [group
         ]
         [group transform: matrix(1,0,0,1,50,0)
             [path Rect(0,0,50,50)
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                 stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-            [group transform: matrix(1,0,0,1,0,0)
-                [group transform: matrix(1,0,0,1,0,0)
+            [group
+                [group
                 ]
             ]
         ]
-        [group transform: matrix(1,0,0,1,0,0)
+        [group
             [group transform: matrix(1,0,0,1,100,0)
                 [path Rect(0,0,50,50)
                     fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                     stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-                [group transform: matrix(1,0,0,1,0,0)
+                [group
                     [group transform: matrix(1,0,0,1,100,0)
                         [path Rect(0,0,50,50)
                             fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
@@ -32,7 +32,7 @@
             ]
         ]
         [group transform: matrix(1,0,0,1,150,0)
-            [group transform: matrix(1,0,0,1,0,0)
+            [group
                 [group transform: matrix(1,0,0,1,150,0)
                     [path Rect(0,0,50,50)
                         fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
@@ -43,11 +43,11 @@
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                 stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
         ]
-        [group transform: matrix(1,0,0,1,0,0)
-            [group transform: matrix(1,0,0,1,0,0)
-                [group transform: matrix(1,0,0,1,0,0)
-                    [group transform: matrix(1,0,0,1,0,0)
-                        [group transform: matrix(1,0,0,1,0,0)
+        [group
+            [group
+                [group
+                    [group
+                        [group
                             [group transform: matrix(1,0,0,1,0,50)
                                 [path Rect(0,0,50,50)
                                     fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
@@ -59,7 +59,7 @@
             ]
         ]
         [group transform: matrix(1,0,0,1,50,50)
-            [group transform: matrix(1,0,0,1,0,0)
+            [group
                 [group transform: matrix(1,0,0,1,50,0)
                     [group
                         [path Rect(0,0,50,50)
@@ -74,15 +74,15 @@
                     stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
             ]
         ]
-        [group transform: matrix(1,0,0,1,0,0)
+        [group
             [group transform: matrix(1,0,0,1,150,50)
                 [path Rect(0,0,50,50)
                     fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                     stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-                [group transform: matrix(1,0,0,1,0,0)
-                    [group transform: matrix(1,0,0,1,0,0)
-                        [group transform: matrix(1,0,0,1,0,0)
-                            [group transform: matrix(1,0,0,1,0,0)
+                [group
+                    [group
+                        [group
+                            [group
                                 [group transform: matrix(1,0,0,1,150,50)
                                     [path Rect(0,0,50,50)
                                         fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
@@ -92,50 +92,50 @@
                         ]
                     ]
                 ]
-                [group transform: matrix(1,0,0,1,0,0)
-                    [group transform: matrix(1,0,0,1,0,0)
-                        [group transform: matrix(1,0,0,1,0,0)
+                [group
+                    [group
+                        [group
                             [group transform: matrix(1,0,0,1,150,50)
                                 [path Rect(0,0,50,50)
                                     fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                                     stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-                                [group transform: matrix(1,0,0,1,0,0)
+                                [group
                                 ]
                             ]
                         ]
                     ]
                 ]
-                [group transform: matrix(1,0,0,1,0,0)
-                    [group transform: matrix(1,0,0,1,0,0)
+                [group
+                    [group
                         [group transform: matrix(1,0,0,1,150,50)
                             [path Rect(0,0,50,50)
                                 fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                                 stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-                            [group transform: matrix(1,0,0,1,0,0)
-                                [group transform: matrix(1,0,0,1,0,0)
+                            [group
+                                [group
                                 ]
                             ]
-                            [group transform: matrix(1,0,0,1,0,0)
+                            [group
                             ]
                         ]
                     ]
                 ]
-                [group transform: matrix(1,0,0,1,0,0)
+                [group
                     [group transform: matrix(1,0,0,1,150,50)
                         [path Rect(0,0,50,50)
                             fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
                             stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-                        [group transform: matrix(1,0,0,1,0,0)
-                            [group transform: matrix(1,0,0,1,0,0)
-                                [group transform: matrix(1,0,0,1,0,0)
+                        [group
+                            [group
+                                [group
                                 ]
                             ]
                         ]
-                        [group transform: matrix(1,0,0,1,0,0)
-                            [group transform: matrix(1,0,0,1,0,0)
+                        [group
+                            [group
                             ]
                         ]
-                        [group transform: matrix(1,0,0,1,0,0)
+                        [group
                         ]
                     ]
                 ]

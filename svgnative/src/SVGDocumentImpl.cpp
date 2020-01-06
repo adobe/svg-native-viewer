@@ -14,9 +14,12 @@ governing permissions and limitations under the License.
 #include "SVGDocument.h"
 #include "SVGRenderer.h"
 #include "SVGStringParser.h"
+#include "xml/XMLParser.h"
 
 #include <cmath>
 #include <limits>
+
+using namespace SVGNative::xml;
 
 namespace SVGNative
 {
@@ -45,6 +48,12 @@ constexpr std::array<const char*, 5> gNonInheritedPropertyNames{{
     "stop-color"
 }};
 
+template <typename T>
+bool isCloseToZero(T x)
+{
+    return std::abs(x) < std::numeric_limits<T>::epsilon();
+}
+
 SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
     : mViewBox{{0, 0, 320.0f, 200.0f}}
     , mRenderer{renderer}
@@ -58,44 +67,30 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
     mGroupStack.push(mGroup);
 }
 
-template <typename T>
-bool isCloseToZero(T x)
+void SVGDocumentImpl::TraverseSVGTree(const XMLNode* rootNode)
 {
-    return std::abs(x) < std::numeric_limits<T>::epsilon();
-}
-
-void SVGDocumentImpl::TraverseSVGTree()
-{
-    auto rootNode = mXMLDocument.first_node();
-    if (!rootNode || std::string(rootNode->name()) != "svg")
+    if (!rootNode || std::string(rootNode->GetName()) != "svg")
         return;
 
-    if (!HasAttr(rootNode, "viewBox"))
+    auto viewBoxAttr = rootNode->GetAttribute("viewBox");
+    if (!viewBoxAttr.found)
     {
-        if (HasAttr(rootNode, "x"))
-            mViewBox[0] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "x", LengthType::kHorizontal);
-        if (HasAttr(rootNode, "y"))
-            mViewBox[1] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "y", LengthType::kVertical);
-        if (HasAttr(rootNode, "width"))
-            mViewBox[2] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "width", LengthType::kHorizontal);
-        if (HasAttr(rootNode, "height"))
-            mViewBox[3] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "height", LengthType::kVertical);
+        mViewBox[0] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "x", LengthType::kHorizontal, mViewBox[0]);
+        mViewBox[1] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "y", LengthType::kVertical, mViewBox[1]);
+        mViewBox[2] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "width", LengthType::kHorizontal, mViewBox[2]);
+        mViewBox[3] = SVGDocumentImpl::ParseLengthFromAttr(rootNode, "height", LengthType::kVertical, mViewBox[3]);
     }
     else
     {
-        auto attr = rootNode->first_attribute("viewBox");
         std::vector<float> numberList;
-        if (SVGStringParser::ParseListOfNumbers(std::string(attr->value()), numberList) && numberList.size() == 4)
+        if (SVGStringParser::ParseListOfNumbers(std::string(viewBoxAttr.value), numberList) && numberList.size() == 4)
             mViewBox = {{numberList[0], numberList[1], numberList[2], numberList[3]}};
     }
 
 #if DEBUG
-    if (HasAttr(rootNode, "data-name"))
-    {
-        auto attr = rootNode->first_attribute("data-name");
-        if (attr)
-            mTitle = attr->value();
-    }
+    auto dataNameAttr = rootNode->GetAttribute("data-name");
+    if (dataNameAttr.found)
+        mTitle = dataNameAttr.value;
 #endif
 
     ParseChildren(rootNode);
@@ -105,17 +100,8 @@ void SVGDocumentImpl::TraverseSVGTree()
     mClippingPaths.clear();
 }
 
-bool SVGDocumentImpl::HasAttr(XMLNode* node, const char* attrName)
-{
-    SVG_ASSERT(node != nullptr);
-
-    auto attr = node->first_attribute(attrName);
-    return attr != nullptr;
-}
-
 float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
 {
-    float diagonal = sqrtf(mViewBox[2] * mViewBox[2] + mViewBox[3] * mViewBox[3]);
     float relLength{};
     switch (lengthType)
     {
@@ -126,7 +112,7 @@ float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
         relLength = mViewBox[3];
         break;
     case LengthType::kDiagonal:
-        relLength = diagonal;
+        relLength = sqrtf(mViewBox[2] * mViewBox[2] + mViewBox[3] * mViewBox[3]);
         break;
     default:
         break;
@@ -134,32 +120,30 @@ float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
     return relLength;
 }
 
-float SVGDocumentImpl::ParseLengthFromAttr(XMLNode* node, const char* attrName, LengthType lengthType, float fallback)
+float SVGDocumentImpl::ParseLengthFromAttr(const XMLNode* node, const char* attrName, LengthType lengthType, float fallback)
 {
-    SVG_ASSERT(node != nullptr);
-
-    auto attr = node->first_attribute(attrName);
-    if (!attr)
+    if (!node)
         return fallback;
 
     float number{};
-    if (!SVGStringParser::ParseLengthOrPercentage(attr->value(), RelativeLength(lengthType), number, true))
+    auto attr = node->GetAttribute(attrName);
+    if (!attr.found || !SVGStringParser::ParseLengthOrPercentage(attr.value, RelativeLength(lengthType), number, true))
         return fallback;
 
     return number;
 }
 
-void SVGDocumentImpl::ParseChildren(XMLNode* node)
+void SVGDocumentImpl::ParseChildren(const XMLNode* node)
 {
     SVG_ASSERT(node != nullptr);
 
-    for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
+    for (auto child = node->GetFirstNode(); child != nullptr; child = child->GetNextSibling())
     {
-        ParseChild(child);
+        ParseChild(child.get());
     }
 }
 
-void SVGDocumentImpl::ParseChild(XMLNode* child)
+void SVGDocumentImpl::ParseChild(const XMLNode* child)
 {
     SVG_ASSERT(child != nullptr);
 
@@ -169,8 +153,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     auto graphicStyle = ParseGraphic(child, fillStyle, strokeStyle, classNames);
 
     std::string idString;
-    if (auto idAttr = child->first_attribute("id"))
-        idString = idAttr->value();
+    auto idAttr = child->GetAttribute("id");
+    if (idAttr.found)
+        idString = idAttr.value;
 
     // Check if we have a shape rect, circle, ellipse, line, polygon, polyline
     // or path first.
@@ -181,7 +166,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     }
 
     // Look at all elements that are no shapes.
-    std::string elementName = child->name();
+    std::string elementName = child->GetName();
     if (elementName == "g")
     {
         mFillStyleStack.push(fillStyle);
@@ -214,22 +199,16 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     else if (elementName == "image")
     {
         std::unique_ptr<ImageData> imageData;
-        auto hrefAttr = child->first_attribute("xlink:href");
-        if (hrefAttr)
+        auto hrefAttr = child->GetAttribute("href", "xlink");
+        if (hrefAttr.found)
         {
-            std::string dataURL = hrefAttr->value();
+            const std::string dataURL = hrefAttr.value;
             ImageEncoding encoding{};
-            size_t base64Offset{};
+            unsigned short base64Offset{22};
             if (dataURL.find("data:image/png;base64,") == 0)
-            {
                 encoding = ImageEncoding::kPNG;
-                base64Offset = 22;
-            }
             else if (dataURL.find("data:image/jpg;base64,") == 0)
-            {
                 encoding = ImageEncoding::kJPEG;
-                base64Offset = 22;
-            }
             else if (dataURL.find("data:image/jpeg;base64,") == 0)
             {
                 encoding = ImageEncoding::kJPEG;
@@ -242,8 +221,8 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         if (imageData)
         {
-            float imageWidth = imageData->Width();
-            float imageHeight = imageData->Height();
+            const float imageWidth = imageData->Width();
+            const float imageHeight = imageData->Height();
 
             Rect clipArea{ParseLengthFromAttr(child, "x", LengthType::kHorizontal),
                 ParseLengthFromAttr(child, "y", LengthType::kVertical),
@@ -253,8 +232,9 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             std::string align;
             std::string meetOrSlice;
             std::vector<std::string> attrStringValues;
-            auto preserveAspectRatioAttr = child->first_attribute("preserveAspectRatio");
-            if (preserveAspectRatioAttr && SVGStringParser::ParseListOfStrings(preserveAspectRatioAttr->value(), attrStringValues)
+            auto preserveAspectRatioAttr = child->GetAttribute("preserveAspectRatio");
+            if (preserveAspectRatioAttr.found
+                && SVGStringParser::ParseListOfStrings(preserveAspectRatioAttr.value, attrStringValues)
                 && attrStringValues.size() >= 1 && attrStringValues.size() <= 2)
             {
                 align = attrStringValues[0];
@@ -334,32 +314,31 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     }
     else if (elementName == "use")
     {
-        auto hrefAttr = child->first_attribute("xlink:href");
-        if (!hrefAttr)
+        auto hrefAttr = child->GetAttribute("href", "xlink");
+        if (!hrefAttr.found || !hrefAttr.value || hrefAttr.value[0] != '#')
             return;
 
-        if (hrefAttr->value()[0] != '#')
-            return;
+        const float x = ParseLengthFromAttr(child, "x", LengthType::kHorizontal);
+        const float y = ParseLengthFromAttr(child, "y", LengthType::kVertical);
+        if (!isCloseToZero(x) || !isCloseToZero(y))
+        {
+            if (!graphicStyle.transform)
+                graphicStyle.transform = mRenderer->CreateTransform();
+            graphicStyle.transform->Concat(1, 0, 0, 1, x, y);
+        }
 
-        std::string href{(hrefAttr->value() + 1)};
-
-        auto transform = mRenderer->CreateTransform(
-            1, 0, 0, 1, ParseLengthFromAttr(child, "x", LengthType::kHorizontal), ParseLengthFromAttr(child, "y", LengthType::kVertical));
-        if (graphicStyle.transform)
-            transform->Concat(*graphicStyle.transform);
-        graphicStyle.transform = std::move(transform);
-
+        std::string href{(hrefAttr.value + 1)};
         AddChildToCurrentGroup(std::make_shared<Reference>(graphicStyle, classNames, fillStyle, strokeStyle, std::move(href)), std::move(idString));
     }
     else if (elementName == "symbol")
     {
         // FIXME: Do not render <symbol> outside of <defs> section.
         // FIXME: Remove support for symbol ASAP.
-        auto attr = child->first_attribute("viewBox");
-        if (attr)
+        auto attr = child->GetAttribute("viewBox");
+        if (attr.found)
         {
             std::vector<float> numberList;
-            if (SVGStringParser::ParseListOfNumbers(std::string(attr->value()), numberList) && numberList.size() == 4)
+            if (SVGStringParser::ParseListOfNumbers(std::string(attr.value), numberList) && numberList.size() == 4)
                 graphicStyle.transform = mRenderer->CreateTransform(1, 0, 0, 1, -numberList[0], -numberList[1]);
             {
                 mViewBox = {{numberList[0], numberList[1], numberList[2], numberList[3]}};
@@ -374,24 +353,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         mGroupStack.pop();
     }
-    else if (elementName == "style" ||
-             elementName == "linearGradient" ||
-             elementName == "radialGradient" ||
-             elementName == "clipPath")
-        ParseResource(child);
-}
-
-void SVGDocumentImpl::ParseResource(XMLNode* child)
-{
-    SVG_ASSERT(child != nullptr);
-
-    auto fillStyle = mFillStyleStack.top();
-    auto strokeStyle = mStrokeStyleStack.top();
-    std::set<std::string> classNames;
-    auto graphicStyle = ParseGraphic(child, fillStyle, strokeStyle, classNames);
-
-    std::string elementName = child->name();
-    if (elementName == "linearGradient" || elementName == "radialGradient")
+    else if (elementName == "linearGradient" || elementName == "radialGradient")
     {
         mFillStyleStack.push(fillStyle);
         mStrokeStyleStack.push(strokeStyle);
@@ -401,12 +363,14 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
     }
+#ifdef STYLE_SUPPORT
     else if (elementName == "style")
         ParseStyle(child);
+#endif
     else if (elementName == "clipPath")
     {
-        auto id = child->first_attribute("id");
-        if (!id)
+        auto id = child->GetAttribute("id");
+        if (!id.found)
             return;
 
         mFillStyleStack.push(fillStyle);
@@ -415,41 +379,41 @@ void SVGDocumentImpl::ParseResource(XMLNode* child)
         // SVG only allows shapes (and <use> elements referencing shapes) as children of
         // <clipPath>. Ignore all other elements.
         bool hasClipContent{false};
-        for (auto clipPathChild = child->first_node(); clipPathChild != nullptr; clipPathChild = clipPathChild->next_sibling())
+        for (auto clipPathChild = child->GetFirstNode(); clipPathChild != nullptr; clipPathChild = clipPathChild->GetNextSibling())
         {
             // WebKit and Blink allow the clipping path if there is at least one valid basic shape child.
-            if (auto path = ParseShape(clipPathChild))
+            if (auto path = ParseShape(clipPathChild.get()))
             {
                 std::unique_ptr<Transform> transform;
-                if (auto transformAttr = clipPathChild->first_attribute("transform"))
+                auto attr = clipPathChild->GetAttribute("transform");
+                if (attr.found)
                 {
-                    auto transformHandler = [&]() {
-                        SVG_ASSERT(mRenderer != nullptr);
-                        return mRenderer->CreateTransform();
-                    };
-                    transform = SVGStringParser::ParseTransform(transformAttr->value(), transformHandler);
+                    SVG_ASSERT(mRenderer != nullptr);
+                    transform = mRenderer->CreateTransform();
+                    if (!SVGStringParser::ParseTransform(attr.value, *transform))
+                        transform.reset();
                 }
                 auto fillStyleChild = mFillStyleStack.top();
                 auto strokeStyleChild = mStrokeStyleStack.top();
                 std::set<std::string> classNames;
                 ParseGraphic(child, fillStyleChild, strokeStyleChild, classNames);
-                mClippingPaths[id->value()] = std::make_shared<ClippingPath>(true, fillStyleChild.clipRule, std::move(path), std::move(transform));
+                mClippingPaths[id.value] = std::make_shared<ClippingPath>(true, fillStyleChild.clipRule, std::move(path), std::move(transform));
                 hasClipContent = true;
                 break;
             }
         }
         if (!hasClipContent)
-            mClippingPaths[id->value()] = std::make_shared<ClippingPath>(false, WindingRule::kNonZero, nullptr, nullptr);
+            mClippingPaths[id.value] = std::make_shared<ClippingPath>(false, WindingRule::kNonZero, nullptr, nullptr);
         mFillStyleStack.pop();
         mStrokeStyleStack.pop();
     }
 }
 
-std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
+std::unique_ptr<Path> SVGDocumentImpl::ParseShape(const XMLNode* child)
 {
     SVG_ASSERT(child != nullptr);
 
-    std::string elementName = child->name();
+    std::string elementName = child->GetName();
     if (elementName == "rect")
     {
         float x = ParseLengthFromAttr(child, "x", LengthType::kHorizontal);
@@ -462,24 +426,24 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
         if (isCloseToZero(width) || isCloseToZero(height))
             return nullptr;
 
-        bool hasRx = HasAttr(child, "rx");
-        bool hasRy = HasAttr(child, "ry");
+        auto rxAttr = child->GetAttribute("rx");
+        auto ryAttr = child->GetAttribute("ry");
 
         float rx{};
         float ry{};
-        if (hasRx && hasRy)
+        if (rxAttr.found && ryAttr.found)
         {
             rx = ParseLengthFromAttr(child, "rx", LengthType::kHorizontal);
             ry = ParseLengthFromAttr(child, "ry", LengthType::kVertical);
         }
-        else if (hasRx)
+        else if (rxAttr.found)
         {
             // the svg spec says that rect elements that specify a rx but not a ry
             // should use the rx value for ry
             rx = ParseLengthFromAttr(child, "rx", LengthType::kHorizontal);
             ry = rx;
         }
-        else if (hasRy)
+        else if (ryAttr.found)
         {
             // the svg spec says that rect elements that specify a ry but not a rx
             // should use the ry value for rx
@@ -535,20 +499,20 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
     }
     else if (elementName == "polygon" || elementName == "polyline")
     {
-        auto attr = child->first_attribute("points");
-        if (!attr)
+        auto attr = child->GetAttribute("points");
+        if (!attr.found)
             return nullptr;
         // This does not follow the spec which requires at least one space or comma between
         // coordinate pairs. However, Blink and WebKit do it the same way.
         std::vector<float> numberList;
-        SVGStringParser::ParseListOfNumbers(attr->value(), numberList);
-        size_t size = numberList.size();
+        SVGStringParser::ParseListOfNumbers(attr.value, numberList);
+        auto size = numberList.size();
         auto path = mRenderer->CreatePath();
         if (size > 1)
         {
             if (size % 2 == 1)
                 --size;
-            size_t i{};
+            decltype(size) i{};
             path->MoveTo(numberList[i], numberList[i + 1]);
             i += 2;
             for (; i < size; i += 2)
@@ -561,12 +525,12 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
     }
     else if (elementName == "path")
     {
-        auto attr = child->first_attribute("d");
-        if (!attr)
+        auto attr = child->GetAttribute("d");
+        if (!attr.found)
             return nullptr;
 
         auto path = mRenderer->CreatePath();
-        SVGStringParser::ParsePathString(attr->value(), *path);
+        SVGStringParser::ParsePathString(attr.value, *path);
 
         return path;
     }
@@ -582,7 +546,7 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 }
 
 GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
-    XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames)
+    const XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -598,28 +562,27 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
         ParseStrokeProperties(strokeStyle, propertySet);
     }
 
-    auto attr = node->first_attribute("transform");
-    if (attr)
+    auto transformAttr = node->GetAttribute("transform");
+    if (transformAttr.found)
     {
-        auto transformHandler = [&]() {
-            SVG_ASSERT(mRenderer != nullptr);
-            return mRenderer->CreateTransform();
-        };
-        graphicStyle.transform = SVGStringParser::ParseTransform(attr->value(), transformHandler);
+        SVG_ASSERT(mRenderer != nullptr);
+        graphicStyle.transform = mRenderer->CreateTransform();
+        if (!SVGStringParser::ParseTransform(transformAttr.value, *graphicStyle.transform))
+            graphicStyle.transform.reset();
     }
 
     return graphicStyle;
 }
 
-PropertySet SVGDocumentImpl::ParsePresentationAttributes(XMLNode* node)
+PropertySet SVGDocumentImpl::ParsePresentationAttributes(const XMLNode* node)
 {
     SVG_ASSERT(node != nullptr);
 
     PropertySet propertySet;
     auto attributeHandler = [&](const std::string& propertyName) {
-        auto attr = node->first_attribute(propertyName.c_str());
-        if (attr)
-            propertySet.insert({propertyName, attr->value()});
+        auto attr = node->GetAttribute(propertyName.c_str());
+        if (attr.found)
+            propertySet.insert({propertyName, attr.value});
     };
     for (const auto& propertyName : gInheritedPropertyNames)
         attributeHandler(propertyName);
@@ -634,7 +597,7 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     auto iterEnd = propertySet.end();
     if (prop != iterEnd)
     {
-        auto result = SVGStringParser::ParsePaint(prop->second.c_str(), mGradients, mViewBox, fillStyle.internalPaint);
+        auto result = SVGStringParser::ParsePaint(prop->second, mGradients, mViewBox, fillStyle.internalPaint);
         if (result == SVGDocumentImpl::Result::kDisabled)
             fillStyle.hasFill = false;
         else if (result == SVGDocumentImpl::Result::kSuccess)
@@ -645,17 +608,16 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second, opacity))
             fillStyle.fillOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
     prop = propertySet.find("fill-rule");
     if (prop != iterEnd)
     {
-        auto fillRuleString = std::string(prop->second.c_str());
-        if (fillRuleString == "evenodd")
+        if (prop->second == "evenodd")
             fillStyle.fillRule = WindingRule::kEvenOdd;
-        else if (fillRuleString == "nonzero")
+        else if (prop->second == "nonzero")
             fillStyle.fillRule = WindingRule::kNonZero;
     }
 
@@ -664,7 +626,7 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     if (prop != iterEnd)
     {
         ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-        auto result = SVGStringParser::ParseColor(prop->second.c_str(), color, false);
+        auto result = SVGStringParser::ParseColor(prop->second, color, false);
         if (result == SVGDocumentImpl::Result::kSuccess)
             fillStyle.color = color;
     }
@@ -672,7 +634,7 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     prop = propertySet.find("visibility");
     if (prop != iterEnd)
     {
-        auto visibilityString = std::string(prop->second.c_str());
+        const auto& visibilityString = prop->second;
         if (visibilityString == "hidden")
             fillStyle.visibility = false;
         else if (visibilityString == "collapse" || visibilityString == "visible")
@@ -682,9 +644,9 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     prop = propertySet.find("clip-rule");
     if (prop != iterEnd)
     {
-        if (std::string(prop->second.c_str()) == "evenodd")
+        if (prop->second == "evenodd")
             fillStyle.clipRule = WindingRule::kEvenOdd;
-        else if (std::string(prop->second.c_str()) == "nonzero")
+        else if (prop->second == "nonzero")
             fillStyle.clipRule = WindingRule::kNonZero;
     }
 }
@@ -695,8 +657,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     auto iterEnd = propertySet.end();
     if (prop != iterEnd)
     {
-        std::string strokeValue = prop->second;
-        auto result = SVGStringParser::ParsePaint(strokeValue.c_str(), mGradients, mViewBox, strokeStyle.internalPaint);
+        auto result = SVGStringParser::ParsePaint(prop->second, mGradients, mViewBox, strokeStyle.internalPaint);
         if (result == SVGDocumentImpl::Result::kDisabled)
             strokeStyle.hasStroke = false;
         else if (result == SVGDocumentImpl::Result::kSuccess)
@@ -739,7 +700,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     {
         float miter{};
         // Miter must be bigger 1. Otherwise ignore.
-        if (SVGStringParser::ParseNumber(prop->second.c_str(), miter) && miter >= 1)
+        if (SVGStringParser::ParseNumber(prop->second, miter) && miter >= 1)
             strokeStyle.miterLimit = miter;
     }
 
@@ -765,14 +726,14 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
                 break;
             }
         }
-        auto sizeOfDashArray = strokeStyle.dashArray.size();
+        const auto sizeOfDashArray = strokeStyle.dashArray.size();
         if (sizeOfDashArray % 2 != 0)
         {
             // If stroke-dasharray[] is odd-sized, the array should be twiced.
             // See SVG 1.1 (2nd ed), 11.4 "Stroke Properties" for detail.
             strokeStyle.dashArray.reserve(sizeOfDashArray * 2);
             for (size_t i = 0; i < sizeOfDashArray; ++i)
-                strokeStyle.dashArray.push_back( strokeStyle.dashArray[i] );
+                strokeStyle.dashArray.push_back(strokeStyle.dashArray[i]);
         }
     }
 
@@ -780,7 +741,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second, opacity))
             strokeStyle.strokeOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 }
@@ -792,7 +753,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second, opacity))
             graphicStyle.opacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -800,9 +761,9 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         // FIXME: Use proper parser.
-        auto urlLength = strlen("url(#");
-        std::string id = prop->second;
-        id = id.substr(urlLength, id.size() - urlLength - 1);
+        const auto urlLength = strlen("url(#");
+        const auto& valueString = prop->second;
+        auto id = valueString.substr(urlLength, valueString.size() - urlLength - 1);
         auto clippingPathIt = mClippingPaths.find(id);
         if (clippingPathIt != mClippingPaths.end())
             graphicStyle.clippingPath = clippingPathIt->second;
@@ -811,8 +772,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     prop = propertySet.find("display");
     if (prop != iterEnd)
     {
-        std::string displayString = prop->second;
-        if (displayString.compare("none"))
+        if (prop->second.compare("none"))
             graphicStyle.display = false;
     }
 
@@ -820,7 +780,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second.c_str(), opacity))
+        if (SVGStringParser::ParseNumber(prop->second, opacity))
             graphicStyle.stopOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -828,13 +788,13 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-        auto result = SVGStringParser::ParseColor(prop->second.c_str(), color, true);
+        const auto result = SVGStringParser::ParseColor(prop->second, color, true);
         if (result == SVGDocumentImpl::Result::kSuccess)
             graphicStyle.stopColor = color;
     }
 }
 
-float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
+float SVGDocumentImpl::ParseColorStop(const XMLNode* node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -845,9 +805,9 @@ float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>&
 
     // * New stops may never appear before previous stops. Use offset of previous stop otherwise.
     // * Stops must be in the range [0.0, 1.0].
-    auto attr = node->first_attribute("offset");
     float offset{};
-    offset = (attr && SVGStringParser::ParseNumber(attr->value(), offset)) ? offset : lastOffset;
+    auto attr = node->GetAttribute("offset");
+    offset = (attr.found && SVGStringParser::ParseNumber(attr.value, offset)) ? offset : lastOffset;
     offset = std::max<float>(lastOffset, offset);
     offset = std::min<float>(1.0, std::max<float>(0.0, offset));
 
@@ -864,20 +824,20 @@ float SVGDocumentImpl::ParseColorStop(XMLNode* node, std::vector<ColorStopImpl>&
     return offset;
 }
 
-void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
+void SVGDocumentImpl::ParseColorStops(const XMLNode* node, GradientImpl& gradient)
 {
     SVG_ASSERT(node != nullptr);
 
     // Return early if we don't have children.
-    if (!node->first_node())
+    if (!node->GetFirstNode())
         return;
     float lastOffset{};
 
     std::vector<ColorStopImpl> colorStops;
-    for (auto child = node->first_node(); child != nullptr; child = child->next_sibling())
+    for (auto child = node->GetFirstNode(); child != nullptr; child = child->GetNextSibling())
     {
-        if (std::string(child->name()) == "stop")
-            lastOffset = ParseColorStop(child, colorStops, lastOffset);
+        if (std::string(child->GetName()) == "stop")
+            lastOffset = ParseColorStop(child.get(), colorStops, lastOffset);
     }
     // Make sure we always have stops in the range 0% and 100%.
     if (colorStops.size() > 1)
@@ -895,7 +855,7 @@ void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
         gradient.internalColorStops = colorStops;
 }
 
-void SVGDocumentImpl::ParseGradient(XMLNode* node)
+void SVGDocumentImpl::ParseGradient(const XMLNode* node)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -905,10 +865,10 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
     // gradients. Since we add the current gradient after successful parsing,
     // this also avoids circular references.
     // https://www.w3.org/TR/SVG11/pservers.html#LinearGradientElementHrefAttribute
-    auto attr = node->first_attribute("xlink:href");
-    if (attr)
+    auto attr = node->GetAttribute("href", "xlink");
+    if (attr.found)
     {
-        std::string href{attr->value()};
+        std::string href{attr.value};
         // href starts with a #, ignore it.
         auto it = mGradients.find(href.substr(1));
         if (it != mGradients.end())
@@ -917,7 +877,7 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
 
     ParseColorStops(node, gradient);
 
-    auto nodeName = std::string(node->name());
+    const auto nodeName = std::string(node->GetName());
     if (nodeName == "linearGradient")
         gradient.type = GradientType::kLinearGradient;
     else if (nodeName == "radialGradient")
@@ -935,34 +895,25 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
     if (gradient.type == GradientType::kLinearGradient)
     {
         // https://www.w3.org/TR/SVG11/pservers.html#LinearGradients
-        if (HasAttr(node, "x1"))
-            gradient.x1 = ParseLengthFromAttr(node, "x1", LengthType::kHorizontal);
-        if (HasAttr(node, "y1"))
-            gradient.y1 = ParseLengthFromAttr(node, "y1", LengthType::kVertical);
-        if (HasAttr(node, "x2"))
-            gradient.x2 = ParseLengthFromAttr(node, "x2", LengthType::kHorizontal);
-        if (HasAttr(node, "y2"))
-            gradient.y2 = ParseLengthFromAttr(node, "y2", LengthType::kVertical);
+        gradient.x1 = ParseLengthFromAttr(node, "x1", LengthType::kHorizontal, gradient.x1);
+        gradient.y1 = ParseLengthFromAttr(node, "y1", LengthType::kVertical, gradient.y1);
+        gradient.x2 = ParseLengthFromAttr(node, "x2", LengthType::kHorizontal, gradient.x2);
+        gradient.y2 = ParseLengthFromAttr(node, "y2", LengthType::kVertical, gradient.y2);
     }
     else
     {
         // https://www.w3.org/TR/SVG11/pservers.html#RadialGradients
-        if (HasAttr(node, "cx"))
-            gradient.cx = ParseLengthFromAttr(node, "cx", LengthType::kHorizontal);
-        if (HasAttr(node, "cy"))
-            gradient.cy = ParseLengthFromAttr(node, "cy", LengthType::kVertical);
-        if (HasAttr(node, "fx"))
-            gradient.fx = ParseLengthFromAttr(node, "fx", LengthType::kHorizontal);
-        if (HasAttr(node, "fy"))
-            gradient.fy = ParseLengthFromAttr(node, "fy", LengthType::kVertical);
-        if (HasAttr(node, "r"))
-            gradient.r = ParseLengthFromAttr(node, "r", LengthType::kDiagonal);
+        gradient.cx = ParseLengthFromAttr(node, "cx", LengthType::kHorizontal, gradient.cx);
+        gradient.cy = ParseLengthFromAttr(node, "cy", LengthType::kVertical, gradient.cy);
+        gradient.fx = ParseLengthFromAttr(node, "fx", LengthType::kHorizontal, gradient.fx);
+        gradient.fy = ParseLengthFromAttr(node, "fy", LengthType::kVertical, gradient.fy);
+        gradient.r = ParseLengthFromAttr(node, "r", LengthType::kDiagonal, gradient.r);
     }
 
-    attr = node->first_attribute("spreadMethod");
-    if (attr)
+    attr = node->GetAttribute("spreadMethod");
+    if (attr.found)
     {
-        auto spreadMethodString = std::string(attr->value());
+        const auto spreadMethodString = std::string(attr.value);
         if (spreadMethodString == "pad")
             gradient.method = SpreadMethod::kPad;
         else if (spreadMethodString == "reflect")
@@ -970,19 +921,18 @@ void SVGDocumentImpl::ParseGradient(XMLNode* node)
         else if (spreadMethodString == "repeat")
             gradient.method = SpreadMethod::kRepeat;
     }
-    attr = node->first_attribute("gradientTransform");
-    if (attr)
+    attr = node->GetAttribute("gradientTransform");
+    if (attr.found)
     {
-        auto transformHandler = [&]() {
-            SVG_ASSERT(mRenderer != nullptr);
-            return mRenderer->CreateTransform();
-        };
-        gradient.transform = SVGStringParser::ParseTransform(attr->value(), transformHandler);
+        SVG_ASSERT(mRenderer != nullptr);
+        gradient.transform = mRenderer->CreateTransform();
+        if (!SVGStringParser::ParseTransform(attr.value, *gradient.transform))
+            gradient.transform.reset();
     }
 
-    attr = node->first_attribute("id");
-    if (attr)
-        mGradients.insert({attr->value(), gradient});
+    attr = node->GetAttribute("id");
+    if (attr.found)
+        mGradients.insert({attr.value, gradient});
 }
 
 void SVGDocumentImpl::Render(const ColorMap& colorMap, float width, float height)
@@ -1043,7 +993,7 @@ static void ResolveColorImpl(const ColorMap& colorMap, const ColorImpl& colorImp
     if (colorImpl.type() == typeid(Variable))
     {
         const auto& var = boost::get<Variable>(colorImpl);
-        auto colorIt = colorMap.find(var.first);
+        const auto colorIt = colorMap.find(var.first);
         color = colorIt != colorMap.end() ? colorIt->second : var.second;
     }
     else if (colorImpl.type() == typeid(Color))
@@ -1058,7 +1008,7 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
     if (internalPaint.type() == typeid(Variable))
     {
         const auto& var = boost::get<Variable>(internalPaint);
-        auto colorIt = colorMap.find(var.first);
+        const auto colorIt = colorMap.find(var.first);
         paint = colorIt != colorMap.end() ? colorIt->second : var.second;
     }
     else if (internalPaint.type() == typeid(GradientImpl))
@@ -1067,14 +1017,14 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
         const auto& internalGradient = boost::get<GradientImpl>(internalPaint);
         paint = std::move(internalGradient);
         auto& gradient = boost::get<Gradient>(paint);
-        for (auto& colorStop : internalGradient.internalColorStops)
+        for (const auto& colorStop : internalGradient.internalColorStops)
         {
             Color stopColor{{0, 0, 0, 1.0}};
             const auto& colorImpl = std::get<1>(colorStop);
             if (colorImpl.type() == typeid(Variable))
             {
                 const auto& var = boost::get<Variable>(colorImpl);
-                auto colorIt = colorMap.find(var.first);
+                const auto colorIt = colorMap.find(var.first);
                 stopColor = colorIt != colorMap.end() ? colorIt->second : var.second;
             }
             else if (colorImpl.type() == typeid(Color))
@@ -1112,7 +1062,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     case ElementType::kReference:
     {
         const auto& reference = static_cast<const Reference&>(element);
-        auto it = mVisitedElements.find(&reference);
+        const auto it = mVisitedElements.find(&reference);
         if (it != mVisitedElements.end())
             break; // We found a cycle. Do not continue rendering.
         auto insertResult = mVisitedElements.insert(&reference);
@@ -1174,8 +1124,8 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
 // Deprecated style support
 void SVGDocumentImpl::ApplyCSSStyle(
     const std::set<std::string>&, GraphicStyleImpl&, FillStyleImpl&, StrokeStyleImpl&) {}
-void SVGDocumentImpl::ParseStyleAttr(XMLNode*, std::vector<PropertySet>&, std::set<std::string>&) {}
-void SVGDocumentImpl::ParseStyle(XMLNode*) {}
+void SVGDocumentImpl::ParseStyleAttr(const XMLNode*, std::vector<PropertySet>&, std::set<std::string>&) {}
+void SVGDocumentImpl::ParseStyle(const XMLNode*) {}
 #endif
 
 } // namespace SVGNative
