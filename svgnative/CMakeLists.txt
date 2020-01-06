@@ -381,7 +381,12 @@ endif()
 if (LIBXML2_FOUND)
     target_link_libraries(SVGNativeViewerLib "${LIBXML2_LIBRARIES}")
     target_include_directories(SVGNativeViewerLib PUBLIC  "${LIBXML2_INCLUDE_DIR}")
-    set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${LIBXML2_INCLUDE_DIR} -lxml2")
+    if (PC_LIBXML_VERSION) # if libxml2 is managed by pkg-config
+        set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES} libxml-2.0")
+    else() # if libxml2 is out of pkg-config
+        get_filename_component(LIBXML2_LIB_DIR "${LIBXML2_LIBRARY}" DIRECTORY)
+        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${LIBXML2_LIB_DIR} -lxml2")
+    endif()
 endif(LIBXML2_FOUND)
 
 # CMake has no additional file to record the dependency for the static library,
