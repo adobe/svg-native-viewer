@@ -33,7 +33,7 @@ constexpr const char* kY1Attr{"y1"};
 constexpr const char* kX2Attr{"x2"};
 constexpr const char* kY2Attr{"y2"};
 constexpr const char* kPointsAttr{"points"};
-constexpr const char* kHrefAttr{"xlink:href"};
+constexpr const char* kHrefAttr{"href"};
 constexpr const char* kTransformAttr{"transform"};
 constexpr const char* kGradientTransformAttr{"gradientTransform"};
 constexpr const char* kViewBoxAttr{"viewBox"};
