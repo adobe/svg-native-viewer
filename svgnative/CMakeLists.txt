@@ -12,7 +12,9 @@ cmake --build build/win64 --config Release
 set(VERSION "0.9.0")
 
 cmake_minimum_required(VERSION 3.5.0)
-cmake_policy(SET CMP0091 NEW) # for MSVC_RUNTIME_LIBRARY
+if (CMAKE_VERSION VERSION_GREATER "3.15")
+    cmake_policy(SET CMP0091 NEW)
+endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 project(SVGNativeViewer)
