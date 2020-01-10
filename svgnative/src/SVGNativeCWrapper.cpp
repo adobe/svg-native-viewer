@@ -21,15 +21,15 @@ governing permissions and limitations under the License.
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreGraphics/CoreGraphics.h>
 #endif
-#ifdef USE_GDIPLUS
-#include <windows.h>
-#include <Gdiplus.h>
-#include "GDIPlusSVGRenderer.h"
-#endif
 #ifdef USE_SKIA
 #include "SkiaSVGRenderer.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#endif
+#ifdef USE_GDIPLUS
+#include <windows.h>
+#include <Gdiplus.h>
+#include "GDIPlusSVGRenderer.h"
 #endif
 #ifdef USE_TEXT
 #include "StringSVGRenderer.h"
