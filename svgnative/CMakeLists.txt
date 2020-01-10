@@ -12,6 +12,8 @@ cmake --build build/win64 --config Release
 set(VERSION "0.9.0")
 
 cmake_minimum_required(VERSION 3.5.0)
+cmake_policy(SET CMP0091 NEW) # for MSVC_RUNTIME_LIBRARY
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 project(SVGNativeViewer)
 enable_language(CXX)
@@ -52,18 +54,47 @@ CMAKE_DEPENDENT_OPTION(USE_PLATFORM_XML "Platform XML parser" TRUE "PLATFORM_XML
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
-CMAKE_DEPENDENT_OPTION(USE_SKIA "Skia" TRUE "APPLE;SKIA" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_SKIA "Skia" TRUE "SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS "GDI+ port" TRUE "MSVC;GDIPLUS" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CAIRO "Cairo" TRUE "CAIRO" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT_EXAMPLE "Text port for testing" TRUE "NOT LIB_ONLY;TEXT" FALSE)
-CMAKE_DEPENDENT_OPTION(USE_C_EXAMPLE "C Wrapper port for demonstration" TRUE "NOT LIB_ONLY;NOT GDIPLUS;TEXT" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_C_EXAMPLE "C Wrapper port for demonstration" TRUE "NOT LIB_ONLY;NOT_GDIPLUS;TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG_EXAMPLE "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "NOT LIB_ONLY;USE_CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY;GDIPLUS" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CAIRO_EXAMPLE "Cairo example" TRUE "NOT LIB_ONLY;CAIRO" FALSE)
 
 find_package(PkgConfig)
+
+################################
+# setting for Skia
+################################
+if(SKIA)
+    if (NOT DEFINED SKIA_LIBRARY_PATH)
+        if (APPLE)
+            set(SKIA_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/libskia.a")
+        elseif (WIN32)
+            set(SKIA_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/skia.lib")
+        else()
+            message(FATAL_ERROR "Fatal error: No usable Skia library is found, please specify -DSKIA_LIBRARY_PATH=XXX.")
+        endif()
+    endif()
+    if (EXISTS "${SKIA_LIBRARY_PATH}")
+        message(STATUS "Skia library at ${SKIA_LIBRARY_PATH} would be used")
+    else()
+        message(FATAL_ERROR "Fatal error: No usable Skia library is found at ${SKIA_LIBRARY_PATH}")
+    endif()
+    get_filename_component(SKIA_LIBRARY_DIR ${SKIA_LIBRARY_PATH} DIRECTORY)
+    set(SKIA_LIBRARY_LDFLAGS "-L${SKIA_LIBRARY_DIR} -lskia")
+    if (WIN32 AND NOT DEFINED WIN32_OBJECT_TYPE)
+        string(TOLOWER ${SKIA_LIBRARY_PATH} SKIA_LIBRARY_PATH_LOW)
+        if (${SKIA_LIBRARY_PATH_LOW} MATCHES "\.lib$" AND NOT ${SKIA_LIBRARY_PATH_LOW} MATCHES "\.dll\.lib$")
+            message(STATUS "Skia library might be static, set object type to /MT (cannot be dynamic-linked).")
+            set(WIN32_OBJECT_TYPE "/MT")
+        endif()
+    endif()
+endif()
 
 ################################
 # setting for Cairo
@@ -95,7 +126,7 @@ endif()
 if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")
     # do not apply any global settings if the toolchain
     # is being configured externally
-elseif(MSVC)
+elseif(WIN32)
     #add_definitions(/FI"${CMAKE_CURRENT_SOURCE_DIR}/public/include/CloudAI/ai/ASConfig.h")
     # Visual Studio pedantic build settings
     # warning C4512: assignment operator could not be generated
@@ -106,6 +137,20 @@ elseif(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4290 /wd4335 /wd4355 /wd4814 /wd4091 /TP")
     # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:sizedDealloc-")
+
+    if (DEFINED WIN32_OBJECT_TYPE)
+        if (CMAKE_VERSION VERSION_LESS "3.15")
+            message(STATUS "CMake is too old (< 3.15), maybe output project file has wrong switch in /MT or /MD.")
+            set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${WIN32_OBJECT_TYPE}d")
+            set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${WIN32_OBJECT_TYPE}")
+            set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} ${WIN32_OBJECT_TYPE}")
+            set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} ${WIN32_OBJECT_TYPE}")
+        elseif(WIN32_OBJECT_TYPE STREQUAL "/MT")
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        elseif(WIN32_OBJECT_TYPE STREQUAL "/MD")
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        endif()
+    endif()
 elseif(APPLE)
     # GCC or Clang
     set(CMAKE_CXX_STANDARD 14)
@@ -228,6 +273,8 @@ if (USE_SKIA)
 file(GLOB skia_port
     ports/skia/SkiaSVGRenderer.h
     ports/skia/SkiaSVGRenderer.cpp
+    ../third_party/cpp-base64/base64.h
+    ../third_party/cpp-base64/base64.cpp
 )
 set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/skia/SkiaSVGRenderer.h)
 if (NOT MSVC)
@@ -322,6 +369,7 @@ target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/effects")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/encode")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/gpu")
+target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 endif()
 if (USE_GDIPLUS)
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/gdiplus")
@@ -349,14 +397,8 @@ if(USE_CG)
 endif()
 
 if (USE_SKIA)
-    if(MSVC)
-        target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/skia.lib")
-        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/ -lskia")
-    else()
-        target_link_libraries(SVGNativeViewerLib "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/libskia.a")
-        # XXX: how to list the libraries which libskia.a depends?
-        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/lib/osx/ -lskia")
-    endif()
+    target_link_libraries(SVGNativeViewerLib "${SKIA_LIBRARY_PATH}")
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} ${SKIA_LIBRARY_LDFLAGS}")
     set(PORTS_INCLUDES "${PORTS_INCLUDES} -I\${includedir}/ports/skia")
 endif()
 
