@@ -69,7 +69,7 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
     mGroupStack.push(mGroup);
 }
 
-void SVGDocumentImpl::TraverseSVGTree(const XMLNode* rootNode)
+void SVGDocumentImpl::TraverseSVGTree(XMLNode* rootNode)
 {
     if (!rootNode || strcmp(rootNode->GetName(), kSvgElem))
         return;
@@ -135,7 +135,7 @@ float SVGDocumentImpl::ParseLengthFromAttr(const XMLNode* node, const char* attr
     return number;
 }
 
-void SVGDocumentImpl::ParseChildren(const XMLNode* node)
+void SVGDocumentImpl::ParseChildren(XMLNode* node)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -145,7 +145,7 @@ void SVGDocumentImpl::ParseChildren(const XMLNode* node)
     }
 }
 
-void SVGDocumentImpl::ParseChild(const XMLNode* child)
+void SVGDocumentImpl::ParseChild(XMLNode* child)
 {
     SVG_ASSERT(child != nullptr);
 
@@ -411,7 +411,7 @@ void SVGDocumentImpl::ParseChild(const XMLNode* child)
     }
 }
 
-std::unique_ptr<Path> SVGDocumentImpl::ParseShape(const XMLNode* child)
+std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 {
     SVG_ASSERT(child != nullptr);
 
@@ -828,15 +828,11 @@ float SVGDocumentImpl::ParseColorStop(const XMLNode* node, std::vector<ColorStop
     return offset;
 }
 
-void SVGDocumentImpl::ParseColorStops(const XMLNode* node, GradientImpl& gradient)
+void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
 {
     SVG_ASSERT(node != nullptr);
 
-    // Return early if we don't have children.
-    if (!node->GetFirstNode())
-        return;
     float lastOffset{};
-
     std::vector<ColorStopImpl> colorStops;
     for (auto child = node->GetFirstNode(); child != nullptr; child = child->GetNextSibling())
     {
@@ -859,7 +855,7 @@ void SVGDocumentImpl::ParseColorStops(const XMLNode* node, GradientImpl& gradien
         gradient.internalColorStops = colorStops;
 }
 
-void SVGDocumentImpl::ParseGradient(const XMLNode* node)
+void SVGDocumentImpl::ParseGradient(XMLNode* node)
 {
     SVG_ASSERT(node != nullptr);
 

@@ -39,7 +39,7 @@ namespace xml
             return (const char*)(mNode->content);
         }
 
-        std::unique_ptr<XMLNode> GetFirstNode() const override
+        std::unique_ptr<XMLNode> GetFirstNode() override
         {
             if (!mNode)
                 return nullptr;
@@ -54,7 +54,7 @@ namespace xml
             return nullptr;
         }
 
-        std::unique_ptr<XMLNode> GetNextSibling() const override
+        std::unique_ptr<XMLNode> GetNextSibling() override
         {
             if (!mNode)
                 return nullptr;
@@ -105,7 +105,7 @@ namespace xml
             xmlCleanupParser();
         }
 
-        std::unique_ptr<XMLNode> GetFirstNode() const override
+        std::unique_ptr<XMLNode> GetFirstNode() override
         {
             if (!mDocument)
                 return nullptr;

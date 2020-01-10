@@ -172,7 +172,7 @@ public:
     SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer);
     ~SVGDocumentImpl() {}
 
-    void TraverseSVGTree(const xml::XMLNode* rootNode);
+    void TraverseSVGTree(xml::XMLNode* rootNode);
 
     enum class Result
     {
@@ -203,13 +203,13 @@ private:
     float RelativeLength(LengthType lengthType) const;
 
     float ParseColorStop(const xml::XMLNode* node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
-    void ParseColorStops(const xml::XMLNode* node, SVGNative::GradientImpl& gradient);
-    void ParseGradient(const xml::XMLNode* gradient);
+    void ParseColorStops(xml::XMLNode* node, SVGNative::GradientImpl& gradient);
+    void ParseGradient(xml::XMLNode* gradient);
 
-    void ParseChildren(const xml::XMLNode* node);
-    void ParseChild(const xml::XMLNode* node);
+    void ParseChildren(xml::XMLNode* node);
+    void ParseChild(xml::XMLNode* node);
 
-    std::unique_ptr<Path> ParseShape(const xml::XMLNode* node);
+    std::unique_ptr<Path> ParseShape(xml::XMLNode* node);
 
     GraphicStyleImpl ParseGraphic(const xml::XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
     void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet);
