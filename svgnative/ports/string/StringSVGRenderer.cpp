@@ -271,7 +271,7 @@ void StringSVGRenderer::WritePaint(const Paint& paint)
             if (std::isfinite(gradient.y2))
                 mStringStream << " y2: " << gradient.y2;
         }
-        else
+        else // GradientType::kRadialGradient
         {
             if (std::isfinite(gradient.cx))
                 mStringStream << " cx: " << gradient.cx;
@@ -281,6 +281,8 @@ void StringSVGRenderer::WritePaint(const Paint& paint)
                 mStringStream << " fx: " << gradient.fx;
             if (std::isfinite(gradient.fy))
                 mStringStream << " fy: " << gradient.fy;
+            if (std::isfinite(gradient.r))
+                mStringStream << " r: " << gradient.r;
         }
         mStringStream << " method: ";
         if (gradient.method == SpreadMethod::kPad)
