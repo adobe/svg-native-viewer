@@ -181,6 +181,7 @@ file(GLOB gl_public
     include/SVGRenderer.h
 )
 file(GLOB gl_source
+    src/Constants.h
     src/SVGDocumentImpl.h
     src/SVGDocumentImpl.cpp
     src/SVGDocument.cpp
