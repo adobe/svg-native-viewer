@@ -13,7 +13,7 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build System
-          command: 'apt-get update && apt-get install -y git build-essential libboost-system-dev cmake python2.7 libxml2-dev'
+          command: 'apt-get update && apt-get install -y git build-essential cmake python2.7 libxml2-dev'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
@@ -44,7 +44,7 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build System
-          command: 'apt-get update && apt-get install -y git build-essential libboost-system-dev clang cmake python2.7'
+          command: 'apt-get update && apt-get install -y git build-essential clang cmake python2.7'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
@@ -63,7 +63,7 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build System
-          command: 'apt-get update && apt-get install -y git build-essential libboost-system-dev cmake python2.7'
+          command: 'apt-get update && apt-get install -y git build-essential cmake libboost-system-dev python2.7'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
@@ -82,7 +82,7 @@ jobs:
       - run: git submodule update --init
       - run:
           name: Installing dependencies
-          command: HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install cmake boost
+          command: HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install cmake
       - run:
           name: Creating Build Files
           command: 'cd svgnative && cmake -Bbuild/mac -H. -DCG=ON'
@@ -106,20 +106,8 @@ jobs:
             (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
             Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
       - run:
-          name: Installing Boost
-          command: |
-            $global:ProgressPreference = 'SilentlyContinue'
-            $url = "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.zip"
-            $outputDir = (Get-Item -Path ".\").FullName
-            $outputZip = $outputDir + "\boost_1_72_0.zip"
-            (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
-            Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
-      - run:
           name: Creating Build Files
           command: |
-            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
-            $env:BOOST_INCLUDEDIR = $boostDir
-            $env:BOOST_ROOT = $boostDir + "boost"
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
@@ -127,9 +115,6 @@ jobs:
       - run:
           name: Creating Binary Files
           command: |
-            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
-            $env:BOOST_INCLUDEDIR = $boostDir
-            $env:BOOST_ROOT = $boostDir + "boost"
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
@@ -137,9 +122,6 @@ jobs:
       - run:
           name: Creating Build Files - Shared Lib
           command: |
-            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
-            $env:BOOST_INCLUDEDIR = $boostDir
-            $env:BOOST_ROOT = $boostDir + "boost"
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
@@ -147,9 +129,6 @@ jobs:
       - run:
           name: Creating Binary Files - Shared Lib
           command: |
-            $boostDir = (Get-Item -Path ".\").FullName + "\boost_1_72_0\"
-            $env:BOOST_INCLUDEDIR = $boostDir
-            $env:BOOST_ROOT = $boostDir + "boost"
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
