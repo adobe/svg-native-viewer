@@ -119,6 +119,11 @@ Submodules are located in the `third_party/` directory. Used submodules:
 * [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64)
   **(optional)** Needed by some ports for decoding base64 encoded raster
 image support.
+* [boost_variant_property_tree](https://github.com/dirkschulze/boost_variant_property_tree)
+  **(optional)** Minimal version of Boost stripped down to the
+  requirements of `variant` and `property_tree`. Used if Boost was not
+  installed on the system.
+
 
 ### Windows
 
