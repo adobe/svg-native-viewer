@@ -402,11 +402,19 @@ endif()
 
 set_target_properties(SVGNativeViewerLib PROPERTIES LINKER_LANGUAGE CXX)
 
+# Give system or user provided Boost version precedence 
 set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost)
 if(NOT Boost_FOUND)
-    message(FATAL_ERROR "Fatal error: Boost (version >= 1.55) required.")
-else()
+    message(STATUS "Falling back to minimal boost")
+    set(BOOST_INCLUDEDIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/boost_variant_property_tree/)
+    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/boost_variant_property_tree/boost/)
+    find_package(Boost)
+    if(NOT Boost_FOUND)
+        message(FATAL_ERROR "Fatal error: Boost (version >= 1.55) required.")
+    endif()
+endif()
+if(Boost_FOUND)
     target_include_directories(SVGNativeViewerLib PUBLIC ${Boost_INCLUDE_DIRS})
 endif()
 
