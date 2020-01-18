@@ -25,18 +25,18 @@ namespace xml
             : mNode{node}
         {}
 
-        const char* GetName() const override
+        SVG_C_CHAR GetName() const override
         {
             if (!mNode)
                 return nullptr;
-            return (const char*)(mNode->name);
+            return (SVG_C_CHAR)(mNode->name);
         }
 
-        const char* GetValue() const override
+        SVG_C_CHAR GetValue() const override
         {
             if (!mNode)
                 return nullptr;
-            return (const char*)(mNode->content);
+            return (SVG_C_CHAR)(mNode->content);
         }
 
         std::unique_ptr<XMLNode> GetFirstNode() const override
@@ -71,16 +71,16 @@ namespace xml
             return nullptr;
         }
 
-        Attribute GetAttribute(const char* attrName, const char*) const override
+        Attribute GetAttribute(SVG_C_CHAR attrName, SVG_C_CHAR) const override
         {
             if (!mNode)
-                return {false, nullptr};
+                return {false, {}};
 
             auto attr = xmlHasProp(mNode, (const xmlChar*)attrName);
             if (attr)
-                return {true, (const char*)xmlGetProp(mNode, (const xmlChar*)(attrName))};
+                return {true, (SVG_C_CHAR)xmlGetProp(mNode, (const xmlChar*)(attrName))};
 
-            return {false, nullptr};
+            return {false, {}};
         }
     private:
         xmlNode* mNode{};

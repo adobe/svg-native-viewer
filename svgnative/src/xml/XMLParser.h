@@ -13,6 +13,10 @@ governing permissions and limitations under the License.
 #pragma once
 
 #include <memory>
+#include <cwchar>
+#include <string>
+#define SVG_C_CHAR const wchar_t*
+#define SVG_STRING std::wstring
 
 namespace SVGNative
 {
@@ -20,31 +24,31 @@ namespace xml
 {
     struct Attribute
     {
-        Attribute(bool aFound, const char* aValue)
+        Attribute(bool aFound, const SVG_STRING& aValue)
             : found{aFound}
             , value{aValue}
         {}
         bool found{false};
-        const char* value{};
+        SVG_STRING value{};
     };
 
     class XMLNode {
     public:
 
-        virtual const char* GetName() const = 0;
-        virtual const char* GetValue() const = 0;
+        virtual SVG_C_CHAR GetName() const = 0;
+        virtual SVG_C_CHAR GetValue() const = 0;
 
         virtual std::unique_ptr<XMLNode> GetFirstNode() const = 0;
         virtual std::unique_ptr<XMLNode> GetNextSibling() const = 0;
 
-        virtual Attribute GetAttribute(const char*, const char* nsPrefix = nullptr) const = 0;
+        virtual Attribute GetAttribute(SVG_C_CHAR, SVG_C_CHAR nsPrefix = nullptr) const = 0;
 
         virtual ~XMLNode() {}
     };
 
     class XMLDocument {
     public:
-        static std::unique_ptr<XMLDocument> CreateXMLDocument(const char* documentString);
+        static std::unique_ptr<XMLDocument> CreateXMLDocument(const char*  documentString);
         virtual std::unique_ptr<XMLNode> GetFirstNode() const = 0;
 
         virtual ~XMLDocument() {}

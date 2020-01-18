@@ -14,22 +14,21 @@ governing permissions and limitations under the License.
 
 #include "SVGDocumentImpl.h"
 #include <map>
-#include <string>
 
 namespace SVGNative
 {
 namespace SVGStringParser
 {
-bool ParseTransform(const std::string& transformString, Transform& matrix);
-bool ParseNumber(const std::string& numberString, float& number);
-bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional = true);
+bool ParseTransform(const SVG_STRING& transformString, Transform& matrix);
+bool ParseNumber(const SVG_STRING& numberString, float& number);
+bool ParseListOfNumbers(const SVG_STRING& numberListString, std::vector<float>& numberList, bool isAllOptional = true);
 bool ParseListOfLengthOrPercentage(
-    const std::string& lengthOrPercentageListString, float relDimensionLength, std::vector<float>& numberList, bool isAllOptional = true);
-bool ParseListOfStrings(const std::string& stringListString, std::vector<std::string>& stringList);
-bool ParseLengthOrPercentage(const std::string& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks = false);
-void ParsePathString(const std::string& pathString, Path& p);
-SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& paint, bool supportsCurrentColor = true);
-SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
+    const SVG_STRING& lengthOrPercentageListString, float relDimensionLength, std::vector<float>& numberList, bool isAllOptional = true);
+bool ParseListOfStrings(const SVG_STRING& stringListString, std::vector<SVG_STRING>& stringList);
+bool ParseLengthOrPercentage(const SVG_STRING& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks = false);
+void ParsePathString(const SVG_STRING& pathString, Path& p);
+SVGDocumentImpl::Result ParseColor(const SVG_STRING& colorString, ColorImpl& paint, bool supportsCurrentColor = true);
+SVGDocumentImpl::Result ParsePaint(const SVG_STRING& colorString, const std::map<SVG_STRING, GradientImpl>& gradientMap,
     const std::array<float, 4>& viewBox, PaintImpl& paint);
 
 } // namespace SVGStringParser

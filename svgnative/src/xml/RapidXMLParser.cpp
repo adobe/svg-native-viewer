@@ -24,14 +24,14 @@ namespace xml
             : mNode{node}
         {}
 
-        const char* GetName() const override
+        SVG_C_CHAR GetName() const override
         {
             if (!mNode)
                 return nullptr;
             return mNode->name();
         }
 
-        const char* GetValue() const override
+        SVG_C_CHAR GetValue() const override
         {
             if (!mNode)
                 return nullptr;
@@ -61,10 +61,10 @@ namespace xml
             return nullptr;
         }
 
-        Attribute GetAttribute(const char* attrName, const char* nsPrefix) const override
+        Attribute GetAttribute(SVG_C_CHAR attrName, SVG_C_CHAR nsPrefix) const override
         {
             if (!mNode)
-                return {false, nullptr};
+                return {false, {}};
 
             if (const auto attr = mNode->first_attribute(attrName))
                 return {true, attr->value()};
@@ -76,7 +76,7 @@ namespace xml
                 if (const auto attr = mNode->first_attribute(newAttrName.c_str()))
                     return {true, attr->value()};
             }
-            return {false, nullptr};
+            return {false, {}};
         }
     private:
         const boost::property_tree::detail::rapidxml::xml_node<>* mNode;

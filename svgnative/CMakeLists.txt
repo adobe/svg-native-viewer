@@ -297,7 +297,23 @@ if (USE_PLATFORM_XML)
 find_package(LibXml2)
 if (LIBXML2_FOUND)
     set(XML_PARSER_SOURCE "src/xml/LibXMLParser.cpp")
-endif(LIBXML2_FOUND)
+elseif (MSVC)
+##find_library(MSXML_LIBRARY
+##    NAMES msxml6 msxml4 msxml3 msxml2
+##    PATHS
+##    "C:/Program Files/Microsoft SDKs/Windows/v7.0A/Lib"
+##    "C:/Program Files/Microsoft SDKs/Windows/v6.0A/Lib"
+##    "C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib"
+##    "C:/Windows/System32"
+##    DOC "Specify the MSXML? library here."
+##    )
+#    find_library(MSXML_LIBRARY msxml2 "C:/Program Files (x86)/Microsoft XML Parser SDK/lib")
+#    message(STATUS "MSXML_LIBRARY: ${MSXML_LIBRARY}")
+#    target_link_libraries(SVGNativeViewerLib "${MSXML_LIBRARY}")
+#    target_include_directories(SVGNativeViewerLib PUBLIC  "C:/Program Files (x86)/Microsoft XML Parser SDK/inc")
+    set(XML_PARSER_SOURCE "src/xml/MSXMLParser.cpp")
+    add_definitions(-DMSXML)
+endif()
 endif()
 
 file(GLOB xml_parser

@@ -1,6 +1,6 @@
 /*
 Copyright 2020 Adobe. All rights reserved.
-This file is licensed to you under the Apache License, Version 2.0 (the "License");
+This file is licensed to you under the Apache License, Version 2.0 (the "License")
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -14,105 +14,152 @@ governing permissions and limitations under the License.
 
 namespace SVGNative
 {
+#ifdef MSXML
+#include <cwchar>
+#define SVG_CHAR wchar_t
+#define SVG_C_CHAR const wchar_t*
+#define SVG_STRING std::wstring
+#define SVG_TO_C_CHAR(string) L#string
+#define SVG_CONSTEXPR_C_CHAR(attrKey, attrValue) \
+constexpr const wchar_t* attrKey { L#attrValue };
+#else
+#define SVG_CHAR char
+#define SVG_C_CHAR const char*
+#define SVG_STRING std::string
+#define SVG_TO_C_CHAR(string) #string
+#define SVG_CONSTEXPR_C_CHAR(attrKey, attrValue) \
+constexpr const char* attrKey { #attrValue };
+#endif
+
 // Attributes
-constexpr const char* kIdAttr{"id"};
-constexpr const char* kXAttr{"x"};
-constexpr const char* kYAttr{"y"};
-constexpr const char* kWidthAttr{"width"};
-constexpr const char* kHeightAttr{"height"};
-constexpr const char* kRxAttr{"rx"};
-constexpr const char* kRyAttr{"ry"};
-constexpr const char* kRAttr{"r"};
-constexpr const char* kDAttr{"d"};
-constexpr const char* kCxAttr{"cx"};
-constexpr const char* kCyAttr{"cy"};
-constexpr const char* kFxAttr{"fx"};
-constexpr const char* kFyAttr{"fy"};
-constexpr const char* kX1Attr{"x1"};
-constexpr const char* kY1Attr{"y1"};
-constexpr const char* kX2Attr{"x2"};
-constexpr const char* kY2Attr{"y2"};
-constexpr const char* kPointsAttr{"points"};
-constexpr const char* kHrefAttr{"href"};
-constexpr const char* kTransformAttr{"transform"};
-constexpr const char* kGradientTransformAttr{"gradientTransform"};
-constexpr const char* kViewBoxAttr{"viewBox"};
-constexpr const char* kSpreadMethodAttr{"spreadMethod"};
-constexpr const char* kOffsetAttr{"offset"};
+SVG_CONSTEXPR_C_CHAR(kIdAttr, id)
+SVG_CONSTEXPR_C_CHAR(kXAttr, x)
+SVG_CONSTEXPR_C_CHAR(kYAttr, y)
+SVG_CONSTEXPR_C_CHAR(kWidthAttr, width)
+SVG_CONSTEXPR_C_CHAR(kHeightAttr, height)
+SVG_CONSTEXPR_C_CHAR(kRxAttr, rx)
+SVG_CONSTEXPR_C_CHAR(kRyAttr, ry)
+SVG_CONSTEXPR_C_CHAR(kRAttr, r)
+SVG_CONSTEXPR_C_CHAR(kDAttr, d)
+SVG_CONSTEXPR_C_CHAR(kCxAttr, cx)
+SVG_CONSTEXPR_C_CHAR(kCyAttr, cy)
+SVG_CONSTEXPR_C_CHAR(kFxAttr, fx)
+SVG_CONSTEXPR_C_CHAR(kFyAttr, fy)
+SVG_CONSTEXPR_C_CHAR(kX1Attr, x1)
+SVG_CONSTEXPR_C_CHAR(kY1Attr, y1)
+SVG_CONSTEXPR_C_CHAR(kX2Attr, x2)
+SVG_CONSTEXPR_C_CHAR(kY2Attr, y2)
+SVG_CONSTEXPR_C_CHAR(kPointsAttr, points)
+SVG_CONSTEXPR_C_CHAR(kHrefAttr, href)
+SVG_CONSTEXPR_C_CHAR(kTransformAttr, transform)
+SVG_CONSTEXPR_C_CHAR(kGradientTransformAttr, gradientTransform)
+SVG_CONSTEXPR_C_CHAR(kViewBoxAttr, viewBox)
+SVG_CONSTEXPR_C_CHAR(kSpreadMethodAttr, spreadMethod)
+SVG_CONSTEXPR_C_CHAR(kOffsetAttr, offset)
 #if DEBUG
-constexpr const char* kDataNameAttr{"data-name"};
+SVG_CONSTEXPR_C_CHAR(kDataNameAttr, data-name)
+#endif
+#ifdef STYLE_SUPPORT
+SVG_CONSTEXPR_C_CHAR(kClassAttr, class)
+SVG_CONSTEXPR_C_CHAR(kStyleAttr, style)
 #endif
 
 // Properties
-constexpr const char* kColorProp{"color"};
-constexpr const char* kClipRuleProp{"clip-rule"};
-constexpr const char* kFillProp{"fill"};
-constexpr const char* kFillRuleProp{"fill-rule"};
-constexpr const char* kFillOpacityProp{"fill-opacity"};
-constexpr const char* kStrokeProp{"stroke"};
-constexpr const char* kStrokeDasharrayProp{"stroke-dasharray"};
-constexpr const char* kStrokeDashoffsetProp{"stroke-dashoffset"};
-constexpr const char* kStrokeLinecapProp{"stroke-linecap"};
-constexpr const char* kStrokeLinejoinProp{"stroke-linejoin"};
-constexpr const char* kStrokeMiterlimitProp{"stroke-miterlimit"};
-constexpr const char* kStrokeOpacityProp{"stroke-opacity"};
-constexpr const char* kStrokeWidthProp{"stroke-width"};
-constexpr const char* kVisibilityProp{"visibility"};
-constexpr const char* kClipPathProp{"clip-path"};
-constexpr const char* kDisplayProp{"display"};
-constexpr const char* kOpacityProp{"opacity"};
-constexpr const char* kStopOpacityProp{"stop-opacity"};
-constexpr const char* kStopColorProp{"stop-color"};
-constexpr const char* kPreserveAspectRatioAttr{"preserveAspectRatio"};
+SVG_CONSTEXPR_C_CHAR(kColorProp, color)
+SVG_CONSTEXPR_C_CHAR(kClipRuleProp, clip-rule)
+SVG_CONSTEXPR_C_CHAR(kFillProp, fill)
+SVG_CONSTEXPR_C_CHAR(kFillRuleProp, fill-rule)
+SVG_CONSTEXPR_C_CHAR(kFillOpacityProp, fill-opacity)
+SVG_CONSTEXPR_C_CHAR(kStrokeProp, stroke)
+SVG_CONSTEXPR_C_CHAR(kStrokeDasharrayProp, stroke-dasharray)
+SVG_CONSTEXPR_C_CHAR(kStrokeDashoffsetProp, stroke-dashoffset)
+SVG_CONSTEXPR_C_CHAR(kStrokeLinecapProp, stroke-linecap)
+SVG_CONSTEXPR_C_CHAR(kStrokeLinejoinProp, stroke-linejoin)
+SVG_CONSTEXPR_C_CHAR(kStrokeMiterlimitProp, stroke-miterlimit)
+SVG_CONSTEXPR_C_CHAR(kStrokeOpacityProp, stroke-opacity)
+SVG_CONSTEXPR_C_CHAR(kStrokeWidthProp, stroke-width)
+SVG_CONSTEXPR_C_CHAR(kVisibilityProp, visibility)
+SVG_CONSTEXPR_C_CHAR(kClipPathProp, clip-path)
+SVG_CONSTEXPR_C_CHAR(kDisplayProp, display)
+SVG_CONSTEXPR_C_CHAR(kOpacityProp, opacity)
+SVG_CONSTEXPR_C_CHAR(kStopOpacityProp, stop-opacity)
+SVG_CONSTEXPR_C_CHAR(kStopColorProp, stop-color)
+SVG_CONSTEXPR_C_CHAR(kPreserveAspectRatioAttr, preserveAspectRatio)
 
 // Elements
-constexpr const char* kLineElem{"line"};
-constexpr const char* kRectElem{"rect"};
-constexpr const char* kPathElem{"path"};
-constexpr const char* kPolygonElem{"polygon"};
-constexpr const char* kPolylineElem{"polyline"};
-constexpr const char* kEllipseElem{"ellipse"};
-constexpr const char* kCircleElem{"circle"};
-constexpr const char* kGElem{"g"};
-constexpr const char* kClipPathElem{"clipPath"};
-constexpr const char* kSymbolElem{"symbol"};
-constexpr const char* kStyleElem{"style"};
-constexpr const char* kLinearGradientElem{"linearGradient"};
-constexpr const char* kRadialGradientElem{"radialGradient"};
-constexpr const char* kDefsElem{"defs"};
-constexpr const char* kUseElem{"use"};
-constexpr const char* kImageElem{"image"};
-constexpr const char* kStopElem{"stop"};
-constexpr const char* kSvgElem{"svg"};
+SVG_CONSTEXPR_C_CHAR(kLineElem, line)
+SVG_CONSTEXPR_C_CHAR(kRectElem, rect)
+SVG_CONSTEXPR_C_CHAR(kPathElem, path)
+SVG_CONSTEXPR_C_CHAR(kPolygonElem, polygon)
+SVG_CONSTEXPR_C_CHAR(kPolylineElem, polyline)
+SVG_CONSTEXPR_C_CHAR(kEllipseElem, ellipse)
+SVG_CONSTEXPR_C_CHAR(kCircleElem, circle)
+SVG_CONSTEXPR_C_CHAR(kGElem, g)
+SVG_CONSTEXPR_C_CHAR(kClipPathElem, clipPath)
+SVG_CONSTEXPR_C_CHAR(kSymbolElem, symbol)
+SVG_CONSTEXPR_C_CHAR(kStyleElem, style)
+SVG_CONSTEXPR_C_CHAR(kLinearGradientElem, linearGradient)
+SVG_CONSTEXPR_C_CHAR(kRadialGradientElem, radialGradient)
+SVG_CONSTEXPR_C_CHAR(kDefsElem, defs)
+SVG_CONSTEXPR_C_CHAR(kUseElem, use)
+SVG_CONSTEXPR_C_CHAR(kImageElem, image)
+SVG_CONSTEXPR_C_CHAR(kStopElem, stop)
+SVG_CONSTEXPR_C_CHAR(kSvgElem, svg)
 
 // Values
-constexpr const char* kDataUrlPngVal{"data:image/png;base64,"};
-constexpr const char* kDataUrlJpgVal{"data:image/jpg;base64,"};
-constexpr const char* kDataUrlJpegVal{"data:image/jpeg;base64,"};
-constexpr const char* kSliceVal{"slice"};
-constexpr const char* kXMinYMinVal{"xMinYMin"};
-constexpr const char* kXMidYMinVal{"xMidYMin"};
-constexpr const char* kXMaxYMinVal{"xMaxYMin"};
-constexpr const char* kXMinYMidVal{"xMinYMid"};
-constexpr const char* kXMaxYMidVal{"xMaxYMid"};
-constexpr const char* kXMinYMaxVal{"xMinYMax"};
-constexpr const char* kXMidYMaxVal{"xMidYMax"};
-constexpr const char* kXMaxYMaxVal{"xMaxYMax"};
-constexpr const char* kEvenoddVal{"evenodd"};
-constexpr const char* kNonzeroVal{"nonzero"};
-constexpr const char* kHiddenVal{"hidden"};
-constexpr const char* kCollapseVal{"collapse"};
-constexpr const char* kVisibleVal{"visible"};
-constexpr const char* kRoundVal{"round"};
-constexpr const char* kSquareVal{"square"};
-constexpr const char* kBevelVal{"bevel"};
-constexpr const char* kUrlVal{"url(#"};
-constexpr const char* kNoneVal{"none"};
-constexpr const char* kPadVal{"pad"};
-constexpr const char* kReflectVal{"reflect"};
-constexpr const char* kRepeatVal{"repeat"};
+SVG_CONSTEXPR_C_CHAR(kSliceVal, slice)
+SVG_CONSTEXPR_C_CHAR(kXMinYMinVal, xMinYMin)
+SVG_CONSTEXPR_C_CHAR(kXMidYMinVal, xMidYMin)
+SVG_CONSTEXPR_C_CHAR(kXMaxYMinVal, xMaxYMin)
+SVG_CONSTEXPR_C_CHAR(kXMinYMidVal, xMinYMid)
+SVG_CONSTEXPR_C_CHAR(kXMaxYMidVal, xMaxYMid)
+SVG_CONSTEXPR_C_CHAR(kXMinYMaxVal, xMinYMax)
+SVG_CONSTEXPR_C_CHAR(kXMidYMaxVal, xMidYMax)
+SVG_CONSTEXPR_C_CHAR(kXMaxYMaxVal, xMaxYMax)
+SVG_CONSTEXPR_C_CHAR(kEvenoddVal, evenodd)
+SVG_CONSTEXPR_C_CHAR(kNonzeroVal, nonzero)
+SVG_CONSTEXPR_C_CHAR(kHiddenVal, hidden)
+SVG_CONSTEXPR_C_CHAR(kCollapseVal, collapse)
+SVG_CONSTEXPR_C_CHAR(kVisibleVal, visible)
+SVG_CONSTEXPR_C_CHAR(kRoundVal, round)
+SVG_CONSTEXPR_C_CHAR(kSquareVal, square)
+SVG_CONSTEXPR_C_CHAR(kBevelVal, bevel)
+SVG_CONSTEXPR_C_CHAR(kNoneVal, none)
+SVG_CONSTEXPR_C_CHAR(kPadVal, pad)
+SVG_CONSTEXPR_C_CHAR(kReflectVal, reflect)
+SVG_CONSTEXPR_C_CHAR(kRepeatVal, repeat)
+SVG_CONSTEXPR_C_CHAR(kTranslateVal, translate)
+SVG_CONSTEXPR_C_CHAR(kRotateVal, rotate)
+SVG_CONSTEXPR_C_CHAR(kScaleVal, scale)
+SVG_CONSTEXPR_C_CHAR(kMatrixVal, matrix)
+SVG_CONSTEXPR_C_CHAR(kSkewXVal, skewX)
+SVG_CONSTEXPR_C_CHAR(kSkewYVal, skewY)
+SVG_CONSTEXPR_C_CHAR(kCurrentcolorVal, currentcolor)
+#ifdef MSXML
+constexpr const wchar_t* kUrlVal { L"url(#" };
+constexpr const wchar_t* kVarVal { L"var(" };
+constexpr const wchar_t* kRgbVal { L"rgb(" };
+constexpr const wchar_t* kDataUrlPngVal { L"data:image/png;base64," };
+constexpr const wchar_t* kDataUrlJpgVal { L"data:image/jpg;base64," };
+constexpr const wchar_t* kDataUrlJpegVal { L"data:image/jpeg;base64," };
+#else
+constexpr const char* kUrlVal { "url(#" };
+constexpr const char* kVarVal { "var(" };
+constexpr const char* kRgbVal { "rgb(" };
+constexpr const char* kDataUrlPngVal { "data:image/png;base64," };
+constexpr const char* kDataUrlJpgVal { "data:image/jpg;base64," };
+constexpr const char* kDataUrlJpegVal { "data:image/jpeg;base64," };
+#endif
+
+// Units
+SVG_CONSTEXPR_C_CHAR(kCmVal, cm)
+SVG_CONSTEXPR_C_CHAR(kMmVal, mm)
+SVG_CONSTEXPR_C_CHAR(kInVal, in)
+SVG_CONSTEXPR_C_CHAR(kPcVal, pc)
+SVG_CONSTEXPR_C_CHAR(kPtVal, pt)
+SVG_CONSTEXPR_C_CHAR(kPxVal, px)
 
 // Others
-constexpr const char* kXlinkNS{"xlink"};
+SVG_CONSTEXPR_C_CHAR(kXlinkNS, xlink)
 
 } // namespace SVGNative

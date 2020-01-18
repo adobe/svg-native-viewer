@@ -29,21 +29,21 @@ void ArcToCurve(Path& path, float startX, float startY, float radiusX, float rad
 
 namespace SVGStringParser
 {
-using CharIt = std::string::const_iterator;
+using CharIt = SVG_STRING::const_iterator;
 
-inline bool isDigit(char c)
+inline bool isDigit(SVG_CHAR c)
 {
     return c >= '0' && c <= '9';
 }
 
-inline bool isHex(char c)
+inline bool isHex(SVG_CHAR c)
 {
     return isDigit(c) || (c >= 'a' && c <= 'f') ||  (c >= 'A' && c <= 'F');
 }
 
-inline bool isWsp(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
+inline bool isWsp(SVG_CHAR c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
 
-inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOptional = true, char delimiter = ',')
+inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOptional = true, SVG_CHAR delimiter = ',')
 {
     if (!isAllOptional && !isWsp(*pos) && *pos != delimiter)
         return false;
@@ -57,7 +57,7 @@ inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOpti
     return pos != end;
 }
 
-inline bool SkipOptWspDelimiterOptWsp(CharIt& pos, const CharIt& end, char delimiter = ',')
+inline bool SkipOptWspDelimiterOptWsp(CharIt& pos, const CharIt& end, SVG_CHAR delimiter = ',')
 {
     bool hasDelimiter{};
     while (pos < end && isWsp(*pos))
@@ -243,19 +243,19 @@ static bool ParseLengthOrPercentage(
         return false;
 
     // https://www.w3.org/TR/css-values-3/#absolute-lengths
-    auto unit = std::string(start, start + 2);
+    auto unit = SVG_STRING(start, start + 2);
     std::transform(unit.begin(), unit.end(), unit.begin(), ::tolower);
-    if (unit.compare("cm") == 0)
+    if (unit.compare(kCmVal) == 0)
         absLengthInUnits *= (96.0f / 2.54f);
-    else if (unit.compare("mm") == 0)
+    else if (unit.compare(kMmVal) == 0)
         absLengthInUnits *= (9.6f / 2.54f);
-    else if (unit.compare("in") == 0)
+    else if (unit.compare(kInVal) == 0)
         absLengthInUnits *= 96.0f;
-    else if (unit.compare("pc") == 0)
+    else if (unit.compare(kPcVal) == 0)
         absLengthInUnits *= (96.0f / 6.0f);
-    else if (unit.compare("pt") == 0)
+    else if (unit.compare(kPtVal) == 0)
         absLengthInUnits *= (96.0f / 72.0f);
-    else if (unit.compare("px") == 0)
+    else if (unit.compare(kPxVal) == 0)
         absLengthInUnits *= 1.0f;
     else
         return false;
@@ -290,7 +290,7 @@ static void ParseListOfNumbers(CharIt& pos, const CharIt& end, std::vector<float
     }
 }
 
-bool ParseLengthOrPercentage(const std::string& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks /*= false*/)
+bool ParseLengthOrPercentage(const SVG_STRING& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks /*= false*/)
 {
     auto pos = lengthString.begin();
     auto end = lengthString.end();
@@ -301,7 +301,7 @@ bool ParseLengthOrPercentage(const std::string& lengthString, float relDimension
     return !SkipOptWsp(pos, end);
 }
 
-bool ParseNumber(const std::string& numberString, float& number)
+bool ParseNumber(const SVG_STRING& numberString, float& number)
 {
     auto pos = numberString.begin();
     auto end = numberString.end();
@@ -313,7 +313,7 @@ bool ParseNumber(const std::string& numberString, float& number)
     return !SkipOptWsp(pos, end);
 }
 
-bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional /*= true*/)
+bool ParseListOfNumbers(const SVG_STRING& numberListString, std::vector<float>& numberList, bool isAllOptional /*= true*/)
 {
     auto pos = numberListString.begin();
     auto end = numberListString.end();
@@ -326,7 +326,7 @@ bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>&
     return !SkipOptWsp(pos, end);
 }
 
-bool ParseListOfLengthOrPercentage(const std::string& lengthOrPercentageListString, float relDimensionLength,
+bool ParseListOfLengthOrPercentage(const SVG_STRING& lengthOrPercentageListString, float relDimensionLength,
     std::vector<float>& numberList, bool isAllOptional /*= true*/)
 {
     auto pos = lengthOrPercentageListString.begin();
@@ -357,7 +357,7 @@ bool ParseListOfLengthOrPercentage(const std::string& lengthOrPercentageListStri
     return !SkipOptWsp(pos, end);
 }
 
-bool ParseListOfStrings(const std::string& stringListString, std::vector<std::string>& stringList)
+bool ParseListOfStrings(const SVG_STRING& stringListString, std::vector<SVG_STRING>& stringList)
 {
     auto pos = stringListString.begin();
     auto end = stringListString.end();
@@ -375,7 +375,7 @@ bool ParseListOfStrings(const std::string& stringListString, std::vector<std::st
     return true;
 }
 
-void ParsePathString(const std::string& pathString, Path& p)
+void ParsePathString(const SVG_STRING& pathString, Path& p)
 {
     auto pos = pathString.begin();
     auto end = pathString.end();
@@ -391,7 +391,7 @@ void ParsePathString(const std::string& pathString, Path& p)
     float prevControlY{}; // nanf(nullptr);
     float prevCurvePointX{};
     float prevCurvePointY{};
-    char prev = 'm';
+    SVG_CHAR prev = 'm';
     // First segment must be a moveTo
     if (!SkipOptWsp(pos, end) || (*pos != 'm' && *pos != 'M'))
         return;
@@ -721,7 +721,7 @@ void ParsePathString(const std::string& pathString, Path& p)
     }
 }
 
-bool ParseTransform(const std::string& transformString, Transform& matrix)
+bool ParseTransform(const SVG_STRING& transformString, Transform& matrix)
 {
     // https://www.w3.org/TR/css-transforms-1/#svg-syntax
     auto pos = transformString.begin();
@@ -740,7 +740,7 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
                 return false;
         }
         auto length = std::distance(pos, end);
-        if (length >= 6 && std::string(pos, pos + 6).compare("matrix") == 0)
+        if (length >= 6 && SVG_STRING(pos, pos + 6).compare(kMatrixVal) == 0)
         {
             pos += 6;
             if (!SkipOptWsp(pos, end))
@@ -755,7 +755,7 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
                 return false;
             matrix.Concat(numberList[0], numberList[1], numberList[2], numberList[3], numberList[4], numberList[5]);
         }
-        else if (length >= 9 && std::string(pos, pos + 9).compare("translate") == 0)
+        else if (length >= 9 && SVG_STRING(pos, pos + 9).compare(kTranslateVal) == 0)
         {
             pos += 9;
             if (!SkipOptWsp(pos, end))
@@ -771,7 +771,7 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
                 return false;
             matrix.Translate(numberList[0], (size == 1 ? 0 : numberList[1]));
         }
-        else if (length >= 5 && std::string(pos, pos + 5).compare("scale") == 0)
+        else if (length >= 5 && SVG_STRING(pos, pos + 5).compare(kScaleVal) == 0)
         {
             pos += 5;
             if (!SkipOptWsp(pos, end))
@@ -787,7 +787,7 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
                 return false;
             matrix.Scale(numberList[0], (size == 1 ? numberList[0] : numberList[1]));
         }
-        else if (length >= 6 && std::string(pos, pos + 6).compare("rotate") == 0)
+        else if (length >= 6 && SVG_STRING(pos, pos + 6).compare(kRotateVal) == 0)
         {
             pos += 6;
             if (!SkipOptWsp(pos, end))
@@ -810,7 +810,7 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
             else
                 matrix.Rotate(numberList[0]);
         }
-        else if (length >= 5 && std::string(pos, pos + 5).compare("skewX") == 0)
+        else if (length >= 5 && SVG_STRING(pos, pos + 5).compare(kSkewXVal) == 0)
         {
             pos += 5;
             float number{};
@@ -829,7 +829,7 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
             number *= M_PI / 180.0f;
             matrix.Concat(1.0f, 0.0f, tan(number), 1.0f, 0.0f, 0.0f);
         }
-        else if (length >= 5 && std::string(pos, pos + 5).compare("skewY") == 0)
+        else if (length >= 5 && SVG_STRING(pos, pos + 5).compare(kSkewYVal) == 0)
         {
             pos += 5;
             float number{};
@@ -855,7 +855,7 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
     return true;
 }
 
-static bool ParseCustomPropertyName(CharIt& pos, const CharIt& end, std::string& customPropertyName)
+static bool ParseCustomPropertyName(CharIt& pos, const CharIt& end, SVG_STRING& customPropertyName)
 {
     if (pos == end || *pos++ != '-')
         return false;
@@ -870,7 +870,7 @@ static bool ParseCustomPropertyName(CharIt& pos, const CharIt& end, std::string&
         if (++pos == end)
             return false;
     }
-    customPropertyName = std::string(startPos, pos);
+    customPropertyName = SVG_STRING(startPos, pos);
     return !customPropertyName.empty();
 }
 
@@ -885,7 +885,7 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
         auto start = ++pos;
         while (pos < end && isHex(*pos))
             pos++;
-        std::string hexString(start, pos);
+        SVG_STRING hexString(start, pos);
         auto num = stoi(hexString, nullptr, 16);
         if (hexString.size() == 3)
         {
@@ -914,9 +914,9 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
     auto length = std::distance(pos, end);
     if (length >= 4)
     {
-        std::string char4string(pos, pos + 4);
+        SVG_STRING char4string(pos, pos + 4);
         std::transform(char4string.begin(), char4string.end(), char4string.begin(), ::tolower);
-        if (char4string.compare("rgb(") == 0)
+        if (char4string.compare(kRgbVal) == 0)
         {
             result = SVGDocumentImpl::Result::kInvalid;
             pos += 4;
@@ -946,13 +946,13 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
             result = SVGDocumentImpl::Result::kSuccess;
             return true;
         }
-        if (char4string.compare("var(") == 0)
+        if (char4string.compare(kVarVal) == 0)
         {
             result = SVGDocumentImpl::Result::kInvalid;
             pos += 4;
             if (!SkipOptWsp(pos, end))
                 return false;
-            std::string customPropertyName;
+            SVG_STRING customPropertyName;
             if (!ParseCustomPropertyName(pos, end, customPropertyName))
                 return false;
             ColorImpl fallbackPaint = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -989,9 +989,9 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
         auto namedColorSize = std::get<1>(namedColor);
         if (std::distance(pos, end) < static_cast<const long>(namedColorSize))
             continue;
-        std::string nameString(pos, pos + namedColorSize);
+        SVG_STRING nameString(pos, pos + namedColorSize);
         std::transform(nameString.begin(), nameString.end(), nameString.begin(), ::tolower);
-        if (std::string(nameString).compare(std::get<0>(namedColor)) == 0)
+        if (nameString.compare(std::get<0>(namedColor)) == 0)
         {
             color = std::get<2>(namedColor);
             paint = color;
@@ -1003,9 +1003,9 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
 
     if (length >= 12 && supportsCurrentColor)
     {
-        std::string currentColorString(pos, pos + 12);
+        SVG_STRING currentColorString(pos, pos + 12);
         std::transform(currentColorString.begin(), currentColorString.end(), currentColorString.begin(), ::tolower);
-        if (currentColorString.compare("currentcolor") == 0)
+        if (currentColorString.compare(kCurrentcolorVal) == 0)
         {
             paint = ColorKeys::kCurrentColor;
             result = SVGDocumentImpl::Result::kSuccess;
@@ -1018,7 +1018,7 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
     return false;
 }
 
-SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& paint, bool supportsCurrentColor /*= true*/)
+SVGDocumentImpl::Result ParseColor(const SVG_STRING& colorString, ColorImpl& paint, bool supportsCurrentColor /*= true*/)
 {
     auto pos = colorString.begin();
     auto end = colorString.end();
@@ -1028,7 +1028,7 @@ SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& pa
     return SVGDocumentImpl::Result::kInvalid;
 }
 
-SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
+SVGDocumentImpl::Result ParsePaint(const SVG_STRING& colorString, const std::map<SVG_STRING, GradientImpl>& gradientMap,
     const std::array<float, 4>& viewBox, PaintImpl& paint)
 {
     SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kInvalid};
@@ -1043,12 +1043,12 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
     SVGDocumentImpl::Result urlResult{SVGDocumentImpl::Result::kInvalid};
     if (std::distance(pos, end) >= 5)
     {
-        std::string urlString(pos, pos + 5);
-        if (urlString.find("url(#") == 0)
+        SVG_STRING urlString(pos, pos + 5);
+        if (urlString.find(kUrlVal) == 0)
         {
             // FIXME: Add proper parser for url()
             auto position = colorString.find(')');
-            if (position == std::string::npos)
+            if (position == SVG_STRING::npos)
                 return SVGDocumentImpl::Result::kInvalid;
             auto id = colorString.substr(5, position - 5);
             auto it = gradientMap.find(id);
@@ -1095,7 +1095,7 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
         return result;
 
     ColorImpl altPaint;
-    if (std::distance(pos, end) >= 4 && std::string(pos, pos + 4).compare("none") == 0)
+    if (std::distance(pos, end) >= 4 && SVG_STRING(pos, pos + 4).compare(kNoneVal) == 0)
     {
         pos += 4;
         if (urlResult == SVGDocumentImpl::Result::kInvalid)
