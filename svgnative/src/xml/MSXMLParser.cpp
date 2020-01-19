@@ -12,7 +12,6 @@ governing permissions and limitations under the License.
 
 #include "xml/XMLParser.h"
 
-//#include "msxml2.h"
 #import "msxml3.dll"
 #include <locale>
 #include <codecvt>
@@ -31,7 +30,6 @@ namespace xml
 
         ~MSXMLNode()
         {
-            mNode.Release();
         }
 
         SVG_C_CHAR GetName() const override
@@ -46,14 +44,22 @@ namespace xml
 
         std::unique_ptr<XMLNode> GetFirstNode() const override
         {
-            auto newNode = new MSXMLNode{mNode->firstChild};
-            return std::unique_ptr<MSXMLNode>(newNode);
+            if (auto rawNode = mNode->firstChild)
+            {
+                auto newNode = new MSXMLNode{rawNode};
+                return std::unique_ptr<MSXMLNode>(newNode);
+            }
+            return nullptr;
         }
 
         std::unique_ptr<XMLNode> GetNextSibling() const override
         {
-            auto newNode = new MSXMLNode{mNode->nextSibling};
-            return std::unique_ptr<MSXMLNode>(newNode);
+            if (auto rawNode = mNode->nextSibling)
+            {
+                auto newNode = new MSXMLNode{rawNode};
+                return std::unique_ptr<MSXMLNode>(newNode);
+            }
+            return nullptr;
         }
 
         Attribute GetAttribute(SVG_C_CHAR attrName, SVG_C_CHAR) const override
@@ -80,6 +86,7 @@ namespace xml
 
         MSXMLDocument(const char* documentString)
         {
+            CoInitialize(NULL);
             mDocument.CreateInstance(__uuidof(MSXML2::DOMDocument30));
             static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
             auto documentWString = converter.from_bytes(documentString);
@@ -89,15 +96,17 @@ namespace xml
         ~MSXMLDocument()
         {
             mDocument.Release();
+            CoUninitialize();
         }
 
         std::unique_ptr<XMLNode> GetFirstNode() const override
         {
-            if (!mDocument->documentElement)
-                return nullptr;
-
-            auto newNode = new MSXMLNode{mDocument->documentElement};
-            return std::unique_ptr<XMLNode>(newNode);
+            if (auto rawNode = mDocument->documentElement)
+            {
+                auto newNode = new MSXMLNode{rawNode};
+                return std::unique_ptr<MSXMLNode>(newNode);
+            }
+            return nullptr;
         }
     private:
         MSXML2::IXMLDOMDocumentPtr mDocument{};

@@ -13,10 +13,15 @@ governing permissions and limitations under the License.
 #pragma once
 
 #include <memory>
-#include <cwchar>
 #include <string>
+#ifdef MSXML
+#include <cwchar>
 #define SVG_C_CHAR const wchar_t*
 #define SVG_STRING std::wstring
+#else
+#define SVG_C_CHAR const char*
+#define SVG_STRING std::string
+#endif
 
 namespace SVGNative
 {
