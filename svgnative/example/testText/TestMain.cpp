@@ -50,6 +50,11 @@ int main(int argc, char* const argv[])
     auto renderer = std::make_shared<SVGNative::StringSVGRenderer>();
 
     auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
+    if (!doc)
+    {
+        std::cout << "Error! Could not parse document." << std::endl;
+        exit(EXIT_FAILURE);
+    }
     if (argc == 3)
         doc->Render(colorMap);
     else

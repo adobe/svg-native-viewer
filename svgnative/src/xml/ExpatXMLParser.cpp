@@ -11,6 +11,7 @@ governing permissions and limitations under the License.
 */
 
 #include "xml/XMLParser.h"
+#include "Config.h"
 
 #include <expat.h>
 #include <map>
@@ -61,7 +62,7 @@ namespace xml
                 if (it != mAttributes.end())
                     return {true, it->second.c_str()};
             }
-            return {false, nullptr};
+            return {false, {}};
         }
 
     private:
@@ -81,16 +82,6 @@ namespace xml
             return std::unique_ptr<XMLDocument>(newDocument);
         }
 
-        ExpatXMLDocument(const char* documentString)
-        {
-            int done{0};
-            XML_Parser parser = XML_ParserCreate(nullptr);
-            XML_SetUserData(parser, this);
-            XML_SetElementHandler(parser, this->StartElement, this->EndElement);
-            XML_Parse(parser, documentString, (int)strlen(documentString), done);
-            XML_ParserFree(parser);
-        }
-
         ~ExpatXMLDocument()
         {
         }
@@ -101,6 +92,22 @@ namespace xml
         }
     
     private:
+        ExpatXMLDocument(const char* documentString)
+        {
+            XML_Parser parser = XML_ParserCreate(nullptr);
+            XML_SetUserData(parser, this);
+            XML_SetElementHandler(parser, this->StartElement, this->EndElement);
+            int done{0};
+            if (XML_Parse(parser, documentString, (int)strlen(documentString), done) == XML_STATUS_ERROR || done)
+            {
+                mXMLNodeStack = {};
+                mRootNode.reset();
+            }
+            mPreviousSilbingXMLNode = nullptr;
+            SVG_ASSERT_MSG(mXMLNodeStack.empty(), "element stack not empty");
+            XML_ParserFree(parser);
+        }
+
         static void XMLCALL StartElement(void* userData, const XML_Char* name, const XML_Char** attrs)
         {
             auto node = new ExpatXMLNode{};
@@ -141,6 +148,8 @@ namespace xml
 
     private:
         bool mStartNodeCalled{false};
+
+        // These members have no ownership of the pointers.
         std::stack<ExpatXMLNode*> mXMLNodeStack;
         ExpatXMLNode* mPreviousSilbingXMLNode{};
 
