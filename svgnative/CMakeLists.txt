@@ -294,11 +294,17 @@ endif()
 
 set(XML_PARSER_SOURCE "src/xml/RapidXMLParser.cpp")
 if (USE_PLATFORM_XML)
+include(FindEXPAT)
+find_package(EXPAT)
+if (EXPAT_FOUND)
+    set(XML_PARSER_SOURCE "src/xml/ExpatXMLParser.cpp")
+else()
 find_package(LibXml2)
 if (LIBXML2_FOUND)
     set(XML_PARSER_SOURCE "src/xml/LibXMLParser.cpp")
 endif(LIBXML2_FOUND)
-endif()
+endif(EXPAT_FOUND)
+endif(USE_PLATFORM_XML)
 
 file(GLOB xml_parser
     src/xml/XMLParser.h
@@ -406,6 +412,17 @@ if (USE_CAIRO)
         set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${JPEG_LIBRARY_DIR} -ljpeg")
     endif()
 endif()
+
+if (EXPAT_FOUND)
+    target_link_libraries(SVGNativeViewerLib "${EXPAT_LIBRARIES}")
+    target_include_directories(SVGNativeViewerLib PUBLIC  "${EXPAT_INCLUDE_DIRS}")
+    if (PC_EXPAT_VERSION) # if expat is managed by pkg-config
+        set(PRIVATE_REQUIRES "${PRIVATE_REQUIRES} expat")
+    else() # if expat is out of pkg-config
+        get_filename_component(EXPAT_LIB_DIR "${EXPAT_LIBRARIES}" DIRECTORY)
+        set(PRIVATE_LIBS "${PRIVATE_LIBS} -L${EXPAT_LIB_DIR} -lexpat")
+    endif()
+endif(EXPAT_FOUND)
 
 if (LIBXML2_FOUND)
     target_link_libraries(SVGNativeViewerLib "${LIBXML2_LIBRARIES}")

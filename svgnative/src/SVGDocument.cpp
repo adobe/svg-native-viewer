@@ -33,8 +33,14 @@ std::unique_ptr<SVGDocument> SVGDocument::CreateSVGDocument(const char* s, std::
         if (!renderer)
             return nullptr;
         auto xmlDocument = xml::XMLDocument::CreateXMLDocument(s);
+        if (!xmlDocument)
+            return nullptr;
         auto rootNode = xmlDocument->GetFirstNode();
+        if (!rootNode)
+            return nullptr;
         auto realSVGDoc = std::unique_ptr<SVGDocumentImpl>(new SVGDocumentImpl(renderer));
+        if (!realSVGDoc)
+            return nullptr;
         realSVGDoc->TraverseSVGTree(rootNode.get());
 
         auto retval = new SVGDocument();

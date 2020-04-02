@@ -34,8 +34,11 @@ namespace xml
         virtual const char* GetName() const = 0;
         virtual const char* GetValue() const = 0;
 
-        virtual std::unique_ptr<XMLNode> GetFirstNode() const = 0;
-        virtual std::unique_ptr<XMLNode> GetNextSibling() const = 0;
+        // Both functions will never get called more than once per XMLNode!
+        // Deriving parsers may optimize for this scenario in the implementation.
+        // Hence those functions are not const.
+        virtual std::unique_ptr<XMLNode> GetFirstNode() = 0;
+        virtual std::unique_ptr<XMLNode> GetNextSibling() = 0;
 
         virtual Attribute GetAttribute(const char*, const char* nsPrefix = nullptr) const = 0;
 
@@ -45,7 +48,7 @@ namespace xml
     class XMLDocument {
     public:
         static std::unique_ptr<XMLDocument> CreateXMLDocument(const char* documentString);
-        virtual std::unique_ptr<XMLNode> GetFirstNode() const = 0;
+        virtual std::unique_ptr<XMLNode> GetFirstNode() = 0;
 
         virtual ~XMLDocument() {}
     };

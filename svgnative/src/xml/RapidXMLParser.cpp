@@ -38,7 +38,7 @@ namespace xml
             return mNode->value();
         }
 
-        std::unique_ptr<XMLNode> GetFirstNode() const override
+        std::unique_ptr<XMLNode> GetFirstNode() override
         {
             if (!mNode)
                 return nullptr;
@@ -49,7 +49,7 @@ namespace xml
             }
             return nullptr;
         }
-        std::unique_ptr<XMLNode> GetNextSibling() const override
+        std::unique_ptr<XMLNode> GetNextSibling() override
         {
             if (!mNode)
                 return nullptr;
@@ -100,7 +100,7 @@ namespace xml
             mDocument.clear();
         }
 
-        std::unique_ptr<XMLNode> GetFirstNode() const override
+        std::unique_ptr<XMLNode> GetFirstNode() override
         {
             if (const auto firstNode = mDocument.first_node())
             {

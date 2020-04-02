@@ -197,8 +197,8 @@ options `ON` or `OFF`:
 * `LIB_ONLY` Only compile the library without examples. Default `OFF`.
 * `SHARED` If `ON`, builds a dynamic library. Static otherwise. Default
   `OFF`.
-* `PLATFORM_XML` If `ON`, uses libxml2 if provided by the system.
-  Otherwise RapidXML via boost. Default `OFF`.
+* `PLATFORM_XML` If `ON`, uses libxml2 or Epat if provided by the
+  system. Otherwise RapidXML via boost. Default `OFF`.
 * `TEXT` adds the _Text_ port to the library. Default `ON`.
 * `CG` adds the _CoreGraphics/Quartz2D_ port to the library. Default
   `OFF`.
