@@ -1031,14 +1031,14 @@ SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& pa
 SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
     const std::array<float, 4>& viewBox, PaintImpl& paint)
 {
-    SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kInvalid};
+    SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kSuccess};
     if (!colorString.size())
-        return result;
+        return SVGDocumentImpl::Result::kInvalid;
 
     auto pos = colorString.begin();
     auto end = colorString.end();
     if (!SkipOptWsp(pos, end))
-        return result;
+        return SVGDocumentImpl::Result::kInvalid;
 
     SVGDocumentImpl::Result urlResult{SVGDocumentImpl::Result::kInvalid};
     if (std::distance(pos, end) >= 5)
