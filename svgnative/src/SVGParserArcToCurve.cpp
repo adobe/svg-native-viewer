@@ -10,8 +10,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "SVGDocument.h"
-#include "SVGRenderer.h"
+#include "svgnative/SVGDocument.h"
+#include "svgnative/SVGRenderer.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>

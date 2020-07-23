@@ -13,7 +13,7 @@ governing permissions and limitations under the License.
 #ifndef SVGViewer_CGSVGRenderer_h
 #define SVGViewer_CGSVGRenderer_h
 
-#include "SVGRenderer.h"
+#include "svgnative/SVGRenderer.h"
 #include <CoreGraphics/CoreGraphics.h>
 
 namespace SVGNative

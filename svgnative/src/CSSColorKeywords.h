@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 #pragma once
 
-#include "SVGRenderer.h"
+#include "svgnative/SVGRenderer.h"
 #include <array>
 #include <tuple>
 

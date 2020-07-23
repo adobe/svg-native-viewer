@@ -13,7 +13,7 @@ governing permissions and limitations under the License.
 #ifndef SVGViewer_StringSVGRenderer_h
 #define SVGViewer_StringSVGRenderer_h
 
-#include "SVGRenderer.h"
+#include "svgnative/SVGRenderer.h"
 
 #include <iostream>
 #include <sstream>

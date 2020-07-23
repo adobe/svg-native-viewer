@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 #include "SVGStringParser.h"
 #include "CSSColorKeywords.h"
-#include "SVGDocument.h"
+#include "svgnative/SVGDocument.h"
 #include <algorithm>
 #include <array>
 #include <vector>

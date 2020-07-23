@@ -10,19 +10,19 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "SVGNativeCWrapper.h"
-#include "SVGDocument.h"
-#include "SVGRenderer.h"
+#include "svgnative/SVGNativeCWrapper.h"
+#include "svgnative/SVGDocument.h"
+#include "svgnative/SVGRenderer.h"
 #ifdef USE_CAIRO
-#include "CairoSVGRenderer.h"
+#include "svgnative/ports/cairo/CairoSVGRenderer.h"
 #endif
 #ifdef USE_CG
-#include "CGSVGRenderer.h"
+#include "svgnative/ports/cg/CGSVGRenderer.h"
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 #ifdef USE_SKIA
-#include "SkiaSVGRenderer.h"
+#include "svgnative/ports/skia/SkiaSVGRenderer.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #endif
@@ -32,7 +32,7 @@ governing permissions and limitations under the License.
 #include "GDIPlusSVGRenderer.h"
 #endif
 #ifdef USE_TEXT
-#include "StringSVGRenderer.h"
+#include "svgnative/ports/string/StringSVGRenderer.h"
 #endif
 
 #include <map>

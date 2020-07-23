@@ -1,5 +1,5 @@
 /*
-Copyright 2019 suzuki toshiya <mpsuzuki@hiroshima-u.ac.jp>. All rights reserved.
+Copyright 2019 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -10,25 +10,22 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#ifndef SVGViewer_CairoSVGRenderer_h
-#define SVGViewer_CairoSVGRenderer_h
+#ifndef SVGViewer_SkiaSVGRenderer_h
+#define SVGViewer_SkiaSVGRenderer_h
 
-#include <list>
-#include "SVGRenderer.h"
-#include "cairo.h"
+#include "svgnative/SVGRenderer.h"
+#include "SkPath.h"
+
+struct SkRect;
+class SkCanvas;
+class SkImage;
 
 namespace SVGNative
 {
-
-  // SkiaSVGPath object is able to be amended, but Cairo has no API to append something
-  // to existing cairo_path_t object. Thus, we hold cairo_t object. Its surface could
-  // be retrieved in later, by cairo_get_target().
-
-class CairoSVGPath final : public Path
+class SkiaSVGPath final : public Path
 {
 public:
-    CairoSVGPath();
-    ~CairoSVGPath();
+    SkiaSVGPath();
 
     void Rect(float x, float y, float width, float height) override;
     void RoundedRect(float x, float y, float width, float height, float rx, float ry) override;
@@ -40,17 +37,17 @@ public:
     void CurveToV(float x2, float y2, float x3, float y3) override;
     void ClosePath() override;
 
-    cairo_t* mPathCtx{};
+    SkPath mPath;
 
 private:
     float mCurrentX{};
     float mCurrentY{};
 };
 
-class CairoSVGTransform final : public Transform
+class SkiaSVGTransform final : public Transform
 {
 public:
-    CairoSVGTransform(float a, float b, float c, float d, float tx, float ty);
+    SkiaSVGTransform(float a, float b, float c, float d, float tx, float ty);
 
     void Set(float a, float b, float c, float d, float tx, float ty) override;
     void Rotate(float r) override;
@@ -58,37 +55,34 @@ public:
     void Scale(float sx, float sy) override;
     void Concat(float a, float b, float c, float d, float tx, float ty) override;
 
-    cairo_matrix_t mMatrix;
+    SkMatrix mMatrix;
 };
 
-class CairoSVGImageData final : public ImageData
+class SkiaSVGImageData final : public ImageData
 {
 public:
-    CairoSVGImageData(const std::string& base64, ImageEncoding encoding);
-    ~CairoSVGImageData();
+    SkiaSVGImageData(const std::string& base64, ImageEncoding encoding);
 
     float Width() const override;
 
     float Height() const override;
 
-
-    cairo_surface_t* mImageData{};
+    sk_sp<SkImage> mImageData;
 };
 
-class SVG_IMP_EXP CairoSVGRenderer final : public SVGRenderer
+class SVG_IMP_EXP SkiaSVGRenderer final : public SVGRenderer
 {
 public:
-    CairoSVGRenderer();
-    ~CairoSVGRenderer();
+    SkiaSVGRenderer();
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::unique_ptr<CairoSVGImageData>(new CairoSVGImageData(base64, encoding)); }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::unique_ptr<SkiaSVGImageData>(new SkiaSVGImageData(base64, encoding)); }
 
-    std::unique_ptr<Path> CreatePath() override { return std::unique_ptr<CairoSVGPath>(new CairoSVGPath); }
+    std::unique_ptr<Path> CreatePath() override { return std::unique_ptr<SkiaSVGPath>(new SkiaSVGPath); }
 
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override
     {
-        return std::unique_ptr<CairoSVGTransform>(new CairoSVGTransform(a, b, c, d, tx, ty));
+        return std::unique_ptr<SkiaSVGTransform>(new SkiaSVGTransform(a, b, c, d, tx, ty));
     }
 
     void Save(const GraphicStyle& graphicStyle) override;
@@ -97,12 +91,12 @@ public:
     void DrawPath(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) override;
     void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) override;
 
-    void SetCairo(cairo_t* cairo);
+    void SetSkCanvas(SkCanvas* canvas);
 
 private:
-    cairo_t* mCairo{};
+    SkCanvas* mCanvas;
 };
 
 } // namespace SVGNative
 
-#endif // SVGViewer_CairoSVGRenderer_h
+#endif // SVGViewer_SkiaSVGRenderer_h
