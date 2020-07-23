@@ -73,7 +73,7 @@ find_package(PkgConfig)
 # setting for Skia
 ################################
 if(SKIA)
-    include("cmake/FindSkia.cmake")
+    include(FindSkia)
     if (NOT SKIA_AVAILABLE)
         message(FATAL_ERROR "Fatal error: Skia port is requested, but no usable Skia library was found.")
     endif()
@@ -333,11 +333,10 @@ add_library(SVGNativeViewerLib SHARED ${svgNative_src})
 else()
 add_library(SVGNativeViewerLib STATIC ${svgNative_src})
 endif()
+
 ##############################
 # Header search paths
 ##############################
-
-#target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_include_directories(SVGNativeViewerLib PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 if(STYLE)
