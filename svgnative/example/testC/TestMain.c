@@ -17,7 +17,7 @@ governing permissions and limitations under the License.
 #include <stdio.h>
 #include <stddef.h>
 
-#include "SVGNativeCWrapper.h"
+#include "svgnative/SVGNativeCWrapper.h"
 
 char* read_svg_input(const char* pathname)
 {

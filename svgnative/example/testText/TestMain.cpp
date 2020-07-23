@@ -16,8 +16,8 @@
  * from Adobe.
  **************************************************************************/
 
-#include "SVGDocument.h"
-#include "StringSVGRenderer.h"
+#include "svgnative/SVGDocument.h"
+#include "svgnative/ports/string/StringSVGRenderer.h"
 
 #include <fstream>
 #include <iostream>

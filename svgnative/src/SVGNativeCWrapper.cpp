@@ -29,7 +29,7 @@ governing permissions and limitations under the License.
 #ifdef USE_GDIPLUS
 #include <windows.h>
 #include <Gdiplus.h>
-#include "GDIPlusSVGRenderer.h"
+#include "svgnative/ports/gdiplus/GDIPlusSVGRenderer.h"
 #endif
 #ifdef USE_TEXT
 #include "svgnative/ports/string/StringSVGRenderer.h"

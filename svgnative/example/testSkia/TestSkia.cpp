@@ -10,12 +10,12 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "SVGDocument.h"
+#include "svgnative/SVGDocument.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkiaSVGRenderer.h"
+#include "svgnative/ports/skia/SkiaSVGRenderer.h"
 
 #include <fstream>
 #include <iostream>

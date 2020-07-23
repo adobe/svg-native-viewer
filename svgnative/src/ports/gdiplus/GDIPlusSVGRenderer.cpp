@@ -14,7 +14,7 @@ governing permissions and limitations under the License.
 #include <gdiplus.h>
 
 #include "svgnative/Config.h"
-#include "svgnative/ports/gdi/GDIPlusSVGRenderer.h"
+#include "svgnative/ports/gdiplus/GDIPlusSVGRenderer.h"
 #include "base64.h"
 
 namespace SVGNative

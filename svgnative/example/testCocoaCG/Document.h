@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 #import <Cocoa/Cocoa.h>
 
-#include "svgnative/include/SVGDocument.h"
+#include "svgnative/SVGDocument.h"
 
 @interface Document : NSDocument
 {
