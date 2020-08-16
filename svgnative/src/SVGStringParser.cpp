@@ -391,6 +391,7 @@ void ParsePathString(const std::string& pathString, Path& p)
     float prevControlY{}; // nanf(nullptr);
     float prevCurvePointX{};
     float prevCurvePointY{};
+    char lastCommand = 'm';
     char prev = 'm';
     // First segment must be a moveTo
     if (!SkipOptWsp(pos, end) || (*pos != 'm' && *pos != 'M'))
@@ -629,9 +630,14 @@ void ParsePathString(const std::string& pathString, Path& p)
             if (!ParseCoordinatePair(pos, end, nextX, nextY))
                 return;
 
-            // reflect previous control point
-            prevCurvePointX = currentX + (currentX - prevCurvePointX);
-            prevCurvePointY = currentY + (currentY - prevCurvePointY);
+            if (lastCommand != 'T' && lastCommand != 't' && lastCommand != 'Q' && lastCommand != 'q') {
+                prevCurvePointX = currentX;
+                prevCurvePointY = currentY;
+            } else {
+                // reflect previous control point
+                prevCurvePointX = currentX + (currentX - prevCurvePointX);
+                prevCurvePointY = currentY + (currentY - prevCurvePointY);
+            }
 
             p.CurveToV(prevCurvePointX, prevCurvePointY, nextX, nextY);
 
@@ -651,9 +657,14 @@ void ParsePathString(const std::string& pathString, Path& p)
             nextX += currentX;
             nextY += currentY;
 
-            // reflect previous control point
-            prevCurvePointX = currentX + (currentX - prevCurvePointX);
-            prevCurvePointY = currentY + (currentY - prevCurvePointY);
+            if (lastCommand != 'T' && lastCommand != 't' && lastCommand != 'Q' && lastCommand != 'q') {
+                prevCurvePointX = currentX;
+                prevCurvePointY = currentY;
+            } else {
+                // reflect previous control point
+                prevCurvePointX = currentX + (currentX - prevCurvePointX);
+                prevCurvePointY = currentY + (currentY - prevCurvePointY);
+            }
 
             p.CurveToV(prevCurvePointX, prevCurvePointY, nextX, nextY);
 
@@ -718,6 +729,8 @@ void ParsePathString(const std::string& pathString, Path& p)
             break;
         }
         }
+
+        lastCommand = prev;
     }
 }
 
