@@ -146,6 +146,7 @@ elseif(APPLE)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 endif()
+message(STATUS "CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
 
 set(dll_version)
 if(WIN32)
