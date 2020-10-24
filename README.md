@@ -57,7 +57,7 @@ For rendering, SVG Native Viewer requires a rendering port. Already
 existing ports include:
 * **StringSVGRenderer** for testing purposes,
 * **CGSVGRenderer** a rendering port using CoreGraphics (Quartz 2D).
-* **SkiaSVGRenderer** a rendering port using Skia.
+* **SkiaSVGRenderer** a rendering port using Skia. (**Skia requires a C++14 compatible compiler!**)
 * **CairoSVGRenderer** a rendering port using Cairo Graphics.
 * **GDIPlusSVGRenderer** a rendering port using GDI+.
 
