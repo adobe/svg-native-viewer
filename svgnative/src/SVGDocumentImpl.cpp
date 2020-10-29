@@ -13,8 +13,8 @@ governing permissions and limitations under the License.
 #include "SVGDocumentImpl.h"
 
 #include "Constants.h"
-#include "SVGDocument.h"
-#include "SVGRenderer.h"
+#include "svgnative/SVGDocument.h"
+#include "svgnative/SVGRenderer.h"
 #include "SVGStringParser.h"
 #include "xml/XMLParser.h"
 

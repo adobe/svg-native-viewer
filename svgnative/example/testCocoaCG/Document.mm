@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 */
 
 #import "Document.h"
-#include "CGSVGRenderer.h"
-#include "SVGDocument.h"
+#include "svgnative/ports/cg/CGSVGRenderer.h"
+#include "svgnative/SVGDocument.h"
 
 #include <stdexcept>
 

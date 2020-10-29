@@ -16,7 +16,7 @@ if (CMAKE_VERSION VERSION_GREATER "3.15")
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 project(SVGNativeViewer)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11)
@@ -118,7 +118,9 @@ elseif(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zp8")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4302 /we4189")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4290 /wd4335 /wd4355 /wd4814 /wd4091 /TP")
-    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+    if (NOT USE_SKIA)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++11")
+    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:sizedDealloc-")
 
     if (DEFINED WIN32_OBJECT_TYPE)
@@ -136,12 +138,15 @@ elseif(MSVC)
     endif()
 elseif(APPLE)
     # GCC or Clang
-    set(CMAKE_CXX_STANDARD 14)
+    if (USE_SKIA)
+        set(CMAKE_CXX_STANDARD 14)
+    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 endif()
+message(STATUS "CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
 
 set(dll_version)
 if(WIN32)
@@ -234,8 +239,8 @@ file(GLOB gl_headers ${PROJECT_SOURCE_DIR}/include/*.h)
 set(text_port)
 if(USE_TEXT)
 file(GLOB text_port
-    ports/string/StringSVGRenderer.h
-    ports/string/StringSVGRenderer.cpp
+    src/ports/string/StringSVGRenderer.h
+    src/ports/string/StringSVGRenderer.cpp
 )
 set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/string/StringSVGRenderer.h)
 endif()
@@ -243,8 +248,8 @@ endif()
 set(cg_port)
 if(USE_CG)
 file(GLOB cg_port
-    ports/cg/CGSVGRenderer.h
-    ports/cg/CGSVGRenderer.cpp
+    src/ports/cg/CGSVGRenderer.h
+    src/ports/cg/CGSVGRenderer.cpp
     ../third_party/cpp-base64/base64.h
     ../third_party/cpp-base64/base64.cpp
 )
@@ -254,8 +259,8 @@ endif()
 set(skia_port)
 if (USE_SKIA)
 file(GLOB skia_port
-    ports/skia/SkiaSVGRenderer.h
-    ports/skia/SkiaSVGRenderer.cpp
+    src/ports/skia/SkiaSVGRenderer.h
+    src/ports/skia/SkiaSVGRenderer.cpp
     ../third_party/cpp-base64/base64.h
     ../third_party/cpp-base64/base64.cpp
 )
@@ -268,8 +273,8 @@ endif()
 set(gdiplus_port)
 if (USE_GDIPLUS)
 file(GLOB gdiplus_port
-    ports/gdiplus/GDIPlusSVGRenderer.h
-    ports/gdiplus/GDIPlusSVGRenderer.cpp
+    src/ports/gdiplus/GDIPlusSVGRenderer.h
+    src/ports/gdiplus/GDIPlusSVGRenderer.cpp
     ../third_party/cpp-base64/base64.h
     ../third_party/cpp-base64/base64.cpp
 )
@@ -278,10 +283,10 @@ endif()
 set(cairo_port)
 if (USE_CAIRO)
 file(GLOB cairo_port
-    ports/cairo/CairoSVGRenderer.h
-    ports/cairo/CairoSVGRenderer.cpp
-    ports/cairo/CairoImageInfo.h
-    ports/cairo/CairoImageInfo.c
+    src/ports/cairo/CairoSVGRenderer.h
+    src/ports/cairo/CairoSVGRenderer.cpp
+    src/ports/cairo/CairoImageInfo.h
+    src/ports/cairo/CairoImageInfo.c
     ../third_party/cpp-base64/base64.h
     ../third_party/cpp-base64/base64.cpp
 )
@@ -333,39 +338,35 @@ add_library(SVGNativeViewerLib SHARED ${svgNative_src})
 else()
 add_library(SVGNativeViewerLib STATIC ${svgNative_src})
 endif()
+
 ##############################
 # Header search paths
 ##############################
-
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_include_directories(SVGNativeViewerLib PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 if(STYLE)
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/stylesheet/include")
 endif()
-if (USE_TEXT)
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/string")
-endif()
 if (USE_CG)
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/cg")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 endif()
 if (USE_SKIA)
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/skia")
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/codec")
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/config")
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/core")
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/effects")
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/encode")
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia/include/gpu")
+if (NOT DEFINED SKIA_SOURCE_DIR)
+    set(SKIA_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia")
+endif()
+target_include_directories(SVGNativeViewerLib PUBLIC "${SKIA_SOURCE_DIR}")
+target_include_directories(SVGNativeViewerLib PUBLIC "${SKIA_SOURCE_DIR}/include/codec")
+target_include_directories(SVGNativeViewerLib PUBLIC "${SKIA_SOURCE_DIR}/include/config")
+target_include_directories(SVGNativeViewerLib PUBLIC "${SKIA_SOURCE_DIR}/include/core")
+target_include_directories(SVGNativeViewerLib PUBLIC "${SKIA_SOURCE_DIR}/include/effects")
+target_include_directories(SVGNativeViewerLib PUBLIC "${SKIA_SOURCE_DIR}/include/encode")
+target_include_directories(SVGNativeViewerLib PUBLIC "${SKIA_SOURCE_DIR}/include/gpu")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 endif()
 if (USE_GDIPLUS)
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/gdiplus")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 endif()
 if (USE_CAIRO)
-target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/ports/cairo")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CAIRO_INCLUDE_DIRS}")
 endif()

@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 #pragma once
 
-#include "SVGRenderer.h"
+#include "svgnative/SVGRenderer.h"
 #ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"

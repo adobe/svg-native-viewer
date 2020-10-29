@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 #include "SVGStringParser.h"
 #include "CSSColorKeywords.h"
-#include "SVGDocument.h"
+#include "svgnative/SVGDocument.h"
 #include <algorithm>
 #include <array>
 #include <vector>
@@ -999,14 +999,14 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
     // Parse CSS named Colors.
     for (const auto& namedColor : gCSSNamedColors)
     {
-        auto namedColorSize = std::get<1>(namedColor);
+        auto namedColorSize = namedColor.length;
         if (std::distance(pos, end) < static_cast<const long>(namedColorSize))
             continue;
         std::string nameString(pos, pos + namedColorSize);
         std::transform(nameString.begin(), nameString.end(), nameString.begin(), ::tolower);
-        if (std::string(nameString).compare(std::get<0>(namedColor)) == 0)
+        if (std::string(nameString).compare(namedColor.colorName) == 0)
         {
-            color = std::get<2>(namedColor);
+            color = namedColor.color;
             paint = color;
             result = SVGDocumentImpl::Result::kSuccess;
             pos += namedColorSize;

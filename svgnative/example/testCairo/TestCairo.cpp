@@ -10,9 +10,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "SVGDocument.h"
+#include "svgnative/SVGDocument.h"
 #include <list>
-#include "CairoSVGRenderer.h"
+#include "svgnative/ports/cairo/CairoSVGRenderer.h"
 #include "cairo.h"
 
 #if CAIRO_HAS_SCRIPT_SURFACE

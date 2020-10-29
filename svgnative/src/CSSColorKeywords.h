@@ -12,14 +12,24 @@ governing permissions and limitations under the License.
 
 #pragma once
 
-#include "SVGRenderer.h"
+#include "svgnative/SVGRenderer.h"
 #include <array>
-#include <tuple>
 
 namespace SVGNative
 {
 
-using CSSColorInfo = std::tuple<const char*, size_t, Color>;
+struct CSSColorInfo
+{
+    constexpr CSSColorInfo(const char* aColorName, size_t aLength, Color aColor)
+        : colorName{aColorName}
+        , length{aLength}
+        , color{std::move(aColor)}
+    {
+    }
+    const char* colorName{};
+    size_t length{};
+    Color color{};
+};
 
 // Generated in web browser with following code. ele must be an element embedded in a loaded document.
 // var string = '';

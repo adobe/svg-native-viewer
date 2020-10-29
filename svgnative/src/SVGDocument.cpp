@@ -10,9 +10,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "SVGDocument.h"
+#include "svgnative/SVGDocument.h"
 #include "SVGDocumentImpl.h"
-#include "SVGRenderer.h"
+#include "svgnative/SVGRenderer.h"
 #ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"

@@ -10,9 +10,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "SkiaSVGRenderer.h"
+#include "svgnative/ports/skia/SkiaSVGRenderer.h"
 #include "base64.h"
-#include "Config.h"
+#include "svgnative/Config.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkData.h"
@@ -186,7 +186,7 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
             const auto& matrix = static_cast<const SkiaSVGTransform*>(graphicStyle.clippingPath->transform.get())->mMatrix;
             clippingPath.transform(matrix);
         }
-		clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPath::kWinding_FillType : SkPath::kEvenOdd_FillType);
+		clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
         mCanvas->clipPath(clippingPath);
     }
 }
@@ -217,18 +217,18 @@ inline void CreateSkPaint(const Paint& paint, float opacity, SkPaint& skPaint)
             colors.push_back(SkColorSetARGB(static_cast<uint8_t>(opacity * stopColor[3] * 255), static_cast<uint8_t>(stopColor[0] * 255),
                 static_cast<uint8_t>(stopColor[1] * 255), static_cast<uint8_t>(stopColor[2] * 255)));
         }
-        SkShader::TileMode mode;
+        SkTileMode mode;
         switch (gradient.method)
         {
         case SpreadMethod::kReflect:
-            mode = SkShader::TileMode::kMirror_TileMode;
+            mode = SkTileMode::kMirror;
             break;
         case SpreadMethod::kRepeat:
-            mode = SkShader::TileMode::kRepeat_TileMode;
+            mode = SkTileMode::kRepeat;
             break;
         case SpreadMethod::kPad:
         default:
-            mode = SkShader::TileMode::kClamp_TileMode;
+            mode = SkTileMode::kClamp;
             break;
         }
         SkMatrix* matrix{};
@@ -257,15 +257,17 @@ void SkiaSVGRenderer::DrawPath(
     if (fillStyle.hasFill)
     {
         SkPaint fill;
+        fill.setAntiAlias(true);
         fill.setStyle(SkPaint::kFill_Style);
         CreateSkPaint(fillStyle.paint, fillStyle.fillOpacity, fill);
         SkPath mPath = (static_cast<const SkiaSVGPath&>(path).mPath);
-        mPath.setFillType(fillStyle.fillRule == WindingRule::kNonZero ? SkPath::kWinding_FillType : SkPath::kEvenOdd_FillType);
+        mPath.setFillType(fillStyle.fillRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
         mCanvas->drawPath(mPath, fill);
     }
     if (strokeStyle.hasStroke)
     {
         SkPaint stroke;
+        stroke.setAntiAlias(true);
         stroke.setStyle(SkPaint::kStroke_Style);
         stroke.setStrokeWidth(strokeStyle.lineWidth);
         if (!strokeStyle.dashArray.empty())

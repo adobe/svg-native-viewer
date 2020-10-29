@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "StringSVGRenderer.h"
+#include "svgnative/ports/string/StringSVGRenderer.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>

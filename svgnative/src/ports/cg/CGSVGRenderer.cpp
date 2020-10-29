@@ -10,9 +10,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "CGSVGRenderer.h"
+#include "svgnative/ports/cg/CGSVGRenderer.h"
 #include "base64.h"
-#include "Config.h"
+#include "svgnative/Config.h"
 
 namespace SVGNative
 {

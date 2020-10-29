@@ -10,22 +10,19 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#ifndef SVGViewer_SkiaSVGRenderer_h
-#define SVGViewer_SkiaSVGRenderer_h
+#ifndef SVGViewer_GDIPlusSVGRenderer_h
+#define SVGViewer_GDIPlusSVGRenderer_h
 
-#include "SVGRenderer.h"
-#include "SkPath.h"
-
-struct SkRect;
-class SkCanvas;
-class SkImage;
+#include "svgnative/SVGRenderer.h"
+#include <gdiplus.h>
 
 namespace SVGNative
 {
-class SkiaSVGPath final : public Path
+class GDIPlusSVGPath final : public Path
 {
 public:
-    SkiaSVGPath();
+    GDIPlusSVGPath();
+    ~GDIPlusSVGPath();
 
     void Rect(float x, float y, float width, float height) override;
     void RoundedRect(float x, float y, float width, float height, float rx, float ry) override;
@@ -37,17 +34,18 @@ public:
     void CurveToV(float x2, float y2, float x3, float y3) override;
     void ClosePath() override;
 
-    SkPath mPath;
+    const Gdiplus::GraphicsPath& GetGraphicsPath() const;
 
 private:
+    Gdiplus::GraphicsPath mPath;
     float mCurrentX{};
     float mCurrentY{};
 };
 
-class SkiaSVGTransform final : public Transform
+class GDIPlusSVGTransform final : public Transform
 {
 public:
-    SkiaSVGTransform(float a, float b, float c, float d, float tx, float ty);
+    GDIPlusSVGTransform(float a, float b, float c, float d, float tx, float ty);
 
     void Set(float a, float b, float c, float d, float tx, float ty) override;
     void Rotate(float r) override;
@@ -55,35 +53,42 @@ public:
     void Scale(float sx, float sy) override;
     void Concat(float a, float b, float c, float d, float tx, float ty) override;
 
-    SkMatrix mMatrix;
+    const Gdiplus::Matrix& GetMatrix() const;
+
+private:
+    Gdiplus::Matrix mTransform;
 };
 
-class SkiaSVGImageData final : public ImageData
+class GDIPlusSVGImageData final : public ImageData
 {
 public:
-    SkiaSVGImageData(const std::string& base64, ImageEncoding encoding);
+    GDIPlusSVGImageData(const std::string& base64, ImageEncoding encoding);
+    ~GDIPlusSVGImageData();
 
     float Width() const override;
-
     float Height() const override;
 
-    sk_sp<SkImage> mImageData;
+    const std::unique_ptr<Gdiplus::Image>& GetImage() const;
+
+private:
+    std::unique_ptr<Gdiplus::Image> mImage;
 };
 
-class SVG_IMP_EXP SkiaSVGRenderer final : public SVGRenderer
+class SVG_IMP_EXP GDIPlusSVGRenderer final : public SVGRenderer
 {
 public:
-    SkiaSVGRenderer();
+    GDIPlusSVGRenderer();
 
-    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override { return std::unique_ptr<SkiaSVGImageData>(new SkiaSVGImageData(base64, encoding)); }
+    virtual ~GDIPlusSVGRenderer() 
+    { 
+    }
 
-    std::unique_ptr<Path> CreatePath() override { return std::unique_ptr<SkiaSVGPath>(new SkiaSVGPath); }
+    std::unique_ptr<ImageData> CreateImageData(const std::string& base64, ImageEncoding encoding) override;
+
+    std::unique_ptr<Path> CreatePath() override;
 
     std::unique_ptr<Transform> CreateTransform(
-        float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override
-    {
-        return std::unique_ptr<SkiaSVGTransform>(new SkiaSVGTransform(a, b, c, d, tx, ty));
-    }
+        float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override;
 
     void Save(const GraphicStyle& graphicStyle) override;
     void Restore() override;
@@ -91,12 +96,23 @@ public:
     void DrawPath(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) override;
     void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) override;
 
-    void SetSkCanvas(SkCanvas* canvas);
+    void SetGraphicsContext(Gdiplus::Graphics* inContext)
+    {
+        mContext = inContext;
+    }
+
+    void ReleaseGraphicsContext()
+    {
+        mContext = nullptr;
+    }
 
 private:
-    SkCanvas* mCanvas;
+    std::unique_ptr<Gdiplus::Brush> CreateGradientBrush(const Gradient& gradient, float opacity);
+
+    Gdiplus::Graphics* mContext{};
+    std::vector<Gdiplus::GraphicsState> mStateStack;
 };
 
 } // namespace SVGNative
 
-#endif // SVGViewer_SkiaSVGRenderer_h
+#endif // SVGViewer_GDIPlusSVGRenderer_h
