@@ -176,7 +176,7 @@ cmake -Bbuild/mac -H. -G "Xcode"
 
 For Linux
 ```
-cmake -BBuild/linux -H.
+cmake -Bbuild/linux -H.
 ```
 On Linux you may choose to use GCC or Clang/LLVM. Add the following to
 the command above to choose between one and the other:

@@ -263,6 +263,25 @@ public:
     virtual void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) = 0;
 };
 
+class SaveRestoreHelper
+{
+public:
+    SaveRestoreHelper(std::weak_ptr<SVGRenderer> renderer, const GraphicStyle& graphicStyle)
+        : mRenderer{renderer}
+    {
+        if (auto renderer = mRenderer.lock())
+            renderer->Save(graphicStyle);
+    }
+
+    ~SaveRestoreHelper()
+    {
+        if (auto renderer = mRenderer.lock())
+            renderer->Restore();
+    }
+private:
+    std::weak_ptr<SVGRenderer> mRenderer{};
+};
+
 } // namespace SVGNative
 
 #endif // SVGViewer_SVGRenderer_h

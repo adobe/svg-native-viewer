@@ -968,12 +968,10 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     graphicStyle.transform->Scale(scale, scale);
 
-    mRenderer->Save(graphicStyle);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
 
     TraverseTree(colorMap, element);
     SVG_ASSERT(mVisitedElements.empty());
-
-    mRenderer->Restore();
 }
 
 void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString)
@@ -1072,9 +1070,8 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         if (refIt != mIdToElementMap.end())
         {
             ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
-            mRenderer->Save(reference.graphicStyle);
+            auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
             TraverseTree(colorMap, *(refIt->second));
-            mRenderer->Restore();
         }
 
         // Done processing current element.
@@ -1109,10 +1106,9 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     {
         const auto& group = static_cast<const Group&>(element);
         ApplyCSSStyle(group.classNames, graphicStyle, fillStyle, strokeStyle);
-        mRenderer->Save(group.graphicStyle);
+        auto saveRestore = SaveRestoreHelper{mRenderer, group.graphicStyle};
         for (const auto& child : group.children)
             TraverseTree(colorMap, *child);
-        mRenderer->Restore();
         break;
     }
     default:
