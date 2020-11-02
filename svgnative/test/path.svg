@@ -34,4 +34,6 @@
     <path fill="green" d="    100,100"/>
     <path fill="green" d="100,100 150,100 150,150"/>
     <path fill="green" d="  L100,100 100,100"/>
+    <!-- quadratic curves -->
+    <path fill="green" d="M 100 100 Q 150 50 200 100 T 250 150 t 50 -100 q 50 -100 100 50"/>
 </svg>
