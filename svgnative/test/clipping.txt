@@ -1,46 +1,48 @@
 [group transform: matrix(1,0,0,1,0,0)
     [group
-        [path Rect(40,0,40,40) clipping: { winding: nonzero [path Ellipse(60,20,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(80,0,40,40) clipping: { winding: nonzero [path Ellipse(100,20,20,15)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(120,0,40,40) clipping: { winding: nonzero [path RoundedRect(130,10,20,20,5,5)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(160,0,40,40) clipping: { winding: nonzero [path M180,10 L190,35 L170,35]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(0,40,40,40) clipping: { winding: nonzero [path M20,50 L30,75 L10,75]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(40,40,40,40) clipping: { winding: nonzero transform: matrix(1,0,0,1,40,40) [path Ellipse(20,20,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(120,40,40,40) clipping: { winding: nonzero [path Ellipse(140,60,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(160,40,40,40) clipping: { winding: nonzero [path Ellipse(180,60,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(0,80,40,40) clipping: { winding: nonzero [path Ellipse(20,100,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(40,80,40,40) clipping: { winding: nonzero [path Ellipse(60,100,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(80,80,40,40) clipping: { winding: evenodd [path Ellipse(100,100,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(120,80,40,40) clipping: { winding: evenodd [path Ellipse(140,100,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(160,80,40,40) clipping: { winding: nonzero [path Ellipse(180,100,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(0,0,40,40) transform: matrix(1,0,0,1,0,120) clipping: { winding: nonzero [path Ellipse(20,20,20,20)]}
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        [group
+            [path Rect(40,0,40,40) clipping: { winding: nonzero [path Ellipse(60,20,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(80,0,40,40) clipping: { winding: nonzero [path Ellipse(100,20,20,15)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(120,0,40,40) clipping: { winding: nonzero [path RoundedRect(130,10,20,20,5,5)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(160,0,40,40) clipping: { winding: nonzero [path M180,10 L190,35 L170,35]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(0,40,40,40) clipping: { winding: nonzero [path M20,50 L30,75 L10,75]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(40,40,40,40) clipping: { winding: nonzero transform: matrix(1,0,0,1,40,40) [path Ellipse(20,20,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(120,40,40,40) clipping: { winding: nonzero [path Ellipse(140,60,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(160,40,40,40) clipping: { winding: nonzero [path Ellipse(180,60,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(0,80,40,40) clipping: { winding: nonzero [path Ellipse(20,100,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(40,80,40,40) clipping: { winding: nonzero [path Ellipse(60,100,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(80,80,40,40) clipping: { winding: evenodd [path Ellipse(100,100,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(120,80,40,40) clipping: { winding: evenodd [path Ellipse(140,100,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(160,80,40,40) clipping: { winding: nonzero [path Ellipse(180,100,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(0,0,40,40) transform: matrix(1,0,0,1,0,120) clipping: { winding: nonzero [path Ellipse(20,20,20,20)]}
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        ]
     ]
 ]
