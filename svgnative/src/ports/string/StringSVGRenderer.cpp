@@ -46,7 +46,7 @@ void StringSVGPath::CurveTo(float x1, float y1, float x2, float y2, float x3, fl
     mStringStream << " C" << x1 << ',' << y1 << ',' << x2 << ',' << y2 << ',' << x3 << ',' << y3;
 }
 
-void StringSVGPath::CurveToV(float x2, float y2, float x3, float y3) { mStringStream << " T" << x2 << ',' << y2 << ',' << x3 << ',' << y3; }
+void StringSVGPath::CurveToV(float x2, float y2, float x3, float y3) { mStringStream << " Q" << x2 << ',' << y2 << ',' << x3 << ',' << y3; }
 
 void StringSVGPath::ClosePath() { mStringStream << " Z"; }
 

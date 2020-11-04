@@ -81,5 +81,8 @@
         [path
             fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
             stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        [path M100,100 Q150,50,200,100 Q250,150,250,150 Q250,150,300,50 Q350,-50,400,100
+            fill: {hasFill: true winding: nonzero paint: rgba(0,0.502,0,1)}
+            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
     ]
 ]
