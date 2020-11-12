@@ -20,6 +20,9 @@
     <path fill="green" d="m.4e2.12e3.2e2.0.0.2e2-.2e2.0z"/>
     <path fill="green" d="M0,0ZZ ZM100,100 L 150,100 L 150 150 z"/>
     <path fill="green" d="   M0,0 L100,100    "/>
+    <path fill="green" d="M 0 0 L 50 0 L 100 0 z L 100 100 L 0 100 z"/>
+    <path fill="green" d="M 0 100 m 50 0 z m 50 0 L 100 200 L 0 200 z"/>
+    <path fill="green" d="M 0 200 L 25 200 m 25 0 z m 50 0 L 100 300 L 0 300 z"/>
 
     <!-- negative tests -->
     <!-- Comma before segment identifier supported by WebKit & Blink; not by spec -->

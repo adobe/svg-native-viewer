@@ -375,6 +375,16 @@ bool ParseListOfStrings(const std::string& stringListString, std::vector<std::st
     return true;
 }
 
+bool IsMoveCmd(char cmd)
+{
+    return cmd == 'M' || cmd == 'm';
+}
+
+bool IsCloseCmd(char cmd)
+{
+    return cmd == 'Z' || cmd == 'z';
+}
+
 void ParsePathString(const std::string& pathString, Path& p)
 {
     auto pos = pathString.begin();
@@ -382,7 +392,6 @@ void ParsePathString(const std::string& pathString, Path& p)
     if (!SkipOptWsp(pos, end))
         return;
 
-    bool startSet{false};
     float startX{};
     float startY{};
     float currentX{};
@@ -394,7 +403,7 @@ void ParsePathString(const std::string& pathString, Path& p)
     char lastCommand = 'm';
     char prev = 'm';
     // First segment must be a moveTo
-    if (!SkipOptWsp(pos, end) || (*pos != 'm' && *pos != 'M'))
+    if (!SkipOptWsp(pos, end) || !IsMoveCmd(*pos))
         return;
 
     while (pos < end)
@@ -403,8 +412,14 @@ void ParsePathString(const std::string& pathString, Path& p)
             return;
         if (!isDigit(*pos) && *pos != ',' && *pos != '-' && *pos != '.')
             prev = *pos++;
-        else if (prev == 'z' || prev == 'Z')
+        else if (IsCloseCmd(prev))
             break;
+        // Do not close a path if we do not have one yet.
+        if (IsCloseCmd(lastCommand) && IsCloseCmd(prev))
+            continue;
+        // A previous subpath was closed. Move to last current position.
+        if (!IsMoveCmd(prev) && IsCloseCmd(lastCommand))
+            p.MoveTo(currentX, currentX);
         switch (prev)
         {
         case 'M':
@@ -415,13 +430,8 @@ void ParsePathString(const std::string& pathString, Path& p)
             prevControlY = currentY;
             prev = 'L'; // https://www.w3.org/TR/SVG/paths.html#PathDataMovetoCommands
 
-            if (!startSet)
-            {
-                startSet = true;
-                startX = currentX;
-                startY = currentY;
-            }
-
+            startX = currentX;
+            startY = currentY;
             break;
         case 'm':
         {
@@ -436,26 +446,16 @@ void ParsePathString(const std::string& pathString, Path& p)
             prevControlY = currentY;
             prev = 'l'; // https://www.w3.org/TR/SVG/paths.html#PathDataMovetoCommands
 
-            if (!startSet)
-            {
-                startSet = true;
-                startX = currentX;
-                startY = currentY;
-            }
-
+            startX = currentX;
+            startY = currentY;
             break;
         }
         case 'Z':
         case 'z':
             p.ClosePath();
 
-            if (startSet)
-            {
-                startSet = false;
-                currentX = startX;
-                currentY = startY;
-            }
-
+            currentX = startX;
+            currentY = startY;
             break;
         case 'L':
             if (!ParseCoordinatePair(pos, end, currentX, currentY))
