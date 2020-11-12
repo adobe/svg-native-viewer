@@ -1,18 +1,20 @@
 [group transform: matrix(1,0,0,1,0,0)
     [group
-        [path Rect(0,180,150,10)
-            fill: {hasFill: true winding: nonzero paint: {
-                linearGradient: x1: 0 y1: 0 x2: 150 y2: 0 method: pad stops: {
-                    offset: 0 rgba(0,0,1,1)
-                    offset: 1 rgba(0,1,0,1)
-                }}}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path Rect(0,180,150,10)
-            fill: {hasFill: true winding: nonzero paint: {
-                radialGradient: cx: 75 cy: 125 fx: 75 fy: 125 r: 146 method: pad stops: {
-                    offset: 0 rgba(0,0,1,1)
-                    offset: 1 rgba(0,1,0,1)
-                }}}
-            stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        [group
+            [path Rect(0,180,150,10)
+                fill: {hasFill: true winding: nonzero paint: {
+                    linearGradient: x1: 0 y1: 0 x2: 150 y2: 0 method: pad stops: {
+                        offset: 0 rgba(0,0,1,1)
+                        offset: 1 rgba(0,1,0,1)
+                    }}}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(0,180,150,10)
+                fill: {hasFill: true winding: nonzero paint: {
+                    radialGradient: cx: 75 cy: 125 fx: 75 fy: 125 r: 146 method: pad stops: {
+                        offset: 0 rgba(0,0,1,1)
+                        offset: 1 rgba(0,1,0,1)
+                    }}}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+        ]
     ]
 ]

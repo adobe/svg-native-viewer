@@ -230,6 +230,8 @@ private:
     void AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString);
 
 private:
+    const xml::XMLNode* mRootNode{};
+
     // All stroke and fill CSS properties are so called
     // inherited CSS properties. Ancestors can define the
     // stroke properties for descendants. Descendants override

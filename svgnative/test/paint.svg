@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" color="blue">
     <rect x="0" y="0" width="20" height="20" fill="#008000" stroke="#008000"/>
     <rect x="20" y="0" width="20" height="20" fill="     #008000" stroke="     #008000"/>
     <rect x="40" y="0" width="20" height="20" fill="     #008000
@@ -62,6 +62,9 @@
     <rect x="40" y="80" width="20" height="20" fill="var(--test-green, #F00)" stroke="var(--test-green, #F00)"/>
     <rect x="60" y="80" width="20" height="20" fill="  var(   --test-green
         , #F00  )" stroke="var(--test-green, #F00)"/>
+
+    <!-- Inheritance from SVG root -->
+    <rect x="100" y="80" width="20" height="20" fill="currentColor" stroke="currentColor"/>
 
     <!-- var(): testing fallback colors -->
     <rect x="80" y="80" width="20" height="20" fill="var(--missingName, green)" stroke="var(--missingName, green)"/>

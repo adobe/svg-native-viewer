@@ -1,76 +1,78 @@
 [group transform: matrix(1,0,0,1,0,0)
     [group
-        [path M0,5 L200,5
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 20 20 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,10 L200,10
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,15 L200,15
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 20 0 0 0 10 20 0 0 0 10 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,20 L200,20
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 0.99 0.99 0.99 0.99 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,25 L200,25
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 5 1.33 8 5 1.33 8 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,30 L200,30
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 7.56 7.56 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,35 L200,35
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 9.9 20 10 0.9 0.9 9.9 20 10 0.9 0.9 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,40 L200,40
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 14.1 28.3 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,100 L200,100
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,105 L200,105
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,110 L200,110
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,115 L200,115
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
-        [path M0,130 L200,130
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 5 paint: rgba(0,0,0,1)}]
-        [path M0,135 L200,135
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 5 paint: rgba(0,0,0,1)}]
-        [path M0,140 L200,140
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 6.67 paint: rgba(0,0,0,1)}]
-        [path M0,145 L200,145
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 16 paint: rgba(0,0,0,1)}]
-        [path M0,150 L200,150
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 41.6 paint: rgba(0,0,0,1)}]
-        [path M0,155 L200,155
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 41.6 paint: rgba(0,0,0,1)}]
-        [path M0,160 L200,160
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 14.1 paint: rgba(0,0,0,1)}]
-        [path M0,165 L200,165
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 90 paint: rgba(0,0,0,1)}]
-        [path M0,170 L200,170
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 90 paint: rgba(0,0,0,1)}]
-        [path M0,175 L200,175
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 2 paint: rgba(0,0,0,1)}]
-        [path M0,180 L200,180
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: -300 paint: rgba(0,0,0,1)}]
-        [path M0,185 L200,185
-            fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
-            stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: -3 paint: rgba(0,0,0,1)}]
+        [group
+            [path M0,5 L200,5
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 20 20 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,10 L200,10
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,15 L200,15
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 20 0 0 0 10 20 0 0 0 10 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,20 L200,20
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 0.99 0.99 0.99 0.99 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,25 L200,25
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 5 1.33 8 5 1.33 8 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,30 L200,30
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 7.56 7.56 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,35 L200,35
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 9.9 20 10 0.9 0.9 9.9 20 10 0.9 0.9 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,40 L200,40
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 14.1 28.3 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,100 L200,100
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,105 L200,105
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,110 L200,110
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,115 L200,115
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,130 L200,130
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 5 paint: rgba(0,0,0,1)}]
+            [path M0,135 L200,135
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 5 paint: rgba(0,0,0,1)}]
+            [path M0,140 L200,140
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 6.67 paint: rgba(0,0,0,1)}]
+            [path M0,145 L200,145
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 16 paint: rgba(0,0,0,1)}]
+            [path M0,150 L200,150
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 41.6 paint: rgba(0,0,0,1)}]
+            [path M0,155 L200,155
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 41.6 paint: rgba(0,0,0,1)}]
+            [path M0,160 L200,160
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 14.1 paint: rgba(0,0,0,1)}]
+            [path M0,165 L200,165
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 90 paint: rgba(0,0,0,1)}]
+            [path M0,170 L200,170
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 90 paint: rgba(0,0,0,1)}]
+            [path M0,175 L200,175
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 2 paint: rgba(0,0,0,1)}]
+            [path M0,180 L200,180
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: -300 paint: rgba(0,0,0,1)}]
+            [path M0,185 L200,185
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 1 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: -3 paint: rgba(0,0,0,1)}]
+        ]
     ]
 ]

@@ -73,6 +73,7 @@ void SVGDocumentImpl::TraverseSVGTree(XMLNode* rootNode)
 {
     if (!rootNode || strcmp(rootNode->GetName(), kSvgElem))
         return;
+    mRootNode = rootNode;
 
     auto viewBoxAttr = rootNode->GetAttribute(kViewBoxAttr);
     if (!viewBoxAttr.found)
@@ -95,11 +96,12 @@ void SVGDocumentImpl::TraverseSVGTree(XMLNode* rootNode)
         mTitle = dataNameAttr.value;
 #endif
 
-    ParseChildren(rootNode);
+    ParseChild(rootNode);
 
     // Clear all temporary sets
     mGradients.clear();
     mClippingPaths.clear();
+    mRootNode = nullptr;
 }
 
 float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
@@ -169,7 +171,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
     // Look at all elements that are no shapes.
     const auto elementName = child->GetName();
-    if (!strcmp(elementName, kGElem))
+    if (!strcmp(elementName, kGElem) || (!strcmp(elementName, kSvgElem) && child == mRootNode))
     {
         mFillStyleStack.push(fillStyle);
         mStrokeStyleStack.push(strokeStyle);
@@ -565,7 +567,7 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     }
 
     auto transformAttr = node->GetAttribute(kTransformAttr);
-    if (transformAttr.found)
+    if (transformAttr.found && node != mRootNode) // Ignore transforms on root SVG node
     {
         SVG_ASSERT(mRenderer != nullptr);
         graphicStyle.transform = mRenderer->CreateTransform();
