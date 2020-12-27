@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="150" height="250" viewBox="0 0 150 250">
+    <!-- symbols are not officially support and the implementation will get removed eventually -->
+    <symbol viewBox="10 20 30" id="invalid-viewBox">
+        <rect width="20" height="20" />
+    </symbol>
+    <use xlink:href="#invalid-viewBox" />
+</svg>

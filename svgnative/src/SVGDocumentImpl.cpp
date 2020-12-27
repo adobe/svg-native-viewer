@@ -344,14 +344,11 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             std::vector<float> numberList;
             if (SVGStringParser::ParseListOfNumbers(attr.value, numberList) && numberList.size() == 4)
                 graphicStyle.transform = mRenderer->CreateTransform(1, 0, 0, 1, -numberList[0], -numberList[1]);
-            {
-                mViewBox = {{numberList[0], numberList[1], numberList[2], numberList[3]}};
-            }
         }
 
         auto group = std::make_shared<Group>(graphicStyle, classNames);
-        mGroupStack.push(group);
         AddChildToCurrentGroup(group, std::move(idString));
+        mGroupStack.push(group);
 
         ParseChildren(child);
 
