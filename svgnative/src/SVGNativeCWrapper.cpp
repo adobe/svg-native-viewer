@@ -155,7 +155,8 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
 #ifdef USE_CAIRO
         if (auto nativeRenderer = static_cast<cairo_t*>(renderer))
         {
-            std::dynamic_pointer_cast<SVGNative::CairoSVGRenderer>(_sn->mRenderer)->SetCairo(nativeRenderer);
+            if (auto snRenderer = std::dynamic_pointer_cast<SVGNative::CairoSVGRenderer>(_sn->mRenderer))
+                snRenderer->SetCairo(nativeRenderer);
             return;
         }
 #endif
@@ -166,7 +167,8 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
 #ifdef USE_CG
         if (auto nativeRenderer = static_cast<CGContextRef>(renderer))
         {
-            std::dynamic_pointer_cast<SVGNative::CGSVGRenderer>(_sn->mRenderer)->SetGraphicsContext(nativeRenderer);
+            if (auto snRenderer = std::dynamic_pointer_cast<SVGNative::CGSVGRenderer>(_sn->mRenderer))
+                snRenderer->SetGraphicsContext(nativeRenderer);
             return;
         }
 #endif
@@ -177,7 +179,8 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
 #ifdef USE_GDIPLUS
         if (auto nativeRenderer = static_cast<Gdiplus::Graphics*>(renderer))
         {
-            std::dynamic_pointer_cast<SVGNative::GDIPlusSVGRenderer>(_sn->mRenderer)->SetGraphicsContext(nativeRenderer);
+            if (auto snRenderer = std::dynamic_pointer_cast<SVGNative::GDIPlusSVGRenderer>(_sn->mRenderer))
+                snRenderer->SetGraphicsContext(nativeRenderer);
             return;
         }
 #endif
@@ -188,7 +191,8 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
 #ifdef USE_SKIA
         if (auto nativeRenderer = static_cast<SkCanvas*>(renderer))
         {
-            std::dynamic_pointer_cast<SVGNative::SkiaSVGRenderer>(_sn->mRenderer)->SetSkCanvas(nativeRenderer);
+            if (auto snRenderer = std::dynamic_pointer_cast<SVGNative::SkiaSVGRenderer>(_sn->mRenderer))
+                snRenderer->SetSkCanvas(nativeRenderer);
             return;
         }
 #endif
@@ -203,7 +207,7 @@ void svg_native_set_renderer(svg_native_t* sn, svg_native_renderer_t* renderer)
 float svg_native_canvas_width(svg_native_t* sn)
 {
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
-    if (!_sn)
+    if (!_sn || !_sn->mDocument)
         return 0;
     return _sn->mDocument->Width();
 }
@@ -211,7 +215,7 @@ float svg_native_canvas_width(svg_native_t* sn)
 float svg_native_canvas_height(svg_native_t* sn)
 {
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
-    if (!_sn)
+    if (!_sn || !_sn->mDocument)
         return 0;
     return _sn->mDocument->Height();
 }
@@ -219,7 +223,7 @@ float svg_native_canvas_height(svg_native_t* sn)
 void svg_native_render(svg_native_t* sn)
 {
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
-    if (!_sn)
+    if (!_sn || !_sn->mDocument)
         return;
     
     if (_sn->mColorMap)
@@ -231,7 +235,7 @@ void svg_native_render(svg_native_t* sn)
 void svg_native_render_size(svg_native_t* sn, float width, float height)
 {
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
-    if (!_sn)
+    if (!_sn || !_sn->mDocument)
         return;
     
     if (_sn->mColorMap)
