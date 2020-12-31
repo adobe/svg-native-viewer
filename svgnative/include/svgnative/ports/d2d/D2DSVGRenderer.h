@@ -38,7 +38,7 @@ public:
     ID2D1PathGeometry* GetGraphicsPath();
 
 private:
-    void AddArc(float x, float y, float dx, float dy, float sweepAngle);
+    void AddArc(float x, float y, float dx, float dy);
     void ClosePathSink();
 
 private:

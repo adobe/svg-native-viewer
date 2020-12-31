@@ -29,7 +29,7 @@ using namespace SVGNative;
 
 static HWND hwndMain = NULL;
 
-static const std::string gSVGString = "<svg viewBox=\"0 0 200 200\"><rect width=\"20\" height=\"20\" fill=\"yellow\"/><g transform=\"translate(20, 20) scale(2)\" opacity=\"0.5\"><rect transform=\"rotate(15)\" width=\"20\" height=\"20\" fill=\"green\"/></g></svg>";
+static const std::string gSVGString = "<svg viewBox=\"0 0 200 200\"><rect width=\"20\" height=\"20\" fill=\"yellow\"/><g transform=\"translate(20, 20) scale(2)\" opacity=\"0.5\"><rect transform=\"rotate(15)\" width=\"20\" height=\"20\" fill=\"green\"/></g><rect x=\"60\" y=\"60\" width=\"140\" height=\"80\" rx=\"40\" ry=\"30\" fill=\"blue\"/><ellipse cx=\"140\" cy=\"100\" rx=\"40\" ry=\"20\" fill=\"purple\"/></svg>";
 
 static void
 MainWinPaintToCanvas(HWND hwnd)

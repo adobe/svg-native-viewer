@@ -47,15 +47,14 @@ D2DSVGPath::~D2DSVGPath()
     mPath->Release();
 }
 
-void D2DSVGPath::AddArc(float x, float y, float dx, float dy, float sweepAngle)
+void D2DSVGPath::AddArc(float x, float y, float rx, float ry)
 {
     SVG_ASSERT(mSink);
-
     mSink->AddArc(
         D2D1::ArcSegment(
             D2D1::Point2F(x, y),
-            D2D1::SizeF(dx, dy),
-            sweepAngle,
+            D2D1::SizeF(rx, ry),
+            0,
             D2D1_SWEEP_DIRECTION_CLOCKWISE,
             D2D1_ARC_SIZE_SMALL
         )
@@ -89,25 +88,23 @@ void D2DSVGPath::Rect(float x, float y, float w, float h)
 
 void D2DSVGPath::RoundedRect(float x, float y, float w, float h, float rx, float ry)
 {
-    const float dx = rx + rx;
-    const float dy = ry + ry;
-
     MoveTo(x + rx, y);
-    LineTo(x + w - dx, y);
-    AddArc(x + w - dx, y, dx, dy, 90);
-    LineTo(x + w, y + h - dy);
-    AddArc(x + w - dx, y + h - dy, dx, dy, 90);
+    LineTo(x + w - rx, y);
+    AddArc(x + w, y + ry, rx, ry);
+    LineTo(x + w, y + h - ry);
+    AddArc(x + w - rx, y + h, rx, ry);
     LineTo(x + rx, y + h);
-    AddArc(x, y + h - dy, dx, dy, 90);
+    AddArc(x, y + h - ry, rx, ry);
     LineTo(x, y + ry);
-    AddArc(x, y, dx, dy, 90);
+    AddArc(x + rx, y, rx, ry);
     ClosePath();
 }
 
 void D2DSVGPath::Ellipse(float cx, float cy, float rx, float ry)
 {
-    MoveTo(cx - rx, cy -ry);
-    AddArc(cx, cy, rx, ry, 360);
+    MoveTo(cx, cy - ry);
+    AddArc(cx, cy + ry, rx, ry);
+    AddArc(cx, cy - ry, rx, ry);
     ClosePath();
 }
 
@@ -465,20 +462,6 @@ void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphi
 
 void D2DSVGRenderer::DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea)
 {
-    // const D2DSVGImageData& gdiPlusImage(dynamic_cast<const D2DSVGImageData&>(image));
-    // if (gdiPlusImage.GetImage())
-    // {
-    //     Save(graphicStyle);
-
-    //     if (clipArea.width < fillArea.width || clipArea.height < fillArea.height)
-    //     {
-    //         mContext->SetClip(Gdiplus::RectF(clipArea.x, clipArea.y, clipArea.width, clipArea.height));
-    //     }
-
-    //     mContext->DrawImage(gdiPlusImage.GetImage().get(), Gdiplus::RectF(fillArea.x, 0, fillArea.width, fillArea.height));
-
-    //     Restore();
-    // }
 }
 
 } // namespace SVGNative
