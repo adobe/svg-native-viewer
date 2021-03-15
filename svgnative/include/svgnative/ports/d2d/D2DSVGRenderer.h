@@ -14,15 +14,16 @@ governing permissions and limitations under the License.
 #define SVGViewer_D2DSVGRenderer_h
 
 #include "svgnative/SVGRenderer.h"
-#include <D2d1.h>
+#include <d2d1.h>
 #include <stack>
+#include <atlbase.h> // CComPtr
 
 namespace SVGNative
 {
 class D2DSVGPath final : public Path
 {
 public:
-    D2DSVGPath(ID2D1Factory*);
+    D2DSVGPath(CComPtr<ID2D1Factory>);
     ~D2DSVGPath();
 
     void Rect(float x, float y, float width, float height) override;
@@ -35,15 +36,15 @@ public:
     void CurveToV(float x2, float y2, float x3, float y3) override;
     void ClosePath() override;
 
-    ID2D1PathGeometry* GetGraphicsPath();
+    CComPtr<ID2D1PathGeometry> GetGraphicsPath();
 
 private:
     void AddArc(float x, float y, float dx, float dy);
     void ClosePathSink();
 
 private:
-    ID2D1PathGeometry* mPath{};
-    ID2D1GeometrySink* mSink{};
+    CComPtr<ID2D1PathGeometry> mPath;
+    CComPtr<ID2D1GeometrySink> mSink;
     bool mHasOpenFigure{ false };
     float mCurrentX{};
     float mCurrentY{};
@@ -81,7 +82,7 @@ class SVG_IMP_EXP D2DSVGRenderer final : public SVGRenderer
 public:
     D2DSVGRenderer();
 
-    virtual ~D2DSVGRenderer() 
+    virtual ~D2DSVGRenderer()
     { 
     }
 
@@ -100,20 +101,20 @@ public:
 
     void SetGraphicsContext(ID2D1Factory* inPDirect2dFactory, ID2D1RenderTarget* renderTarget)
     {
-        mPDirect2dFactory = inPDirect2dFactory;
+        mD2DFactory = inPDirect2dFactory;
         mContext = renderTarget;
     }
 
     void ReleaseGraphicsContext()
     {
-        mPDirect2dFactory = nullptr;
+        mD2DFactory.Release();
     }
 
 private:
-    ID2D1Brush* D2DSVGRenderer::CreateBrush(const Paint& paint);
+    CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint);
 
-    ID2D1RenderTarget* mContext{};
-    ID2D1Factory* mPDirect2dFactory{};
+    CComPtr<ID2D1RenderTarget> mContext;
+    CComPtr<ID2D1Factory> mD2DFactory;
 
     std::stack<D2D1_MATRIX_3X2_F> mContextTransform;
 };
