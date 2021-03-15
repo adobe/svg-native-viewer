@@ -350,12 +350,13 @@ inline D2D1_LINE_JOIN D2DLineJoin(LineJoin lineJoin)
 CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint)
 {
     SVG_ASSERT(mContext);
+    CComPtr<ID2D1Brush> brush;
     if (paint.type() == typeid(Color))
     {
         const auto& color = boost::get<Color>(paint);
-        CComPtr<ID2D1SolidColorBrush> solidColorBrush{};
+        CComPtr<ID2D1SolidColorBrush> solidColorBrush;
         mContext->CreateSolidColorBrush({color[0], color[1], color[2], color[3]}, &solidColorBrush);
-        return solidColorBrush;
+        solidColorBrush->QueryInterface(&brush);
     }
     else if (paint.type() == typeid(Gradient))
     {
@@ -369,13 +370,13 @@ CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint)
         CComPtr<ID2D1GradientStopCollection> gradientStopCollection;
         mContext->CreateGradientStopCollection(
             colorsStops.data(),
-            colorsStops.size(),
+            static_cast<UINT32>(colorsStops.size()),
             D2D1_GAMMA_2_2,
             D2DSpreadMethod(gradient.method),
             &gradientStopCollection);
         if (gradient.type == GradientType::kLinearGradient)
         {
-            ID2D1LinearGradientBrush* linearGradientBrush{};
+            CComPtr<ID2D1LinearGradientBrush> linearGradientBrush;
             mContext->CreateLinearGradientBrush(
                 D2D1::LinearGradientBrushProperties(
                     D2D1::Point2F(gradient.x1, gradient.y1),
@@ -384,7 +385,7 @@ CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint)
                 &linearGradientBrush);
             if (gradient.transform)
                 linearGradientBrush->SetTransform(std::static_pointer_cast<D2DSVGTransform>(gradient.transform)->GetMatrix());
-            return linearGradientBrush;
+            linearGradientBrush->QueryInterface(&brush);
         }
         else
         {
@@ -399,14 +400,14 @@ CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint)
                 &radialGradientBrush);
             if (gradient.transform)
                 radialGradientBrush->SetTransform(std::static_pointer_cast<D2DSVGTransform>(gradient.transform)->GetMatrix());
-            return radialGradientBrush;
+            radialGradientBrush->QueryInterface(&brush);
         }
     }
     else
     {
         SVG_ASSERT_MSG(false, "Unknown paint type");
     }
-    return nullptr;
+    return brush;
 }
 
 void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
@@ -442,7 +443,7 @@ void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphi
                 D2D1_DASH_STYLE_CUSTOM,
                 strokeStyle.dashOffset),
             strokeStyle.dashArray.data(),
-            strokeStyle.dashArray.size(),
+            static_cast<UINT32>(strokeStyle.dashArray.size()),
             &d2dStrokeStyle);
         
         mContext->DrawGeometry(
