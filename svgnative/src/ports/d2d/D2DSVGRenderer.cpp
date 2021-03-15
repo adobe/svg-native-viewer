@@ -416,7 +416,7 @@ void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphi
 
     Save(graphicStyle);
 
-    const auto constPath = dynamic_cast<const D2DSVGPath&>(renderPath);
+    const auto& constPath = dynamic_cast<const D2DSVGPath&>(renderPath);
     auto path = const_cast<D2DSVGPath&>(constPath).GetGraphicsPath();
     if (fillStyle.hasFill)
     {
