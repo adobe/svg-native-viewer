@@ -25,7 +25,7 @@ template <class T> void SafeRelease(T** ppT)
 	if (*ppT)
 	{
 		(*ppT)->Release();
-		*ppT = NULL;
+		*ppT = nullptr;
 	}
 }
 
@@ -38,10 +38,10 @@ using namespace SVGNative;
 
 class MainWindow : public BaseWindow<MainWindow>
 {
-	ID2D1Factory* pFactory;
-	ID2D1HwndRenderTarget* pRenderTarget;
-	ID2D1SolidColorBrush* pBrush;
-	D2D1_ELLIPSE            ellipse;
+	ID2D1Factory* pFactory{};
+	ID2D1HwndRenderTarget* pRenderTarget{};
+
+	std::shared_ptr<SVGNative::SVGDocument> pSVGDocument;
 
 	void    CalculateLayout();
 	HRESULT CreateGraphicsResources();
@@ -51,9 +51,7 @@ class MainWindow : public BaseWindow<MainWindow>
 
 public:
 
-	MainWindow() : pFactory(NULL), pRenderTarget(NULL), pBrush(NULL)
-	{
-	}
+	MainWindow() = default;
 
 	PCWSTR  ClassName() const { return L"SVGRenderer Window Class"; }
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -63,20 +61,16 @@ public:
 
 void MainWindow::CalculateLayout()
 {
-	if (pRenderTarget != NULL)
+	if (pRenderTarget)
 	{
-		D2D1_SIZE_F size = pRenderTarget->GetSize();
-		const float x = size.width / 2;
-		const float y = size.height / 2;
-		const float radius = min(x, y);
-		ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
+		// Layout changes (size) for the SVGRenderer are applied in OnPaint()
 	}
 }
 
 HRESULT MainWindow::CreateGraphicsResources()
 {
 	HRESULT hr = S_OK;
-	if (pRenderTarget == NULL)
+	if (!pRenderTarget)
 	{
 		RECT rc;
 		GetClientRect(m_hwnd, &rc);
@@ -90,13 +84,19 @@ HRESULT MainWindow::CreateGraphicsResources()
 
 		if (SUCCEEDED(hr))
 		{
-			const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 0);
-			hr = pRenderTarget->CreateSolidColorBrush(color, &pBrush);
-
-			if (SUCCEEDED(hr))
+			if (pSVGDocument)
 			{
-				CalculateLayout();
+				auto renderer = static_cast<D2DSVGRenderer*>(pSVGDocument->Renderer());
+				renderer->SetGraphicsContext(pWICFactory, pFactory, pRenderTarget);
 			}
+			else
+			{
+				auto renderer = std::shared_ptr<D2DSVGRenderer>(new D2DSVGRenderer);
+				renderer->SetGraphicsContext(pWICFactory, pFactory, pRenderTarget);
+				pSVGDocument = SVGDocument::CreateSVGDocument(gSVGString.c_str(), renderer);
+			}
+
+			CalculateLayout();
 		}
 	}
 	return hr;
@@ -105,7 +105,6 @@ HRESULT MainWindow::CreateGraphicsResources()
 void MainWindow::DiscardGraphicsResources()
 {
 	SafeRelease(&pRenderTarget);
-	SafeRelease(&pBrush);
 }
 
 void MainWindow::OnPaint()
@@ -118,14 +117,8 @@ void MainWindow::OnPaint()
 
 		pRenderTarget->BeginDraw();
 
-		auto renderer = std::shared_ptr<D2DSVGRenderer>(new D2DSVGRenderer);
-		renderer->SetGraphicsContext(pFactory, pRenderTarget);
-
-		auto svgDocument = SVGDocument::CreateSVGDocument(gSVGString.c_str(), renderer);
-		if (svgDocument)
-		{
-			svgDocument->Render();
-		}
+		D2D1_SIZE_F size = pRenderTarget->GetSize();
+		pSVGDocument->Render(size.width, size.height);
 
 		hr = pRenderTarget->EndDraw();
 		if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
@@ -138,7 +131,7 @@ void MainWindow::OnPaint()
 
 void MainWindow::Resize()
 {
-	if (pRenderTarget != NULL)
+	if (pRenderTarget)
 	{
 		RECT rc;
 		GetClientRect(m_hwnd, &rc);
