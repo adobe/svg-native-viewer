@@ -18,15 +18,8 @@ governing permissions and limitations under the License.
 #include "base64.h"
 #include <memory>
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 namespace
 {
-float deg2rad(float angle) { return static_cast<float>(M_PI / 180.0 * angle); }
 }
 
 namespace SVGNative
@@ -184,40 +177,27 @@ D2DSVGTransform::D2DSVGTransform(float a, float b, float c, float d, float tx, f
 
 void D2DSVGTransform::Set(float a, float b, float c, float d, float tx, float ty)
 {
-    mTransform.m11 = a;
-    mTransform.m12 = b;
-    mTransform.m21 = c;
-    mTransform.m22 = d;
-    mTransform.dx = tx;
-    mTransform.dy = ty;
+    mTransform = D2D1::Matrix3x2F{ a, b, c, d, tx, ty };
 }
 
 void D2DSVGTransform::Rotate(float r)
 {
-    r = deg2rad(r);
-    float cosAngle = cos(r);
-    float sinAngle = sin(r);
-
-    Concat(cosAngle, sinAngle, -sinAngle, cosAngle, 0, 0);
+    mTransform = D2D1::Matrix3x2F::Rotation(r) * mTransform;
 }
 
 void D2DSVGTransform::Translate(float tx, float ty)
 {
-    mTransform.dx += tx * mTransform.m11 + ty * mTransform.m21;
-    mTransform.dy += tx * mTransform.m12 + ty * mTransform.m22;
+    mTransform = D2D1::Matrix3x2F::Translation(tx, ty) * mTransform;
 }
 
 void D2DSVGTransform::Scale(float sx, float sy)
 {
-    mTransform.m11 *= sx;
-    mTransform.m12 *= sx;
-    mTransform.m21 *= sy;
-    mTransform.m22 *= sy;
+    mTransform = D2D1::Matrix3x2F::Scale(sx, sy) * mTransform;
 }
 
 void D2DSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
 {
-    mTransform = mTransform * D2D1::Matrix3x2F{a, b, c, d, tx, ty};
+    mTransform = D2D1::Matrix3x2F{a, b, c, d, tx, ty} * mTransform;
 }
 
 const D2D1::Matrix3x2F& D2DSVGTransform::GetMatrix() const
@@ -287,21 +267,20 @@ void D2DSVGRenderer::Save(const GraphicStyle& graphicStyle)
         layer);
 
     // FIXME: May need to get applied before creating the layer to apply to clipping path.
-    D2D1_MATRIX_3X2_F transform = D2D1::IdentityMatrix();
+    D2D1_MATRIX_3X2_F transform;
+    mContext->GetTransform(&transform);
+    mContextTransform.push(transform);
     if (graphicStyle.transform)
     {
-        transform = dynamic_cast<D2DSVGTransform*>(graphicStyle.transform.get())->GetMatrix();
-        if (!mContextTransform.empty())
-            transform = transform * mContextTransform.top();
-        mContext->SetTransform(transform);
+        D2D1_MATRIX_3X2_F gsTransform = dynamic_cast<D2DSVGTransform*>(graphicStyle.transform.get())->GetMatrix();
+        mContext->SetTransform(gsTransform * transform);
     }
-    mContextTransform.push(transform);
 }
 
 void D2DSVGRenderer::Restore()
 {
+    mContext->SetTransform(mContextTransform.top());
     mContextTransform.pop();
-    mContext->SetTransform(mContextTransform.empty() ? D2D1::IdentityMatrix() : mContextTransform.top());
     mContext->PopLayer();
 }
 
