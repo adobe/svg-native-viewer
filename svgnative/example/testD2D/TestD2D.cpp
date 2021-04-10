@@ -20,15 +20,6 @@ governing permissions and limitations under the License.
 #include "svgnative/SVGDocument.h"
 #include "svgnative/ports/d2d/D2DSVGRenderer.h"
 
-template <class T> void SafeRelease(T** ppT)
-{
-    if (*ppT)
-    {
-        (*ppT)->Release();
-        *ppT = nullptr;
-    }
-}
-
 namespace
 {
     const std::string gSVGString = R"SVG(<svg viewBox="0 0 200 200"><rect width="20" height="20" fill="yellow"/><g transform="translate(20, 20) scale(2)" opacity="0.5"><rect transform="rotate(15)" width="20" height="20" fill="green"/></g><rect x="60" y="60" width="140" height="80" rx="40" ry="30" fill="blue"/><ellipse cx="140" cy="100" rx="40" ry="20" fill="purple"/></svg>)SVG";
@@ -38,8 +29,10 @@ using namespace SVGNative;
 
 class MainWindow : public BaseWindow<MainWindow>
 {
-    ID2D1Factory* pFactory{};
-    ID2D1HwndRenderTarget* pRenderTarget{};
+    CComPtr<ID2D1Factory> pFactory;
+    CComPtr<ID2D1HwndRenderTarget> pRenderTarget;
+
+    CComPtr<ID2D1SolidColorBrush> pBrush;
 
     std::shared_ptr<SVGNative::SVGDocument> pSVGDocument;
 
@@ -84,15 +77,20 @@ HRESULT MainWindow::CreateGraphicsResources()
 
         if (SUCCEEDED(hr))
         {
+            pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkGray), &pBrush);
+        }
+
+        if (SUCCEEDED(hr))
+        {
             if (pSVGDocument)
             {
                 auto renderer = static_cast<D2DSVGRenderer*>(pSVGDocument->Renderer());
-                renderer->SetGraphicsContext(pWICFactory, pFactory, pRenderTarget);
+                renderer->SetGraphicsContext(pFactory, pRenderTarget);
             }
             else
             {
                 auto renderer = std::shared_ptr<D2DSVGRenderer>(new D2DSVGRenderer);
-                renderer->SetGraphicsContext(pWICFactory, pFactory, pRenderTarget);
+                renderer->SetGraphicsContext(pFactory, pRenderTarget);
                 pSVGDocument = SVGDocument::CreateSVGDocument(gSVGString.c_str(), renderer);
             }
 
@@ -104,7 +102,8 @@ HRESULT MainWindow::CreateGraphicsResources()
 
 void MainWindow::DiscardGraphicsResources()
 {
-    SafeRelease(&pRenderTarget);
+    pBrush.Release();
+    pRenderTarget.Release();
 }
 
 void MainWindow::OnPaint()
@@ -116,9 +115,18 @@ void MainWindow::OnPaint()
         BeginPaint(m_hwnd, &ps);
 
         pRenderTarget->BeginDraw();
+        pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+        pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::LightGray, 0.0f));
 
         D2D1_SIZE_F size = pRenderTarget->GetSize();
-        pSVGDocument->Render(size.width, size.height);
+        D2D1_RECT_F clientRect = D2D1::RectF(0.0f, 0.0f, size.width, size.height);
+        pRenderTarget->DrawRectangle(clientRect, pBrush);
+
+        D2D1_POINT_2F inset = D2D1::Point2F(15.0f, 15.0f);
+        D2D1_RECT_F rect = D2D1::RectF(inset.x, inset.y, size.width - inset.x, size.height - inset.y);
+        pRenderTarget->DrawRectangle(rect, pBrush);
+        pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(inset.x, inset.y));
+        pSVGDocument->Render(size.width - 2 * inset.x, size.height - 2 * inset.y);
 
         hr = pRenderTarget->EndDraw();
         if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
@@ -183,7 +191,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
     case WM_DESTROY:
         DiscardGraphicsResources();
-        SafeRelease(&pFactory);
+        pFactory.Release();
         PostQuitMessage(0);
         return 0;
 
