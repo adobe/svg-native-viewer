@@ -18,15 +18,8 @@ governing permissions and limitations under the License.
 #include "base64.h"
 #include <memory>
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 namespace
 {
-float deg2rad(float angle) { return static_cast<float>(M_PI / 180.0 * angle); }
 }
 
 namespace SVGNative
@@ -34,9 +27,9 @@ namespace SVGNative
 
 /******************************************************************************/
 
-D2DSVGPath::D2DSVGPath(ID2D1Factory* inPDirect2dFactory)
+D2DSVGPath::D2DSVGPath(CComPtr<ID2D1Factory> inD2DFactory)
 {
-    inPDirect2dFactory->CreatePathGeometry(&mPath);
+    inD2DFactory->CreatePathGeometry(&mPath);
     SVG_ASSERT(mPath);
 }
 
@@ -44,7 +37,7 @@ D2DSVGPath::~D2DSVGPath()
 {
     SVG_ASSERT(mPath);
     ClosePathSink();
-    mPath->Release();
+    mPath.Release();
 }
 
 void D2DSVGPath::AddArc(float x, float y, float rx, float ry)
@@ -72,8 +65,7 @@ void D2DSVGPath::ClosePathSink()
     if (mSink)
     {
         mSink->Close();
-        mSink->Release();
-        mSink = nullptr;
+        mSink.Release();
     }
 }
 
@@ -167,11 +159,10 @@ void D2DSVGPath::ClosePath()
     mSink->EndFigure(D2D1_FIGURE_END_CLOSED);
     mHasOpenFigure = false;
     mSink->Close();
-    mSink->Release();
-    mSink = nullptr;
+    mSink.Release();
 }
 
-ID2D1PathGeometry* D2DSVGPath::GetGraphicsPath()
+CComPtr<ID2D1PathGeometry> D2DSVGPath::GetGraphicsPath()
 {
     ClosePathSink();
     return mPath;
@@ -186,40 +177,27 @@ D2DSVGTransform::D2DSVGTransform(float a, float b, float c, float d, float tx, f
 
 void D2DSVGTransform::Set(float a, float b, float c, float d, float tx, float ty)
 {
-    mTransform.m11 = a;
-    mTransform.m12 = b;
-    mTransform.m21 = c;
-    mTransform.m22 = d;
-    mTransform.dx = tx;
-    mTransform.dy = ty;
+    mTransform = D2D1::Matrix3x2F{ a, b, c, d, tx, ty };
 }
 
 void D2DSVGTransform::Rotate(float r)
 {
-    r = deg2rad(r);
-    float cosAngle = cos(r);
-    float sinAngle = sin(r);
-
-    Concat(cosAngle, sinAngle, -sinAngle, cosAngle, 0, 0);
+    mTransform = D2D1::Matrix3x2F::Rotation(r) * mTransform;
 }
 
 void D2DSVGTransform::Translate(float tx, float ty)
 {
-    mTransform.dx += tx * mTransform.m11 + ty * mTransform.m21;
-    mTransform.dy += tx * mTransform.m12 + ty * mTransform.m22;
+    mTransform = D2D1::Matrix3x2F::Translation(tx, ty) * mTransform;
 }
 
 void D2DSVGTransform::Scale(float sx, float sy)
 {
-    mTransform.m11 *= sx;
-    mTransform.m12 *= sx;
-    mTransform.m21 *= sy;
-    mTransform.m22 *= sy;
+    mTransform = D2D1::Matrix3x2F::Scale(sx, sy) * mTransform;
 }
 
 void D2DSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
 {
-    mTransform = mTransform * D2D1::Matrix3x2F{a, b, c, d, tx, ty};
+    mTransform = D2D1::Matrix3x2F{a, b, c, d, tx, ty} * mTransform;
 }
 
 const D2D1::Matrix3x2F& D2DSVGTransform::GetMatrix() const
@@ -256,7 +234,7 @@ std::unique_ptr<ImageData> D2DSVGRenderer::CreateImageData(const std::string& ba
 
 std::unique_ptr<Path> D2DSVGRenderer::CreatePath()
 {
-    return std::unique_ptr<D2DSVGPath>(new D2DSVGPath{mPDirect2dFactory});
+    return std::unique_ptr<D2DSVGPath>(new D2DSVGPath{mD2DFactory});
 }
 
 std::unique_ptr<Transform> D2DSVGRenderer::CreateTransform(float a, float b, float c, float d, float tx, float ty)
@@ -266,7 +244,7 @@ std::unique_ptr<Transform> D2DSVGRenderer::CreateTransform(float a, float b, flo
 
 void D2DSVGRenderer::Save(const GraphicStyle& graphicStyle)
 {
-    ID2D1Geometry* maskPath{};
+    CComPtr<ID2D1Geometry> maskPath;
     D2D1_MATRIX_3X2_F maskTransform = D2D1::IdentityMatrix();
     if (graphicStyle.clippingPath)
     {
@@ -276,7 +254,7 @@ void D2DSVGRenderer::Save(const GraphicStyle& graphicStyle)
         maskPath = const_cast<D2DSVGPath*>(constPath)->GetGraphicsPath();
     }
 
-    ID2D1Layer* layer{};
+    CComPtr<ID2D1Layer> layer;
     mContext->CreateLayer(&layer);
     mContext->PushLayer(
         D2D1::LayerParameters(
@@ -289,21 +267,20 @@ void D2DSVGRenderer::Save(const GraphicStyle& graphicStyle)
         layer);
 
     // FIXME: May need to get applied before creating the layer to apply to clipping path.
-    D2D1_MATRIX_3X2_F transform = D2D1::IdentityMatrix();
+    D2D1_MATRIX_3X2_F transform;
+    mContext->GetTransform(&transform);
+    mContextTransform.push(transform);
     if (graphicStyle.transform)
     {
-        transform = dynamic_cast<D2DSVGTransform*>(graphicStyle.transform.get())->GetMatrix();
-        if (!mContextTransform.empty())
-            transform = transform * mContextTransform.top();
-        mContext->SetTransform(transform);
+        D2D1_MATRIX_3X2_F gsTransform = dynamic_cast<D2DSVGTransform*>(graphicStyle.transform.get())->GetMatrix();
+        mContext->SetTransform(gsTransform * transform);
     }
-    mContextTransform.push(transform);
 }
 
 void D2DSVGRenderer::Restore()
 {
+    mContext->SetTransform(mContextTransform.top());
     mContextTransform.pop();
-    mContext->SetTransform(mContextTransform.empty() ? D2D1::IdentityMatrix() : mContextTransform.top());
     mContext->PopLayer();
 }
 
@@ -349,15 +326,16 @@ inline D2D1_LINE_JOIN D2DLineJoin(LineJoin lineJoin)
     }
 }
 
-ID2D1Brush* D2DSVGRenderer::CreateBrush(const Paint& paint)
+CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint)
 {
     SVG_ASSERT(mContext);
+    CComPtr<ID2D1Brush> brush;
     if (paint.type() == typeid(Color))
     {
         const auto& color = boost::get<Color>(paint);
-        ID2D1SolidColorBrush* solidColorBrush{};
+        CComPtr<ID2D1SolidColorBrush> solidColorBrush;
         mContext->CreateSolidColorBrush({color[0], color[1], color[2], color[3]}, &solidColorBrush);
-        return solidColorBrush;
+        solidColorBrush->QueryInterface(&brush);
     }
     else if (paint.type() == typeid(Gradient))
     {
@@ -368,16 +346,16 @@ ID2D1Brush* D2DSVGRenderer::CreateBrush(const Paint& paint)
             const auto& color = stop.second;
             colorsStops.push_back({ stop.first, { color[0], color[1], color[2], color[3] } });
         }
-        ID2D1GradientStopCollection* gradientStopCollection{};
+        CComPtr<ID2D1GradientStopCollection> gradientStopCollection;
         mContext->CreateGradientStopCollection(
             colorsStops.data(),
-            colorsStops.size(),
+            static_cast<UINT32>(colorsStops.size()),
             D2D1_GAMMA_2_2,
             D2DSpreadMethod(gradient.method),
             &gradientStopCollection);
         if (gradient.type == GradientType::kLinearGradient)
         {
-            ID2D1LinearGradientBrush* linearGradientBrush{};
+            CComPtr<ID2D1LinearGradientBrush> linearGradientBrush;
             mContext->CreateLinearGradientBrush(
                 D2D1::LinearGradientBrushProperties(
                     D2D1::Point2F(gradient.x1, gradient.y1),
@@ -386,11 +364,11 @@ ID2D1Brush* D2DSVGRenderer::CreateBrush(const Paint& paint)
                 &linearGradientBrush);
             if (gradient.transform)
                 linearGradientBrush->SetTransform(std::static_pointer_cast<D2DSVGTransform>(gradient.transform)->GetMatrix());
-            return linearGradientBrush;
+            linearGradientBrush->QueryInterface(&brush);
         }
         else
         {
-            ID2D1RadialGradientBrush* radialGradientBrush{};
+            CComPtr<ID2D1RadialGradientBrush> radialGradientBrush;
             mContext->CreateRadialGradientBrush(
                 D2D1::RadialGradientBrushProperties(
                     D2D1::Point2F(gradient.cx, gradient.cy),
@@ -401,14 +379,14 @@ ID2D1Brush* D2DSVGRenderer::CreateBrush(const Paint& paint)
                 &radialGradientBrush);
             if (gradient.transform)
                 radialGradientBrush->SetTransform(std::static_pointer_cast<D2DSVGTransform>(gradient.transform)->GetMatrix());
-            return radialGradientBrush;
+            radialGradientBrush->QueryInterface(&brush);
         }
     }
     else
     {
         SVG_ASSERT_MSG(false, "Unknown paint type");
     }
-    return nullptr;
+    return brush;
 }
 
 void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
@@ -417,13 +395,13 @@ void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphi
 
     Save(graphicStyle);
 
-    const auto constPath = dynamic_cast<const D2DSVGPath&>(renderPath);
+    const auto& constPath = dynamic_cast<const D2DSVGPath&>(renderPath);
     auto path = const_cast<D2DSVGPath&>(constPath).GetGraphicsPath();
     if (fillStyle.hasFill)
     {
         auto brush = CreateBrush(fillStyle.paint);
         mContext->FillGeometry(path, brush, nullptr);
-        brush->Release();
+        brush.Release();
     }
     if (strokeStyle.hasStroke)
     {
@@ -432,9 +410,9 @@ void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphi
 
         auto brush = CreateBrush(strokeStyle.paint);
 
-        SVG_ASSERT(mPDirect2dFactory);
-        ID2D1StrokeStyle* d2dStrokeStyle{};
-        mPDirect2dFactory->CreateStrokeStyle(
+        SVG_ASSERT(mD2DFactory);
+        CComPtr<ID2D1StrokeStyle> d2dStrokeStyle;
+        mD2DFactory->CreateStrokeStyle(
             D2D1::StrokeStyleProperties(
                 lineCap,
                 lineCap,
@@ -444,7 +422,7 @@ void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphi
                 D2D1_DASH_STYLE_CUSTOM,
                 strokeStyle.dashOffset),
             strokeStyle.dashArray.data(),
-            strokeStyle.dashArray.size(),
+            static_cast<UINT32>(strokeStyle.dashArray.size()),
             &d2dStrokeStyle);
         
         mContext->DrawGeometry(
@@ -453,8 +431,8 @@ void D2DSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphi
             strokeStyle.lineWidth,
             d2dStrokeStyle);
 
-        d2dStrokeStyle->Release();
-        brush->Release();
+        d2dStrokeStyle.Release();
+        brush.Release();
     }
 
     Restore();

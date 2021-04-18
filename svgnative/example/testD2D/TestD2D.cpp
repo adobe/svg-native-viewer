@@ -12,116 +12,198 @@ governing permissions and limitations under the License.
 
 #define WIN32_LEAN_AND_MEAN
 
-#include <tchar.h>
 #include <windows.h>
-#include <unknwn.h>
-#include <D2d1.h>
-#include <memory>
+#include <d2d1.h>
+#pragma comment(lib, "d2d1")
 
+#include "basewin.h"
 #include "svgnative/SVGDocument.h"
 #include "svgnative/ports/d2d/D2DSVGRenderer.h"
 
-/* We need to include the Gdiplus lib */
-#pragma comment (lib, "D2d1.lib")
+namespace
+{
+    const std::string gSVGString = R"SVG(<svg viewBox="0 0 200 200"><rect width="20" height="20" fill="yellow"/><g transform="translate(20, 20) scale(2)" opacity="0.5"><rect transform="rotate(15)" width="20" height="20" fill="green"/></g><rect x="60" y="60" width="140" height="80" rx="40" ry="30" fill="blue"/><ellipse cx="140" cy="100" rx="40" ry="20" fill="purple"/></svg>)SVG";
+}
 
-using namespace D2D1;
 using namespace SVGNative;
 
-static HWND hwndMain = NULL;
-
-static const std::string gSVGString = "<svg viewBox=\"0 0 200 200\"><rect width=\"20\" height=\"20\" fill=\"yellow\"/><g transform=\"translate(20, 20) scale(2)\" opacity=\"0.5\"><rect transform=\"rotate(15)\" width=\"20\" height=\"20\" fill=\"green\"/></g><rect x=\"60\" y=\"60\" width=\"140\" height=\"80\" rx=\"40\" ry=\"30\" fill=\"blue\"/><ellipse cx=\"140\" cy=\"100\" rx=\"40\" ry=\"20\" fill=\"purple\"/></svg>";
-
-static void
-MainWinPaintToCanvas(HWND hwnd)
+class MainWindow : public BaseWindow<MainWindow>
 {
-    // Init D2D and create factory
-    constexpr D2D1_FACTORY_OPTIONS factoryOptions{ D2D1_DEBUG_LEVEL_NONE };
+    CComPtr<ID2D1Factory> pFactory;
+    CComPtr<ID2D1HwndRenderTarget> pRenderTarget;
 
-    ID2D1Factory* pD2DFactory{};
-    D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pD2DFactory);
+    CComPtr<ID2D1SolidColorBrush> pBrush;
 
-    // Init render target
-    RECT rc;
-    GetClientRect(hwnd, &rc);
+    std::shared_ptr<SVGNative::SVGDocument> pSVGDocument;
 
-    D2D1_SIZE_U size = D2D1::SizeU(
-        rc.right - rc.left,
-        rc.bottom - rc.top);
+    void    CalculateLayout();
+    HRESULT CreateGraphicsResources();
+    void    DiscardGraphicsResources();
+    void    OnPaint();
+    void    Resize();
 
-    // Create a Direct2D render target.
-    ID2D1HwndRenderTarget* pD2DenderTarget{};
-    pD2DFactory->CreateHwndRenderTarget(
-        D2D1::RenderTargetProperties(),
-        D2D1::HwndRenderTargetProperties(hwnd, size),
-        &pD2DenderTarget);
+public:
 
-    pD2DenderTarget->BeginDraw();
+    MainWindow() = default;
 
-    auto renderer = std::shared_ptr<D2DSVGRenderer>(new D2DSVGRenderer);
-    renderer->SetGraphicsContext(pD2DFactory, pD2DenderTarget);
+    PCWSTR  ClassName() const { return L"SVGRenderer Window Class"; }
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+};
 
-    auto svgDocument = SVGDocument::CreateSVGDocument(gSVGString.c_str(), renderer);
-    svgDocument->Render();
+// Recalculate drawing layout when the size of the window changes.
 
-    pD2DenderTarget->EndDraw();
+void MainWindow::CalculateLayout()
+{
+    if (pRenderTarget)
+    {
+        // Layout changes (size) for the SVGRenderer are applied in OnPaint()
+    }
 }
 
-/* Main window procedure */
-static LRESULT CALLBACK
-MainWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+HRESULT MainWindow::CreateGraphicsResources()
 {
-    switch(uMsg) {
-        case WM_PAINT:
+    HRESULT hr = S_OK;
+    if (!pRenderTarget)
+    {
+        RECT rc;
+        GetClientRect(m_hwnd, &rc);
+
+        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+
+        hr = pFactory->CreateHwndRenderTarget(
+            D2D1::RenderTargetProperties(),
+            D2D1::HwndRenderTargetProperties(m_hwnd, size),
+            &pRenderTarget);
+
+        if (SUCCEEDED(hr))
         {
-            MainWinPaintToCanvas(hwnd);
-            return 0;
+            pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkGray), &pBrush);
         }
 
-        case WM_PRINTCLIENT:
-            PostQuitMessage(0);
-            return 0;
+        if (SUCCEEDED(hr))
+        {
+            if (pSVGDocument)
+            {
+                auto renderer = static_cast<D2DSVGRenderer*>(pSVGDocument->Renderer());
+                renderer->SetGraphicsContext(pFactory, pRenderTarget);
+            }
+            else
+            {
+                auto renderer = std::shared_ptr<D2DSVGRenderer>(new D2DSVGRenderer);
+                renderer->SetGraphicsContext(pFactory, pRenderTarget);
+                pSVGDocument = SVGDocument::CreateSVGDocument(gSVGString.c_str(), renderer);
+            }
 
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
+            CalculateLayout();
+        }
     }
-
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    return hr;
 }
 
-int APIENTRY
-_tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+void MainWindow::DiscardGraphicsResources()
 {
-    WNDCLASS wc = { 0 };
-    MSG msg;
+    pBrush.Release();
+    pRenderTarget.Release();
+}
 
-    /* Register main window class */
-    wc.lpfnWndProc = MainWinProc;
-    wc.hInstance = hInstance;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
-    wc.lpszClassName = _T("main_window");
-    RegisterClass(&wc);
+void MainWindow::OnPaint()
+{
+    HRESULT hr = CreateGraphicsResources();
+    if (SUCCEEDED(hr))
+    {
+        PAINTSTRUCT ps;
+        BeginPaint(m_hwnd, &ps);
 
-    /* Create main window */
-    hwndMain = CreateWindow(
-        _T("main_window"), _T("LibWinDraw Example: Simple Draw"),
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 550, 350,
-        NULL, NULL, hInstance, NULL
-    );
-    SendMessage(hwndMain, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT),
-            MAKELPARAM(TRUE, 0));
-    ShowWindow(hwndMain, nCmdShow);
+        pRenderTarget->BeginDraw();
+        pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+        pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::LightGray, 0.0f));
 
-    /* Message loop */
-    while(GetMessage(&msg, NULL, 0, 0)) {
-        if(IsDialogMessage(hwndMain, &msg))
-            continue;
+        D2D1_SIZE_F size = pRenderTarget->GetSize();
+        D2D1_RECT_F clientRect = D2D1::RectF(0.0f, 0.0f, size.width, size.height);
+        pRenderTarget->DrawRectangle(clientRect, pBrush);
 
+        D2D1_POINT_2F inset = D2D1::Point2F(15.0f, 15.0f);
+        D2D1_RECT_F rect = D2D1::RectF(inset.x, inset.y, size.width - inset.x, size.height - inset.y);
+        pRenderTarget->DrawRectangle(rect, pBrush);
+        pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(inset.x, inset.y));
+        pSVGDocument->Render(size.width - 2 * inset.x, size.height - 2 * inset.y);
+
+        hr = pRenderTarget->EndDraw();
+        if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
+        {
+            DiscardGraphicsResources();
+        }
+        EndPaint(m_hwnd, &ps);
+    }
+}
+
+void MainWindow::Resize()
+{
+    if (pRenderTarget)
+    {
+        RECT rc;
+        GetClientRect(m_hwnd, &rc);
+
+        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+
+        pRenderTarget->Resize(size);
+        CalculateLayout();
+        InvalidateRect(m_hwnd, NULL, FALSE);
+    }
+}
+
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
+{
+    MainWindow win;
+
+    if (!win.Create(L"D2DSVGRenderer", WS_OVERLAPPEDWINDOW))
+    {
+        return 0;
+    }
+
+    ShowWindow(win.Window(), nCmdShow);
+
+    // Run the message loop.
+
+    MSG msg = { };
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
-    /* Return exit code of WM_QUIT */
-    return (int)msg.wParam;
+    return 0;
+}
+
+LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_CREATE:
+        {
+            constexpr D2D1_FACTORY_OPTIONS factoryOptions{ D2D1_DEBUG_LEVEL_NONE };
+			if (FAILED(D2D1CreateFactory(
+				D2D1_FACTORY_TYPE_SINGLE_THREADED, factoryOptions, &pFactory)))
+            {
+				return -1;  // Fail CreateWindowEx.
+            }
+			return 0;
+        }
+    case WM_DESTROY:
+        DiscardGraphicsResources();
+        pFactory.Release();
+        PostQuitMessage(0);
+        return 0;
+
+    case WM_PAINT:
+        OnPaint();
+        return 0;
+
+        // Other messages not shown...
+
+    case WM_SIZE:
+        Resize();
+        return 0;
+    }
+    return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 }
