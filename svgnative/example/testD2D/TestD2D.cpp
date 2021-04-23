@@ -13,8 +13,11 @@ governing permissions and limitations under the License.
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
+#include <Wincodec.h> // Windows Imaging Component (WIC)
+#include <atlbase.h> // CComPtr
 #include <d2d1.h>
 #pragma comment(lib, "d2d1")
+#pragma comment(lib, "Windowscodecs")
 
 #include "basewin.h"
 #include "svgnative/SVGDocument.h"
@@ -22,13 +25,22 @@ governing permissions and limitations under the License.
 
 namespace
 {
-    const std::string gSVGString = R"SVG(<svg viewBox="0 0 200 200"><rect width="20" height="20" fill="yellow"/><g transform="translate(20, 20) scale(2)" opacity="0.5"><rect transform="rotate(15)" width="20" height="20" fill="green"/></g><rect x="60" y="60" width="140" height="80" rx="40" ry="30" fill="blue"/><ellipse cx="140" cy="100" rx="40" ry="20" fill="purple"/></svg>)SVG";
+const std::string gSVGString = R"SVG(<svg viewBox="0 0 200 200">
+    <rect width="20" height="20" fill="yellow"/>
+    <g transform="translate(20, 20) scale(2)" opacity="0.5">
+    <rect transform="rotate(15)" width="20" height="20" fill="green"/>
+    </g>
+    <rect x="60" y="60" width="140" height="80" rx="40" ry="30" fill="blue"/>
+    <ellipse cx="140" cy="100" rx="40" ry="20" fill="purple"/>
+    <image x="60" y="40" width="129" height="24" transform="rotate(-10)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAa4AAAAwCAAAAABshcHBAAAABGdBTUEAAw1AShHhyQAAAHJJREFUeNrt0TERwCAABLAeQ4dOnVGADNTUF0qpgR9Y4RILKTMYyRf0pAU1eYMnuVeV411sRJcudKFLF7rQpQtd6NKFLnTpQhe6dKELXbrQhS5d6EKXLnShSxe60KULXejShS506UIXunShC1260IWuc/2e+TjGRf4i2gAAAABJRU5ErkJggg=="/>
+    </svg>)SVG";
 }
 
 using namespace SVGNative;
 
 class MainWindow : public BaseWindow<MainWindow>
 {
+    CComPtr<IWICImagingFactory> pWICFactory;
     CComPtr<ID2D1Factory> pFactory;
     CComPtr<ID2D1HwndRenderTarget> pRenderTarget;
 
@@ -85,12 +97,12 @@ HRESULT MainWindow::CreateGraphicsResources()
             if (pSVGDocument)
             {
                 auto renderer = static_cast<D2DSVGRenderer*>(pSVGDocument->Renderer());
-                renderer->SetGraphicsContext(pFactory, pRenderTarget);
+                renderer->SetGraphicsContext(pWICFactory, pFactory, pRenderTarget);
             }
             else
             {
                 auto renderer = std::shared_ptr<D2DSVGRenderer>(new D2DSVGRenderer);
-                renderer->SetGraphicsContext(pFactory, pRenderTarget);
+                renderer->SetGraphicsContext(pWICFactory, pFactory, pRenderTarget);
                 pSVGDocument = SVGDocument::CreateSVGDocument(gSVGString.c_str(), renderer);
             }
 
@@ -182,15 +194,24 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
         {
             constexpr D2D1_FACTORY_OPTIONS factoryOptions{ D2D1_DEBUG_LEVEL_NONE };
-			if (FAILED(D2D1CreateFactory(
-				D2D1_FACTORY_TYPE_SINGLE_THREADED, factoryOptions, &pFactory)))
+            HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, factoryOptions, &pFactory);
+            if (SUCCEEDED(hr))
             {
-				return -1;  // Fail CreateWindowEx.
+                CoInitializeEx(NULL, COINIT_MULTITHREADED);
+                hr = CoCreateInstance(
+                    CLSID_WICImagingFactory1,
+                    nullptr,
+                    CLSCTX_INPROC_SERVER,
+                    IID_IWICImagingFactory,
+                    (void**)&pWICFactory);
             }
-			return 0;
+            return SUCCEEDED(hr) ? 0 : -1;  // Fail CreateWindowEx
         }
     case WM_DESTROY:
         DiscardGraphicsResources();
+        pSVGDocument.reset();
+        pWICFactory.Release();
+        CoUninitialize();
         pFactory.Release();
         PostQuitMessage(0);
         return 0;
