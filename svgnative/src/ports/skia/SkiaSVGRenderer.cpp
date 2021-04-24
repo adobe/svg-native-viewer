@@ -25,6 +25,8 @@ governing permissions and limitations under the License.
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "SkDashPathEffect.h"
+#include "SkTypes.h"
+#include "SkSamplingOptions.h"
 #include <math.h>
 
 namespace SVGNative
@@ -186,7 +188,7 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
             const auto& matrix = static_cast<const SkiaSVGTransform*>(graphicStyle.clippingPath->transform.get())->mMatrix;
             clippingPath.transform(matrix);
         }
-		clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
+        clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
         mCanvas->clipPath(clippingPath);
     }
 }
@@ -288,8 +290,9 @@ void SkiaSVGRenderer::DrawImage(
     SVG_ASSERT(mCanvas);
     Save(graphicStyle);
     mCanvas->clipRect({clipArea.x, clipArea.y, clipArea.x + clipArea.width, clipArea.y + clipArea.height}, SkClipOp::kIntersect);
+    SkSamplingOptions sso;
     mCanvas->drawImageRect(static_cast<const SkiaSVGImageData&>(image).mImageData,
-        {fillArea.x, fillArea.y, fillArea.x + fillArea.width, fillArea.y + fillArea.height}, nullptr);
+        {fillArea.x, fillArea.y, fillArea.x + fillArea.width, fillArea.y + fillArea.height}, sso, nullptr);
     Restore();
 }
 
