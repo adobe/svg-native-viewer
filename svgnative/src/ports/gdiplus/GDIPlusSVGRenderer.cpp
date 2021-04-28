@@ -13,8 +13,8 @@ governing permissions and limitations under the License.
 #include <Windows.h>
 #include <gdiplus.h>
 
-#include "Config.h"
-#include "GDIPlusSVGRenderer.h"
+#include "svgnative/Config.h"
+#include "svgnative/ports/gdiplus/GDIPlusSVGRenderer.h"
 #include "base64.h"
 
 namespace SVGNative
