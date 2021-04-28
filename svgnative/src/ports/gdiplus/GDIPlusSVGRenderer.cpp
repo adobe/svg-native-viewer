@@ -13,8 +13,8 @@ governing permissions and limitations under the License.
 #include <Windows.h>
 #include <gdiplus.h>
 
-#include "svgnative/Config.h"
-#include "svgnative/ports/gdiplus/GDIPlusSVGRenderer.h"
+#include "Config.h"
+#include "GDIPlusSVGRenderer.h"
 #include "base64.h"
 
 namespace SVGNative
@@ -223,14 +223,14 @@ void GDIPlusSVGRenderer::Save(const GraphicStyle& graphicStyle)
 
     if (graphicStyle.clippingPath)
     {
-        // TODO
-        SVG_ASSERT_MSG(false, "Need to implement svg clipping path!");
-    }
-
-    if (graphicStyle.opacity < 1.0f)
-    {
-        // TODO
-        SVG_ASSERT_MSG(false, "Need to implement svg opacity!");
+        std::unique_ptr<Gdiplus::GraphicsPath> clip_path(dynamic_cast<const GDIPlusSVGPath*>(graphicStyle.clippingPath->path.get())->GetGraphicsPath().Clone());
+        if (graphicStyle.clippingPath->transform)
+        {
+            const Gdiplus::Matrix* matrix = &dynamic_cast<GDIPlusSVGTransform*>(graphicStyle.clippingPath->transform.get())->GetMatrix();
+            clip_path->Transform(matrix);
+        }
+        clip_path->SetFillMode(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? Gdiplus::FillMode::FillModeWinding : Gdiplus::FillMode::FillModeAlternate);
+        mContext->SetClip(clip_path.get());
     }
 }
 
@@ -328,7 +328,7 @@ std::unique_ptr<Gdiplus::Brush> GDIPlusSVGRenderer::CreateGradientBrush(const Gr
 void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
 {
     SVG_ASSERT(mContext);
-    Gdiplus::GraphicsState savedState = mContext->Save();
+    Save(graphicStyle);
 
     std::unique_ptr<Gdiplus::GraphicsPath> path(dynamic_cast<const GDIPlusSVGPath&>(renderPath).GetGraphicsPath().Clone());
     if (fillStyle.fillRule == WindingRule::kEvenOdd)
@@ -344,7 +344,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
         if (fillStyle.paint.type() == typeid(Color))
         {
             auto color = boost::get<Color>(fillStyle.paint);
-            color[3] *= fillStyle.fillOpacity;
+            color[3] *= fillStyle.fillOpacity * graphicStyle.opacity;
 
             Gdiplus::Color brushColor = ColorToGdiplusColor(color);
             brush = std::unique_ptr<Gdiplus::Brush>(new Gdiplus::SolidBrush(brushColor));
@@ -364,7 +364,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
         if (strokeStyle.paint.type() == typeid(Color))
         {
             auto color = boost::get<Color>(strokeStyle.paint);
-            color[3] *= strokeStyle.strokeOpacity;
+            color[3] *= strokeStyle.strokeOpacity * graphicStyle.opacity;
 
             Gdiplus::Color penColor = ColorToGdiplusColor(color);
             pen = std::unique_ptr<Gdiplus::Pen>(new Gdiplus::Pen(penColor, strokeStyle.lineWidth));
@@ -372,7 +372,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
         else if (strokeStyle.paint.type() == typeid(Gradient))
         {
             const auto& gradient = boost::get<Gradient>(fillStyle.paint);
-            brush = CreateGradientBrush(gradient, fillStyle.fillOpacity);
+            brush = CreateGradientBrush(gradient, fillStyle.fillOpacity * graphicStyle.opacity);
             pen = std::unique_ptr<Gdiplus::Pen>(new Gdiplus::Pen(brush.get(), strokeStyle.lineWidth));
         }
 
@@ -422,7 +422,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
         mContext->DrawPath(pen.get(), path.get());
     }
 
-    mContext->Restore(savedState);
+    Restore();
 }
 
 void GDIPlusSVGRenderer::DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea)
