@@ -217,7 +217,7 @@ void GDIPlusSVGRenderer::Save(const GraphicStyle& graphicStyle)
         const Gdiplus::Matrix* matrix = &dynamic_cast<GDIPlusSVGTransform*>(graphicStyle.transform.get())->GetMatrix();
         if (matrix != nullptr)
         {
-            mContext->SetTransform(matrix);
+            mContext->MultiplyTransform(matrix, Gdiplus::MatrixOrderPrepend);
         }
     }
 
