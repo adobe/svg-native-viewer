@@ -290,9 +290,9 @@ void SkiaSVGRenderer::DrawImage(
     SVG_ASSERT(mCanvas);
     Save(graphicStyle);
     mCanvas->clipRect({clipArea.x, clipArea.y, clipArea.x + clipArea.width, clipArea.y + clipArea.height}, SkClipOp::kIntersect);
-    SkSamplingOptions sso;
+    SkSamplingOptions samplingOptions;
     mCanvas->drawImageRect(static_cast<const SkiaSVGImageData&>(image).mImageData,
-        {fillArea.x, fillArea.y, fillArea.x + fillArea.width, fillArea.y + fillArea.height}, sso, nullptr);
+        {fillArea.x, fillArea.y, fillArea.x + fillArea.width, fillArea.y + fillArea.height}, samplingOptions, nullptr);
     Restore();
 }
 
