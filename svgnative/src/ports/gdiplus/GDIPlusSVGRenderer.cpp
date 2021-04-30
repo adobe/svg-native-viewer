@@ -230,7 +230,7 @@ void GDIPlusSVGRenderer::Save(const GraphicStyle& graphicStyle)
             clip_path->Transform(matrix);
         }
         clip_path->SetFillMode(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? Gdiplus::FillMode::FillModeWinding : Gdiplus::FillMode::FillModeAlternate);
-        mContext->SetClip(clip_path.get());
+        mContext->SetClip(clip_path.get(), Gdiplus::CombineModeIntersect);
     }
 }
 
