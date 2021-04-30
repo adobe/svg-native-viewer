@@ -15,6 +15,7 @@ governing permissions and limitations under the License.
 
 #include "svgnative/SVGRenderer.h"
 #include <gdiplus.h>
+#include <stack>
 
 namespace SVGNative
 {
@@ -111,6 +112,7 @@ private:
 
     Gdiplus::Graphics* mContext{};
     std::vector<Gdiplus::GraphicsState> mStateStack;
+    std::stack<float> mOpacityStack;
 };
 
 } // namespace SVGNative

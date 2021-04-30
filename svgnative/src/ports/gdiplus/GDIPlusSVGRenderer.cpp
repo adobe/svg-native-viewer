@@ -232,12 +232,18 @@ void GDIPlusSVGRenderer::Save(const GraphicStyle& graphicStyle)
         clip_path->SetFillMode(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? Gdiplus::FillMode::FillModeWinding : Gdiplus::FillMode::FillModeAlternate);
         mContext->SetClip(clip_path.get(), Gdiplus::CombineModeIntersect);
     }
+
+    float opacity = 1.0;
+    if (mOpacityStack.size() > 0)
+        opacity = mOpacityStack.top();
+    mOpacityStack.push(opacity * graphicStyle.opacity);
 }
 
 void GDIPlusSVGRenderer::Restore()
 {
     mContext->Restore(mStateStack.back());
     mStateStack.pop_back();
+    mOpacityStack.pop();
 }
 
 std::unique_ptr<Gdiplus::Brush> GDIPlusSVGRenderer::CreateGradientBrush(const Gradient& gradient, float opacity)
@@ -344,7 +350,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
         if (fillStyle.paint.type() == typeid(Color))
         {
             auto color = boost::get<Color>(fillStyle.paint);
-            color[3] *= fillStyle.fillOpacity * graphicStyle.opacity;
+            color[3] *= fillStyle.fillOpacity * mOpacityStack.top();
 
             Gdiplus::Color brushColor = ColorToGdiplusColor(color);
             brush = std::unique_ptr<Gdiplus::Brush>(new Gdiplus::SolidBrush(brushColor));
@@ -364,7 +370,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
         if (strokeStyle.paint.type() == typeid(Color))
         {
             auto color = boost::get<Color>(strokeStyle.paint);
-            color[3] *= strokeStyle.strokeOpacity * graphicStyle.opacity;
+            color[3] *= strokeStyle.strokeOpacity * mOpacityStack.top();
 
             Gdiplus::Color penColor = ColorToGdiplusColor(color);
             pen = std::unique_ptr<Gdiplus::Pen>(new Gdiplus::Pen(penColor, strokeStyle.lineWidth));
@@ -372,7 +378,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
         else if (strokeStyle.paint.type() == typeid(Gradient))
         {
             const auto& gradient = boost::get<Gradient>(fillStyle.paint);
-            brush = CreateGradientBrush(gradient, fillStyle.fillOpacity * graphicStyle.opacity);
+            brush = CreateGradientBrush(gradient, fillStyle.fillOpacity * mOpacityStack.top());
             pen = std::unique_ptr<Gdiplus::Pen>(new Gdiplus::Pen(brush.get(), strokeStyle.lineWidth));
         }
 
