@@ -406,7 +406,7 @@ void CairoSVGRenderer::DrawPath(
                               color[3] * strokeStyle.strokeOpacity * graphicStyle.opacity);
 
         cairo_set_line_width(mCairo, strokeStyle.lineWidth);
-
+        cairo_set_miter_limit(mCairo, strokeStyle.miterLimit);
         switch (strokeStyle.lineCap)
         {
         case LineCap::kRound:

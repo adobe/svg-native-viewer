@@ -272,6 +272,31 @@ void SkiaSVGRenderer::DrawPath(
         stroke.setAntiAlias(true);
         stroke.setStyle(SkPaint::kStroke_Style);
         stroke.setStrokeWidth(strokeStyle.lineWidth);
+        stroke.setStrokeMiter(strokeStyle.miterLimit);
+        switch (strokeStyle.lineCap)
+        {
+          case LineCap::kRound:
+              stroke.setStrokeCap(SkPaint::kRound_Cap);
+              break;
+          case LineCap::kSquare:
+              stroke.setStrokeCap(SkPaint::kSquare_Cap);
+              break;
+          case LineCap::kButt:
+          default:
+              stroke.setStrokeCap(SkPaint::kButt_Cap);
+        }
+        switch (strokeStyle.lineJoin)
+        {
+          case LineJoin::kRound:
+              stroke.setStrokeJoin(SkPaint::kRound_Join);
+              break;
+          case LineJoin::kBevel:
+              stroke.setStrokeJoin(SkPaint::kBevel_Join);
+              break;
+          case LineJoin::kMiter:
+          default:
+              stroke.setStrokeJoin(SkPaint::kMiter_Join);
+        }
         if (!strokeStyle.dashArray.empty())
         {
             stroke.setPathEffect(SkDashPathEffect::Make((SkScalar*)(strokeStyle.dashArray.data()),
