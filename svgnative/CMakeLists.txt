@@ -73,6 +73,7 @@ find_package(PkgConfig)
 # setting for Skia
 ################################
 if(SKIA)
+    set(CMAKE_CXX_STANDARD 14)
     include(FindSkia)
     if (NOT SKIA_AVAILABLE)
         message(FATAL_ERROR "Fatal error: Skia port is requested, but no usable Skia library was found.")
@@ -138,9 +139,6 @@ elseif(MSVC)
     endif()
 elseif(APPLE)
     # GCC or Clang
-    if (USE_SKIA)
-        set(CMAKE_CXX_STANDARD 14)
-    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 else()
