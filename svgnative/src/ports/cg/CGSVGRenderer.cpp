@@ -10,6 +10,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+#include <math.h>
+
 #include "svgnative/ports/cg/CGSVGRenderer.h"
 #include "base64.h"
 #include "svgnative/Config.h"
@@ -66,7 +68,9 @@ CGSVGTransform::CGSVGTransform(float a, float b, float c, float d, float tx, flo
 
 void CGSVGTransform::Set(float a, float b, float c, float d, float tx, float ty) { mTransform = {a, b, c, d, tx, ty}; }
 
-void CGSVGTransform::Rotate(float r) { mTransform = CGAffineTransformRotate(mTransform, r); }
+void CGSVGTransform::Rotate(float degree) {
+    mTransform = CGAffineTransformRotate(mTransform, degree * M_PI / 180.0);
+}
 
 void CGSVGTransform::Translate(float tx, float ty) { mTransform = CGAffineTransformTranslate(mTransform, tx, ty); }
 
