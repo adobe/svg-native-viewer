@@ -151,7 +151,7 @@ brew install boost
 
 * Apt
 ```
-sudo apt-get install build-essential libboost-system-dev
+sudo apt-get install build-essential libboost-system-dev cmake
 ```
 
 ## Building
