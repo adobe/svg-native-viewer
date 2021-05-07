@@ -60,6 +60,7 @@ existing ports include:
 * **SkiaSVGRenderer** a rendering port using Skia. (**Skia requires a C++14 compatible compiler!**)
 * **CairoSVGRenderer** a rendering port using Cairo Graphics.
 * **GDIPlusSVGRenderer** a rendering port using GDI+.
+* **D2DSVGRenderer** a rendering port using Direct2D.
 
 New ports need to inherit from **SVGRenderer** and implement the
 virtual functions.
@@ -204,6 +205,7 @@ options `ON` or `OFF`:
   `OFF`.
 * `SKIA` adds the _Skia_ port to the library. Default `OFF`.
 * `GDIPLUS` adds the _GDI+_ port to the library. Default `OFF`.
+* `D2D` adds the _Direct2D_ port to the library. Default `OFF`.
 * `CAIRO` adds the _Cairo Graphics_ port to the library. Default `OFF`.
 
 To enable the deprecated CSS styling support:

@@ -3,3 +3,5 @@ svgnative/build/
 viewer/
 .vscode
 SVGNativeViewerLib.pc
+svgnative/out
+.vs
