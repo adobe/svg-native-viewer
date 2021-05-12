@@ -89,7 +89,7 @@ jobs:
       - run:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/mac'
-  build_with_gdi:
+  build_with_gdi_d2d:
     executor: windows/default
     steps:
       - checkout
@@ -106,19 +106,33 @@ jobs:
             (New-Object System.Net.WebClient).DownloadFile($url, $outputZip)
             Expand-Archive -LiteralPath $outputZip -DestinationPath $outputDir -Force
       - run:
-          name: Creating Build Files
+          name: Creating Build Files - GDI+
           command: |
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
             cmake -Bbuild/win . -G "Visual Studio 16 2019" -DGDIPLUS=ON
       - run:
-          name: Creating Binary Files
+          name: Creating Binary Files - GDI+
           command: |
             $cmakeVersion = "3.16.2"
             $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
             cd .\svgnative
             cmake --build build/win
+      - run:
+          name: Creating Build Files - Direct2D
+          command: |
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake -Bbuild/win-d2d . -G "Visual Studio 16 2019" -DD2D=ON
+      - run:
+          name: Creating Binary Files - Direct2D
+          command: |
+            $cmakeVersion = "3.16.2"
+            $env:Path += ";" + (Get-Item -Path ".\").FullName + "\cmake-" + $cmakeVersion + "-win64-x64\bin"
+            cd .\svgnative
+            cmake --build build/win-d2d
       - run:
           name: Creating Build Files - Shared Lib
           command: |
@@ -141,4 +155,4 @@ workflows:
       - build_with_style_support
       - build_with_clang
       - build_with_cocoa
-      - build_with_gdi
+      - build_with_gdi_d2d
