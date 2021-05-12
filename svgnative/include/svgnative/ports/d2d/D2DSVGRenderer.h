@@ -15,6 +15,7 @@ governing permissions and limitations under the License.
 
 #include "svgnative/SVGRenderer.h"
 #include <d2d1.h>
+#include <Wincodec.h> // Windows Imaging Component (WIC)
 #include <stack>
 #include <atlbase.h> // CComPtr
 
@@ -70,11 +71,18 @@ private:
 class D2DSVGImageData final : public ImageData
 {
 public:
-    D2DSVGImageData(const std::string& base64, ImageEncoding encoding);
+    D2DSVGImageData(CComPtr<IWICBitmapSource> bitmapSource);
     ~D2DSVGImageData();
 
     float Width() const override;
     float Height() const override;
+
+    CComPtr<IWICBitmapSource> GetBitmapSource() const;
+
+private:
+    float mWidth{};
+    float mHeight{};
+    CComPtr<IWICBitmapSource> mBitmapSource;
 };
 
 class SVG_IMP_EXP D2DSVGRenderer final : public SVGRenderer
@@ -99,15 +107,17 @@ public:
     void DrawPath(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) override;
     void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) override;
 
-    void SetGraphicsContext(ID2D1Factory* inPDirect2dFactory, ID2D1RenderTarget* renderTarget)
+    void SetGraphicsContext(IWICImagingFactory* pWICFactory, ID2D1Factory* pD2DFactory, ID2D1RenderTarget* renderTarget)
     {
-        mD2DFactory = inPDirect2dFactory;
+        mWICFactory = pWICFactory;
+        mD2DFactory = pD2DFactory;
         mContext = renderTarget;
     }
 
     void ReleaseGraphicsContext()
     {
         mD2DFactory.Release();
+        mWICFactory.Release();
     }
 
 private:
@@ -115,6 +125,7 @@ private:
 
     CComPtr<ID2D1RenderTarget> mContext;
     CComPtr<ID2D1Factory> mD2DFactory;
+    CComPtr<IWICImagingFactory> mWICFactory;
 
     std::stack<D2D1_MATRIX_3X2_F> mContextTransform;
 };
