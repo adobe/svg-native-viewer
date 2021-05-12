@@ -71,7 +71,7 @@ private:
 class D2DSVGImageData final : public ImageData
 {
 public:
-    D2DSVGImageData(CComPtr<IWICImagingFactory> imageFactory, const std::string& base64, ImageEncoding encoding);
+    D2DSVGImageData(CComPtr<IWICBitmapSource> bitmapSource);
     ~D2DSVGImageData();
 
     float Width() const override;

@@ -224,38 +224,16 @@ const D2D1::Matrix3x2F& D2DSVGTransform::GetMatrix() const
     return mTransform;
 }
 
-D2DSVGImageData::D2DSVGImageData(CComPtr<IWICImagingFactory> factory, const std::string& base64, ImageEncoding encoding)
+D2DSVGImageData::D2DSVGImageData(CComPtr<IWICBitmapSource> bitmapSource)
+    : mBitmapSource(bitmapSource)
 {
-    std::string imageString = base64_decode(base64);
-    CComPtr<IStream> stream{SHCreateMemStream((const BYTE*)imageString.c_str(), (UINT)imageString.size())};
-    ThrowIfNull(stream);
-
-    CComPtr<IWICBitmapDecoder> imgDecoder;
-    ThrowIfFailed(
-        factory->CreateDecoderFromStream(stream, nullptr, WICDecodeMetadataCacheOnDemand, &imgDecoder));
-
-    CComPtr<IWICBitmapFrameDecode> frame;
-    ThrowIfFailed(imgDecoder->GetFrame(0, &frame));
-
-    // Convert to a format that Direct2D can use (pre-multiplied BRGA is best)
-    CComPtr<IWICFormatConverter> converter;
-    ThrowIfFailed(factory->CreateFormatConverter(&converter));
-    ThrowIfFailed(converter->Initialize(
-      frame,
-      GUID_WICPixelFormat32bppPBGRA,
-      WICBitmapDitherTypeNone,
-      nullptr,
-      0.0,
-      WICBitmapPaletteTypeMedianCut));
-
-    mBitmapSource = converter;
     if (mBitmapSource)
     {
         UINT width = 0;
         UINT height = 0;
         ThrowIfFailed(mBitmapSource->GetSize(&width, &height));
-        mWidth = width;
-        mHeight = height;
+        mWidth = static_cast<float>(width);
+        mHeight = static_cast<float>(height);
     }
 }
 
@@ -284,7 +262,31 @@ D2DSVGRenderer::D2DSVGRenderer()
 
 std::unique_ptr<ImageData> D2DSVGRenderer::CreateImageData(const std::string& base64, ImageEncoding encoding)
 {
-    return std::unique_ptr<D2DSVGImageData>(new D2DSVGImageData(mWICFactory, base64, encoding));
+    std::string imageString = base64_decode(base64);
+    CComPtr<IStream> stream{ SHCreateMemStream((const BYTE*)imageString.c_str(), (UINT)imageString.size()) };
+    ThrowIfNull(stream);
+
+    CComPtr<IWICBitmapDecoder> imgDecoder;
+    ThrowIfFailed(
+        mWICFactory->CreateDecoderFromStream(stream, nullptr, WICDecodeMetadataCacheOnDemand, &imgDecoder));
+
+    CComPtr<IWICBitmapFrameDecode> frame;
+    ThrowIfFailed(imgDecoder->GetFrame(0, &frame));
+
+    // Convert to a format that Direct2D can use (pre-multiplied BRGA is best)
+    CComPtr<IWICFormatConverter> converter;
+    ThrowIfFailed(mWICFactory->CreateFormatConverter(&converter));
+    ThrowIfFailed(converter->Initialize(
+        frame,
+        GUID_WICPixelFormat32bppPBGRA,
+        WICBitmapDitherTypeNone,
+        nullptr,
+        0.0,
+        WICBitmapPaletteTypeMedianCut));
+
+    // Keep a BitmapSource and not an ID2D1Bitmap because the latter is tied to a specific ID2D1RenderTarget.
+    CComPtr<IWICBitmapSource> bitmapSource = converter;
+    return std::unique_ptr<D2DSVGImageData>(new D2DSVGImageData(bitmapSource));
 }
 
 std::unique_ptr<Path> D2DSVGRenderer::CreatePath()
@@ -508,15 +510,22 @@ void D2DSVGRenderer::DrawImage(const ImageData& image, const GraphicStyle& graph
         if (clipArea.width < fillArea.width || clipArea.height < fillArea.height)
         {
             clipRect = D2D1::RectF(clipArea.x, clipArea.y, clipArea.x + clipArea.width, clipArea.y + clipArea.height);
-            mContext->PushAxisAlignedClip(clipRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+            CComPtr<ID2D1Layer> layer;
+            mContext->CreateLayer(&layer);
+            mContext->PushLayer(
+                D2D1::LayerParameters(clipRect),
+                layer
+            );
         }
 
         D2D1_RECT_F drawRect = D2D1::RectF(fillArea.x, fillArea.y, fillArea.x + fillArea.width, fillArea.y + fillArea.height);
         mContext->DrawBitmap(bitmap, drawRect);
+
         if (clipRect.right > clipRect.left)
         {
-            mContext->PopAxisAlignedClip();
+            mContext->PopLayer();
         }
+
         Restore();
     }
 }
