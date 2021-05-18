@@ -160,7 +160,7 @@ void CairoSVGTransform::Scale(float sx, float sy)
 void CairoSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
 {
     cairo_matrix_t other{a, b, c, d, tx, ty};
-    cairo_matrix_multiply(&mMatrix, &mMatrix, &other);
+    cairo_matrix_multiply(&mMatrix, &other, &mMatrix);
 }
 
 CairoSVGImageData::CairoSVGImageData(const std::string& base64, ImageEncoding encoding)

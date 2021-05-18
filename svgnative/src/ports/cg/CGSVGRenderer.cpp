@@ -78,7 +78,7 @@ void CGSVGTransform::Scale(float sx, float sy) { mTransform = CGAffineTransformS
 
 void CGSVGTransform::Concat(float a, float b, float c, float d, float tx, float ty)
 {
-    mTransform = CGAffineTransformConcat(mTransform, {a, b, c, d, tx, ty});
+    mTransform = CGAffineTransformConcat({a, b, c, d, tx, ty}, mTransform);
 }
 
 CGSVGImageData::CGSVGImageData(const std::string& base64, ImageEncoding encoding)
