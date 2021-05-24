@@ -127,7 +127,7 @@ void CairoSVGPath::CurveToV(float x2, float y2, float x3, float y3)
     float cx2 = static_cast<float>(x3 + 2.0 / 3.0 * (x2 - x3));
     float cy2 = static_cast<float>(y3 + 2.0 / 3.0 * (y2 - y3));
 
-    cairo_curve_to(mPathCtx, x1, y1, x2, y2, x3, y3);
+    cairo_curve_to(mPathCtx, cx1, cy1, cx2, cy2, x3, y3);
     mCurrentX = x3;
     mCurrentY = y3;
 }
