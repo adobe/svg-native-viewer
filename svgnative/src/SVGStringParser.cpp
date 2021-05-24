@@ -91,6 +91,24 @@ inline bool ParseDigit(CharIt& pos, const CharIt& end, std::int32_t& digit)
     return true;
 }
 
+inline bool ParseDigitOrPercentage(CharIt& pos, const CharIt& end, std::int32_t& digit, bool& percentage)
+{
+    percentage = false;
+    if (pos == end || !isDigit(*pos))
+        return false;
+    while (pos < end && isDigit(*pos))
+    {
+        digit *= 10;
+        digit += static_cast<std::int32_t>(*pos++ - '0');
+    }
+    if (pos < end && *pos == '%')
+    {
+      percentage = true;
+      pos++;
+    }
+    return true;
+}
+
 static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
 {
     if (pos == end)
@@ -712,7 +730,7 @@ void ParsePathString(const std::string& pathString, Path& p)
                 currentY += newY;
             }
 
-            SVG_ASSERT(angle == 0);
+            //SVG_ASSERT(angle == 0);
 
             ArcToCurve(p, startX, startY, rx, ry, angle, flagLarge, flagSweep, currentX, currentY, prevControlX, prevControlY);
 
@@ -936,25 +954,37 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
             std::int32_t r{};
             std::int32_t g{};
             std::int32_t b{};
+            bool r_percentage = false;
+            bool g_percentage = false;
+            bool b_percentage = false;
             if (!SkipOptWsp(pos, end))
                 return false;
-            if (!ParseDigit(pos, end, r))
+            if (!ParseDigitOrPercentage(pos, end, r, r_percentage))
                 return false;
             if (!SkipOptWspDelimiterOptWsp(pos, end))
                 return false;
-            if (!ParseDigit(pos, end, g))
+            if (!ParseDigitOrPercentage(pos, end, g, g_percentage))
                 return false;
             if (!SkipOptWspDelimiterOptWsp(pos, end))
                 return false;
-            if (!ParseDigit(pos, end, b))
+            if (!ParseDigitOrPercentage(pos, end, b, b_percentage))
                 return false;
             if (!SkipOptWsp(pos, end))
                 return false;
             if (*pos++ != ')')
                 return false;
-            color[0] = std::min(255, r) / 255.0f;
-            color[1] = std::min(255, g) / 255.0f;
-            color[2] = std::min(255, b) / 255.0f;
+            if (r_percentage && g_percentage && b_percentage)
+            {
+              color[0] = std::min(100, r) / 100.0f;
+              color[1] = std::min(100, g) / 100.0f;
+              color[2] = std::min(100, b) / 100.0f;
+            }
+            else if (!r_percentage && !g_percentage && !b_percentage)
+            {
+              color[0] = std::min(255, r) / 255.0f;
+              color[1] = std::min(255, g) / 255.0f;
+              color[2] = std::min(255, b) / 255.0f;
+            }
             paint = color;
             result = SVGDocumentImpl::Result::kSuccess;
             return true;
