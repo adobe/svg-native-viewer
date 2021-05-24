@@ -57,7 +57,7 @@ void CGSVGPath::CurveTo(float x1, float y1, float x2, float y2, float x3, float 
 
 void CGSVGPath::CurveToV(float x2, float y2, float x3, float y3)
 {
-    CGPathAddCurveToPoint(mPath, nullptr, mCurrentX, mCurrentY, x2, y2, x3, y3);
+    CGPathAddQuadCurveToPoint(mPath, nullptr, x2, y2, x3, y3);
     mCurrentX = x3;
     mCurrentY = y3;
 }
