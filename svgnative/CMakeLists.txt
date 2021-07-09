@@ -217,6 +217,7 @@ file(GLOB gl_source
     src/SVGDocumentImpl.h
     src/SVGDocumentImpl.cpp
     src/SVGDocument.cpp
+		src/SVGRenderer.cpp
     src/SVGNativeCWrapper.cpp
     src/SVGParserArcToCurve.cpp
     src/SVGStringParser.h

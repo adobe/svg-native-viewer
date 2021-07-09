@@ -116,38 +116,13 @@ class Interval
   public:
     Interval() = default;
     Interval(float u): a(u), b(u), isEmpty(false) {}
-    Interval(float u, float v)
-    {
-      isEmpty = false;
-      if (u <= v)
-      {
-        a = u;
-        b = v;
-      }
-      else
-      {
-        a = v;
-        b = u;
-      }
-    }
+    Interval(float u, float v);
     float Min() { return a; }
     float Max() { return b; }
     operator bool() { return !isEmpty; }
     /* Computes the intersection of this interval with another one */
-    Interval operator&(Interval other)
-    {
-      // return an empty interval if either of the intervals is empty
-      if ((!*this) || (!other))
-        return Interval();
-
-      float u = (std::max)(this->Min(), other.Min());
-      float v = (std::min)(this->Max(), other.Max());
-      return (u <= v) ? Interval(u, v) : Interval();
-    }
-    bool contains(Interval other)
-    {
-      return this->Min() <= other.Min() && this->Max() >= other.Max();
-    }
+    Interval operator&(Interval other);
+    bool contains(Interval other);
     bool Empty() { return isEmpty; }
   private:
     float a = std::numeric_limits<float>::quiet_NaN();
