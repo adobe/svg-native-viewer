@@ -104,6 +104,57 @@ using Paint = boost::variant<Color, Gradient>;
 using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
 
+/**
+ * Represents an interval on the number line.
+ *
+ * An interval can be empty, for example, the result of the
+ * intersection of two disjoint intervals. Or it can have only
+ * a single real number, or it can have a range of numbers.
+ */
+class Interval
+{
+  public:
+    Interval() = default;
+    Interval(float u): a(u), b(u), isEmpty(false) {}
+    Interval(float u, float v)
+    {
+      isEmpty = false;
+      if (u <= v)
+      {
+        a = u;
+        b = v;
+      }
+      else
+      {
+        a = v;
+        b = u;
+      }
+    }
+    float Min() { return a; }
+    float Max() { return b; }
+    operator bool() { return !isEmpty; }
+    /* Computes the intersection of this interval with another one */
+    Interval operator&(Interval other)
+    {
+      // return an empty interval if either of the intervals is empty
+      if ((!*this) || (!other))
+        return Interval();
+
+      float u = (std::max)(this->Min(), other.Min());
+      float v = (std::min)(this->Max(), other.Max());
+      return (u <= v) ? Interval(u, v) : Interval();
+    }
+    bool contains(Interval other)
+    {
+      return this->Min() <= other.Min() && this->Max() >= other.Max();
+    }
+    bool Empty() { return isEmpty; }
+  private:
+    float a = std::numeric_limits<float>::quiet_NaN();
+    float b = std::numeric_limits<float>::quiet_NaN();
+    bool isEmpty = true;
+};
+
 struct Rect
 {
     Rect() = default;

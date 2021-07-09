@@ -1,4 +1,4 @@
-add_executable(simpleTest simple-test.cpp)
-target_link_libraries(simpleTest SVGNativeViewerLib)
-target_link_libraries(simpleTest gtest_main)
-add_test(NAME simple_test COMMAND simpleTest)
+add_executable(intervalTests interval-tests.cpp)
+target_link_libraries(intervalTests SVGNativeViewerLib)
+target_link_libraries(intervalTests gtest_main)
+add_test(NAME interval_tests COMMAND intervalTests)
