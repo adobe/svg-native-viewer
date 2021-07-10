@@ -105,45 +105,67 @@ using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
 
 /**
- * Represents an interval on the number line.
+ * Represents a closed interval.
  *
- * An interval can be empty, for example, the result of the
- * intersection of two disjoint intervals. Or it can have only
- * a single real number, or it can have a range of numbers.
+ * The following statements hold true for an interval:
+ * 1. An interval $I$ is defined as the set of all numbers between two
+ * numbers $u$ and $v$ on the number line, but not equal to either of them.
+ * 2. If $u$ and $v$ are the same numbers, the set becomes empty and thus
+ * the interval is also recognized as empty.
+ * 3. An interval $I$ is said to contain an interval $C$ if each element in
+ * the set of interval $C$ is also a member of the set of interval $I$.
+ * 4. The join of two intervals $A$ and $B$ is defined as an interval whose
+ * set is defined as the smallest possible set of *complete* real numbers that
+ * contain all members of $A$ as well as $B$. By complete we simply mean that
+ * if for any possible two members of the set, all real numbers between the two
+ * must also be within the set.
+ * 5. The intersection of two intervals $A$ and $B$ is the one whose set is
+ * the intersection of the sets of $A$ and $B$.
  */
 class Interval
 {
   public:
     Interval() = default;
-    Interval(float u): a(u), b(u), isEmpty(false) {}
+    Interval(float u): Interval(u, u) {}
     Interval(float u, float v);
+    /** Returns the greatest possible real number that's small than every
+     * member of this interval's set.
+     */
     float Min() { return a; }
+    /** Returns the smallest possible real number that's greater than every
+     * member of this interval's set.
+     */
     float Max() { return b; }
-    operator bool() { return !isEmpty; }
+    operator bool() { return !isEmpty(); }
     /* Computes the intersection of this interval with another one */
     Interval operator&(Interval other);
+    Interval operator|(Interval other);
     bool contains(Interval other);
-    bool Empty() { return isEmpty; }
-  private:
-    float a = std::numeric_limits<float>::quiet_NaN();
-    float b = std::numeric_limits<float>::quiet_NaN();
-    bool isEmpty = true;
+    bool isEmpty() { return a == b; }
+    float a = 0;
+    float b = 0;
 };
 
-struct Rect
+/**
+ * Represents a rectangle.
+ *
+ * A rectangle that's empty can be empty, for example, by the intersection
+ * of two disjoint rectangles.
+ *
+ * A rectangle of zero width or height is also possible. A rectangle of zero
+ * width and height is also possible, it'd represent only a single point.
+ */
+class Rect
 {
+  public:
     Rect() = default;
-    Rect(float aX, float aY, float aWidth, float aHeight)
-        : x{aX}
-        , y{aY}
-        , width{aWidth}
-        , height{aHeight}
-    {
-    }
+    Rect(float aX, float aY, float aWidth, float aHeight);
+    operator bool() { return !isEmpty; }
     float x = std::numeric_limits<float>::quiet_NaN();
     float y = std::numeric_limits<float>::quiet_NaN();
     float width = std::numeric_limits<float>::quiet_NaN();
     float height = std::numeric_limits<float>::quiet_NaN();
+    bool isEmpty = true;
 };
 
 /**
