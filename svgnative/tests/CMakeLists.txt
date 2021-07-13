@@ -2,3 +2,8 @@ add_executable(intervalTests interval-tests.cpp)
 target_link_libraries(intervalTests SVGNativeViewerLib)
 target_link_libraries(intervalTests gtest_main)
 add_test(NAME interval_tests COMMAND intervalTests)
+
+add_executable(rectangleTests rectangle-tests.cpp)
+target_link_libraries(rectangleTests SVGNativeViewerLib)
+target_link_libraries(rectangleTests gtest_main)
+add_test(NAME rectangle_tests COMMAND rectangleTests)

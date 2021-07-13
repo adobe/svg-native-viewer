@@ -121,6 +121,10 @@ using ColorMap = std::map<std::string, Color>;
  * must also be within the set.
  * 5. The intersection of two intervals $A$ and $B$ is the one whose set is
  * the intersection of the sets of $A$ and $B$.
+ * TODO: Fix the size thing here as these are infinite sets, so comparing
+ * lengths doesn't work. What should work is saying is that the interval's
+ * set should be such that no proper subset of this set will satisfy all the
+ * requirements.
  */
 class Interval
 {
@@ -139,8 +143,12 @@ class Interval
     operator bool() { return !isEmpty(); }
     /* Computes the intersection of this interval with another one */
     Interval operator&(Interval other);
+    /* Computes the join of this interval with another one, think of an interval that
+     * contains both the intervals */
     Interval operator|(Interval other);
+    /* Returns true if one interval contains another one */
     bool contains(Interval other);
+    /* Is the interval empty? having no points in its set? */
     bool isEmpty() { return a == b; }
     float a = 0;
     float b = 0;
@@ -149,23 +157,49 @@ class Interval
 /**
  * Represents a rectangle.
  *
- * A rectangle that's empty can be empty, for example, by the intersection
- * of two disjoint rectangles.
- *
- * A rectangle of zero width or height is also possible. A rectangle of zero
- * width and height is also possible, it'd represent only a single point.
+ * The following points hold true for a Rectangle:
+ * 1. A rectangle is simply defined by a pair of two Intervals. The set
+ * of a rectangle $R$ defined by two Intervals $A$ and $B$ is the set
+ * of all points $(x, y)$ such that $x$ is a member of Interval $A$'s
+ * set while $y$ is a member of Interval $B$'s set.
+ * 2. A rectangle is empty if its set is of length zero.
+ * 3. A rectangle $A$ contains a rectangle $B$ if all points of rectangle
+ * $B$'s set are also members of the set of rectangle $A$.
+ * 4. The intersection of two rectangles $A$ and $B$ is a rectangle whose
+ * set contains the elements that are common in the point set of $A$ and
+ * that of $B$.
+ * 5. The join of two rectangles $A$ and $B$ is a rectangle with the smallest
+ * possible point set such that it has all points of $A$ as well as those of
+ * set $B$ and is complete, meaning that for any two points in the set, all
+ * the points lying between will also be a part of the set.
+ * TODO: Fix the size thing here as these are infinite sets, so comparing
+ * lengths doesn't work. What should work is saying is that the rectangle's
+ * set should be such that no proper subset of this set will satisfy all the
+ * requirements.
  */
 class Rect
 {
   public:
+    using Intervals = std::tuple<Interval, Interval>;
     Rect() = default;
     Rect(float aX, float aY, float aWidth, float aHeight);
-    operator bool() { return !isEmpty; }
-    float x = std::numeric_limits<float>::quiet_NaN();
-    float y = std::numeric_limits<float>::quiet_NaN();
-    float width = std::numeric_limits<float>::quiet_NaN();
-    float height = std::numeric_limits<float>::quiet_NaN();
-    bool isEmpty = true;
+    /* Returns if the rectangle is empty */
+    bool isEmpty();
+    /* Returns the two intervals defining the rectangle */
+    Intervals intervals() { return Intervals(Interval(x, x + width), Interval(y, y + height)); }
+    /* Returns true if Rect contains the other Rect within it */
+    bool contains(Rect other);
+    /* Computes the intersection of Rect with the other Rect, meaning a rectangle encompassing area
+     * that is common in both. */
+    Rect operator&(Rect other);
+    /* Returns true if two rectangles are the same */
+    bool operator==(Rect other);
+    /* Computes the join of two rectangles, meaning a bigger rectangle that contains both of those. */
+    Rect operator|(Rect other);
+    float x = 0;
+    float y = 0;
+    float width = 0;
+    float height = 0;
 };
 
 /**

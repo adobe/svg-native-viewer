@@ -1,5 +1,6 @@
 #include "svgnative/SVGRenderer.h"
 #include <tuple>
+#include <stdexcept>
 
 namespace SVGNative {
   Interval::Interval(float u, float v)
@@ -50,14 +51,48 @@ namespace SVGNative {
   Rect::Rect(float aX, float aY, float aWidth, float aHeight)
   {
     if (aWidth < 0 || aHeight < 0)
-      return;
+    {
+      throw std::invalid_argument("Height or Width of a rectangle can't be negative!");
+    }
     x = aX;
     y = aY;
     width = aWidth;
     height = aHeight;
   }
-  std::tuple<Interval, Interval> Rect::intervals()
+  bool Rect::isEmpty()
   {
-
+    Intervals rect_intervals = intervals();
+    return std::get<0>(rect_intervals).isEmpty() || std::get<1>(rect_intervals).isEmpty();
+  }
+  bool Rect::contains(Rect other)
+  {
+    Intervals this_intervals = intervals();
+    Intervals other_intervals = other.intervals();
+    return std::get<0>(this_intervals).contains(std::get<0>(other_intervals)) &&
+           std::get<1>(this_intervals).contains(std::get<1>(other_intervals));
+  }
+  bool Rect::operator==(Rect other)
+  {
+    return x == other.x && y == other.y && width == other.width && height == other.height;
+  }
+  Rect Rect::operator&(Rect other)
+  {
+    Intervals intervals_a = intervals();
+    Intervals intervals_b = other.intervals();
+    Interval result_x = std::get<0>(intervals_a) & std::get<0>(intervals_b);
+    Interval result_y = std::get<1>(intervals_a) & std::get<1>(intervals_b);
+    if (result_x.isEmpty() || result_y.isEmpty())
+      return Rect{};
+    return Rect(result_x.Min(), result_y.Min(), result_x.Max() - result_x.Min(), result_y.Max() - result_y.Min());
+  }
+  Rect Rect::operator|(Rect other)
+  {
+    Intervals intervals_a = intervals();
+    Intervals intervals_b = other.intervals();
+    Interval result_x = std::get<0>(intervals_a) | std::get<0>(intervals_b);
+    Interval result_y = std::get<1>(intervals_a) | std::get<1>(intervals_b);
+    if (result_x.isEmpty() || result_y.isEmpty())
+      return Rect{};
+    return Rect(result_x.Min(), result_y.Min(), result_x.Max() - result_x.Min(), result_y.Max() - result_y.Min());
   }
 }
