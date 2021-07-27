@@ -973,6 +973,103 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
     SVG_ASSERT(mVisitedElements.empty());
 }
 
+Rect SVGDocumentImpl::Bounds()
+{
+    SVG_ASSERT(mGroup);
+    // TODO: Should we fire an assertion or raise exception?
+    if (!mGroup)
+        return Rect{};
+    ExtractBounds(*mGroup);
+    return mBounds;
+}
+
+Rect SVGDocumentImpl::Bounds(const char* id)
+{
+    SVG_ASSERT(mGroup);
+    // TODO: Should we fire an assertion or raise exception?
+    if (!mGroup)
+        return Rect{};
+
+    auto elementIter = mIdToElementMap.find(id);
+    if (elementIter != mIdToElementMap.end())
+        ExtractBounds(*elementIter->second);
+    else
+    {
+        // TODO: if such an element does not exist, should we raise an exception?
+    }
+    return mBounds;
+}
+
+void SVGDocumentImpl::ExtractBounds(const Element& element)
+{
+    // This function is based on the TraverseTree function, we just calculate
+    // the bounds instead of doing any drawing.
+
+    auto graphicStyle = element.graphicStyle;
+    FillStyleImpl fillStyle{};
+    StrokeStyleImpl strokeStyle{};
+    // Has no bound contribution if there is no clipContent and clip path is set
+    if (graphicStyle.clippingPath && !graphicStyle.clippingPath->hasClipContent)
+        return;
+
+    switch (element.Type())
+    {
+        case ElementType::kReference:
+            {
+                const auto& reference = static_cast<const Reference&>(element);
+                const auto it = mVisitedElements.find(&reference);
+                if (it != mVisitedElements.end())
+                    break; // We found a cycle. Do not continue rendering.
+                auto insertResult = mVisitedElements.insert(&reference);
+
+                // Render referenced content.
+                auto refIt = mIdToElementMap.find(reference.href);
+                if (refIt != mIdToElementMap.end())
+                {
+                    ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
+                    auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
+                    ExtractBounds(*(refIt->second));
+                }
+
+                // Done processing current element.
+                mVisitedElements.erase(insertResult.first);
+                break;
+            }
+        case ElementType::kGraphic:
+            {
+                const auto& graphic = static_cast<const Graphic&>(element);
+                // TODO: Since we keep the original fill, stroke and color property values
+                // we should be able to do w/o a copy.
+                fillStyle = graphic.fillStyle;
+                strokeStyle = graphic.strokeStyle;
+                ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
+                Rect bounds = mRenderer->GetBounds(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
+                if (!bounds.isEmpty())
+                    mBounds = mBounds | bounds;
+                break;
+            }
+        case ElementType::kImage:
+            {
+                const auto& image = static_cast<const Image&>(element);
+                ApplyCSSStyle(image.classNames, graphicStyle, fillStyle, strokeStyle);
+                // TODO: How to handle image's bounds?
+                //mRenderer->DrawImage(*(image.imageData.get()), graphicStyle, image.clipArea, image.fillArea);
+                break;
+            }
+        case ElementType::kGroup:
+            {
+                const auto& group = static_cast<const Group&>(element);
+                ApplyCSSStyle(group.classNames, graphicStyle, fillStyle, strokeStyle);
+                auto saveRestore = SaveRestoreHelper{mRenderer, group.graphicStyle};
+                for (const auto& child : group.children)
+                    ExtractBounds(*child);
+                break;
+            }
+        default:
+            SVG_ASSERT_MSG(false, "Unknown element type");
+    }
+}
+
 void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString)
 {
     SVG_ASSERT(!mGroupStack.empty());

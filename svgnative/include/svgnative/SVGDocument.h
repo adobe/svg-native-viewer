@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 #define SVGViewer_SVGParser_h
 
 #include "Config.h"
+#include "SVGRenderer.h"
 
 #include <array>
 #include <map>
@@ -173,6 +174,26 @@ public:
      * See /ref Render(const ColorMap& colorMap, float width, float height) for details.
      */
     void Render(const char* id, const ColorMap& colorMap, float width, float height);
+
+    /**
+     * Retrieves the bounds of the SVG Document.
+     *
+     * The bounds are as tightly computed as possible. The bounds are based on the SVG canvas
+     * and don't take into account the viewBox on the root node. The rendering port's canvas
+     * is used to calculate the bounds so the user must make sure that a context has been
+     * set, otherwise an assertion will fire.
+     */
+    Rect Bounds();
+
+    /**
+     * Retrieves the bounds of the subtree of an element with the given XML ID.
+     *
+     * The bounds are as tightly computed as possible. The bounds are based on the SVG canvas
+     * and don't take into account the viewBox on the root node. The rendering port's canvas
+     * is used to calculate the bounds so the user must make sure that a context has been
+     * set, otherwise an assertion will fire.
+     */
+    Rect Bounds(const char *id);
 
 private:
     SVGDocument();

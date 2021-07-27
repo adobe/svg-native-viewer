@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1000" width="2000" height="1000">
+  <line x1="20" y1="20" x2="150" y2="50" stroke="blue" stroke-width="10"/>
+  <rect x="20" y="70" width="200" height="100" fill="green" />
+  <rect x="20" y="200" width="200" height="100" fill="maroon" rx="20" ry="20" />
+  <rect x="20" y="310" width="200" height="100" fill="peachpuff" rx="20" ry="30" />
+  <rect x="20" y="420" width="200" height="100" fill="teal" rx="30" ry="20" />
+  <polyline points="20,530 50,600 80,530 110,600 140,530 170,600" fill="lightgreen" />
+  <polygon points="20,600 30,700 40,720 50,680 60,720 70,680 80,720 80,720 150,720 140,620" fill="darkcyan" />
+  <circle cx="100" cy="800" r="70" fill="red" />
+  <circle cx="1500.4" cy="800" r="70" fill="red" />
+  <ellipse cx="300" cy="120" rx="50" ry="100" fill="deeppink"/>
+  <path d="M 250,250 V 300 H 300 V 400 H 400 V 500 H 500 V 600 Q 250,600 250,800 C 400,770 550,780 680,830 T 700,800 T 750,800 T 750,750 T 650,750 T 600,650 S 700,650 700,600 S 750,650 740,550 Q 550,400 400,300 Z" stroke="red" stroke-width="10" fill="darkcyan"/>
+  <path d="M800,50v50h50v100h100v100h100v100q-250,0,-250,200c150,-30,300,-20,430,30t20,-30t50,0t0,-50t-100,0t-50,-100s100,0,100,-50s50,50,40,-50q0,-100,-150,-200z" stroke="deeppink" stroke-width="10" fill="gold"/>
+</svg>

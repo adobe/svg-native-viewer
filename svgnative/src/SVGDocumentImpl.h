@@ -194,6 +194,8 @@ public:
 #endif
     void Render(const ColorMap& colorMap, float width, float height);
     void Render(const char* id, const ColorMap& colorMap, float width, float height);
+    Rect Bounds();
+    Rect Bounds(const char* id);
 
     std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
@@ -219,6 +221,7 @@ private:
     PropertySet ParsePresentationAttributes(const xml::XMLNode* node);
 
     void RenderElement(const Element& element, const ColorMap& colorMap, float width, float height);
+    void ExtractBounds(const Element& element);
 
     void TraverseTree(const ColorMap& colorMap, const Element&);
 
@@ -240,6 +243,7 @@ private:
     // hierarchy.
     std::stack<StrokeStyleImpl> mStrokeStyleStack;
     std::stack<FillStyleImpl> mFillStyleStack;
+    Rect mBounds;
 
 #ifdef STYLE_SUPPORT
     const StyleSheet::CssDocument* mOverrideStyle{};

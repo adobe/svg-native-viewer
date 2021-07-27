@@ -126,6 +126,14 @@ void SVGDocument::Render(const char* id, const ColorMap& colorMap, float width, 
     mDocument->Render(id, colorMap, width, height);
 }
 
+Rect SVGDocument::Bounds()
+{
+    // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
+    if (!mDocument)
+        return Rect{};
+    return mDocument->Bounds();
+}
+
 std::int32_t SVGDocument::Width() const
 {
     if (!mDocument)
