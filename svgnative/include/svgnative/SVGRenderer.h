@@ -351,7 +351,7 @@ public:
     virtual void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) = 0;
     virtual Rect GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
     {
-      throw "Bound calculation functionality not implemented in this port";
+      //throw "Bound calculation functionality not implemented in this port";
       return Rect{};
     }
 };

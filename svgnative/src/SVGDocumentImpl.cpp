@@ -1073,7 +1073,11 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
                 const auto& image = static_cast<const Image&>(element);
                 ApplyCSSStyle(image.classNames, graphicStyle, fillStyle, strokeStyle);
                 // TODO: How to handle image's bounds?
-                //mRenderer->DrawImage(*(image.imageData.get()), graphicStyle, image.clipArea, image.fillArea);
+                auto path = mRenderer->CreatePath();
+                path->Rect(image.fillArea.x, image.fillArea.y, image.fillArea.width, image.fillArea.height);
+                Rect bounds = mRenderer->GetBounds(*path.get(), GraphicStyle{}, FillStyle{}, StrokeStyle{});
+                if (!bounds.isEmpty())
+                    mBounds.push_back(bounds);
                 break;
             }
         case ElementType::kGroup:
