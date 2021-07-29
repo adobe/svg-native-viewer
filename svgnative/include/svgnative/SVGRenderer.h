@@ -196,6 +196,12 @@ class Rect
     bool operator==(Rect other);
     /* Computes the join of two rectangles, meaning a bigger rectangle that contains both of those. */
     Rect operator|(Rect other);
+    float Area() { return width * height; }
+    float MaxDiffVertex(Rect other);
+    float Left() { return x; }
+    float Right() { return x + width; }
+    float Top() { return y; }
+    float Bottom() { return y + height; }
     float x = 0;
     float y = 0;
     float width = 0;
@@ -346,6 +352,7 @@ public:
     virtual Rect GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
     {
       throw "Bound calculation functionality not implemented in this port";
+      return Rect{};
     }
 };
 

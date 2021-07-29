@@ -67,7 +67,7 @@ void SkiaSVGPath::CurveTo(float x1, float y1, float x2, float y2, float x3, floa
 
 void SkiaSVGPath::CurveToV(float x2, float y2, float x3, float y3)
 {
-    mPath.cubicTo(mCurrentX, mCurrentY, x2, y2, x3, y3);
+    mPath.quadTo(x2, y2, x3, y3);
     mCurrentX = x3;
     mCurrentY = y3;
 }
@@ -188,7 +188,8 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
             const auto& matrix = static_cast<const SkiaSVGTransform*>(graphicStyle.clippingPath->transform.get())->mMatrix;
             clippingPath.transform(matrix);
         }
-        clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
+        //clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
+        clippingPath.setFillType(SkPathFillType::kEvenOdd);
         mCanvas->clipPath(clippingPath);
     }
 }
@@ -362,7 +363,6 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
     // the bounds should be transformed according to the current transformation matrix
     SkMatrix matrix = mCanvas->getLocalToDeviceAs3x3();
     bounds = matrix.mapRect(bounds);
-
     // if there is clipping, take the clip bounds and intersect them with
     // the bound calculated so far, then return that intersection
     if (graphicStyle.clippingPath && graphicStyle.clippingPath->path)
@@ -370,7 +370,7 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
       Rect old_bounds{bounds.x(), bounds.y(), bounds.width(), bounds.height()};
       SkIRect clip = mCanvas->getDeviceClipBounds();
       Rect clip_bounds{(float)clip.x(), (float)clip.y(), (float)clip.width(), (float)clip.height()};
-      Rect new_bounds = old_bounds & clip_bounds;
+      Rect new_bounds = clip_bounds;
       bounds = SkRect::MakeXYWH(new_bounds.x, new_bounds.y, new_bounds.width, new_bounds.height);
     }
     Restore();

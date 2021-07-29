@@ -980,6 +980,21 @@ Rect SVGDocumentImpl::Bounds()
     if (!mGroup)
         return Rect{};
     ExtractBounds(*mGroup);
+    Rect sum_bound;
+    for(auto const &bound: mBounds)
+    {
+        sum_bound = sum_bound | bound;
+    }
+    return sum_bound;
+}
+
+std::vector<Rect> SVGDocumentImpl::SubBounds()
+{
+    SVG_ASSERT(mGroup);
+    // TODO: Should we fire an assertion or raise exception?
+    if (!mGroup)
+        return std::vector<Rect>();
+    ExtractBounds(*mGroup);
     return mBounds;
 }
 
@@ -997,7 +1012,12 @@ Rect SVGDocumentImpl::Bounds(const char* id)
     {
         // TODO: if such an element does not exist, should we raise an exception?
     }
-    return mBounds;
+    Rect sum_bound;
+    for(auto const &bound: mBounds)
+    {
+        sum_bound = sum_bound | bound;
+    }
+    return sum_bound;
 }
 
 void SVGDocumentImpl::ExtractBounds(const Element& element)
@@ -1045,7 +1065,7 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
                 ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
                 Rect bounds = mRenderer->GetBounds(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
                 if (!bounds.isEmpty())
-                    mBounds = mBounds | bounds;
+                    mBounds.push_back(bounds);
                 break;
             }
         case ElementType::kImage:

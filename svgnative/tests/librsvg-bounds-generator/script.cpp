@@ -6,6 +6,7 @@
 #include <string>
 
 #include <librsvg/rsvg.h>
+#include <cairo.h>
 
 int main(void)
 {
@@ -20,7 +21,8 @@ int main(void)
     std::string filename;
     while(std::getline(filenames_file, filename))
     {
-        filenames.push_back(filename);
+        if (filename != "")
+            filenames.push_back(filename);
     }
     filenames_file.close();
 
@@ -35,14 +37,20 @@ int main(void)
             std::cout << error->message << std::endl;
             return -1;
         }
-        RsvgRectangle ink_rectangle;
-        rsvg_handle_get_geometry_for_element(handle, NULL, &ink_rectangle, NULL, &error);
+        cairo_surface_t *surface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, NULL);
+        cairo_t *ct = cairo_create(surface);
+        rsvg_handle_render_cairo(handle, ct);
+        cairo_surface_flush(surface);
+        double x, y, width, height;
+        cairo_recording_surface_ink_extents(surface, &x, &y, &width, &height);
+        cairo_destroy(ct);
+        cairo_surface_destroy(surface);
         if (error)
         {
             std::cout << "Couldn't compute the bounds" << std::endl;
             return -1;
         }
-        auto tup = std::tuple<float, float, float, float>(ink_rectangle.x, ink_rectangle.y, ink_rectangle.width, ink_rectangle.height);
+        auto tup = std::tuple<float, float, float, float>(x, y, width, height);
         bounds.push_back(tup);
         g_object_unref(handle);
     }
@@ -55,7 +63,7 @@ int main(void)
     }
     for(auto const& bound: bounds)
     {
-        bounds_file << std::setprecision(15) << std::get<0>(bound) << " " << std::get<1>(bound) << " " << std::get<2>(bound) << " " << std::get<3>(bound) << std::endl;
+        bounds_file << std::setprecision(15) << std::get<0>(bound) << "," << std::get<1>(bound) << "," << std::get<2>(bound) << "," << std::get<3>(bound) << std::endl;
     }
     bounds_file.close();
     return 0;

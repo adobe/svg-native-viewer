@@ -184,6 +184,7 @@ public:
      * set, otherwise an assertion will fire.
      */
     Rect Bounds();
+    std::vector<Rect> SubBounds();
 
     /**
      * Retrieves the bounds of the subtree of an element with the given XML ID.

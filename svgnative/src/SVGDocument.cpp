@@ -134,6 +134,14 @@ Rect SVGDocument::Bounds()
     return mDocument->Bounds();
 }
 
+std::vector<Rect> SVGDocument::SubBounds()
+{
+    // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
+    if (!mDocument)
+        return std::vector<Rect>();
+    return mDocument->SubBounds();
+}
+
 std::int32_t SVGDocument::Width() const
 {
     if (!mDocument)

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <tuple>
 #include <vector>
+#include <cstdlib>
+#include <cmath>
 
 #include "gtest/gtest.h"
 #include "gtest/gtest-spi.h"
@@ -59,6 +61,8 @@ TEST(bounds_tests, bounds_functional_test)
     std::vector<std::tuple<std::string, Rect>> svg_documents_bounds;
     while(std::getline(filenames_file, filename))
     {
+        if (filename == "")
+            break;
         std::getline(bounds_file, bounds_line);
         float x, y, width, height;
         sscanf(bounds_line.c_str(), "%f,%f,%f,%f", &x, &y, &width, &height);
@@ -83,10 +87,31 @@ TEST(bounds_tests, bounds_functional_test)
         input.close();
         auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
         Rect bounds = doc->Bounds();
-        EXPECT_EQ(bounds.contains(standard_bounds), true);
-        float width_ratio = std::min(bounds.width, standard_bounds.width)/std::max(bounds.width, standard_bounds.width);
-        float height_ratio = std::min(bounds.height, standard_bounds.height)/std::max(bounds.height, standard_bounds.height);
-        EXPECT_EQ(width_ratio > 0.70, true);
-        EXPECT_EQ(height_ratio > 0.70, true);
+        float diff = bounds.MaxDiffVertex(standard_bounds);
+        //printf("diff: %f\n", diff);
+        diff = diff / (std::max(standard_bounds.width, standard_bounds.height));
+        if (diff < 0.1)
+        {
+            printf("%s, %f, PASS\n", filename.c_str(), diff);
+        }
+        else
+        {
+            const int buffer = 2;
+            bounds.x -= buffer;
+            bounds.y -= buffer;
+            bounds.width += buffer * 2;
+            bounds.height += buffer * 2;
+            if (bounds.contains(standard_bounds))
+            {
+                printf("%s, %f, PASS because contains\n", filename.c_str(), diff);
+            }
+            else
+            {
+                printf("%s, %f, FAIL\n", filename.c_str(), diff);
+                printf("standard: %f %f %f %f\n", standard_bounds.x, standard_bounds.y, standard_bounds.width, standard_bounds.height);
+                printf("calculated: %f %f %f %f\n", bounds.x, bounds.y, bounds.width, bounds.height);
+                FAIL();
+            }
+        }
     }
 }

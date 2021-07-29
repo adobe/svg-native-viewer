@@ -110,3 +110,13 @@ TEST(rectangle_tests, rectangle_join_test)
   EXPECT_EQ((rect1 | Rect{}) == rect1, true);
   EXPECT_EQ((rect2 | Rect{}) == rect2, true);
 }
+
+TEST(rectangle_tests, rectangle_side_tests)
+{
+  Rect rect(1, 2, 4, 6);
+  EXPECT_EQ(rect.Area(), 24.0);
+  EXPECT_EQ(rect.Left(), 1);
+  EXPECT_EQ(rect.Top(), 2);
+  EXPECT_EQ(rect.Right(), 5);
+  EXPECT_EQ(rect.Bottom(), 8);
+}

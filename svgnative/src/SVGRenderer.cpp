@@ -1,5 +1,6 @@
 #include "svgnative/SVGRenderer.h"
 #include <tuple>
+#include <cmath>
 #include <stdexcept>
 
 namespace SVGNative {
@@ -94,5 +95,13 @@ namespace SVGNative {
     if (result_x.isEmpty() || result_y.isEmpty())
       return Rect{};
     return Rect(result_x.Min(), result_y.Min(), result_x.Max() - result_x.Min(), result_y.Max() - result_y.Min());
+  }
+  float Rect::MaxDiffVertex(Rect other)
+  {
+      float top_left_diff = std::sqrt(std::pow(Left() - other.Left(), 2) + std::pow(Top() - other.Top(), 2));
+      float top_right_diff = std::sqrt(std::pow(Right() - other.Right(), 2) + std::pow(Top() - other.Top(), 2));
+      float bottom_left_diff = std::sqrt(std::pow(Left() - other.Left(), 2) + std::pow(Bottom() - other.Bottom(), 2));
+      float bottom_right_diff = std::sqrt(std::pow(Right() - other.Right(), 2) + std::pow(Bottom() - other.Bottom(), 2));
+      return std::max({top_left_diff, top_right_diff, bottom_left_diff, bottom_right_diff});
   }
 }
