@@ -1,4 +1,7 @@
 rectangles-combined.svg
+rectangles-combined.svg,#group1
+rectangles-combined.svg,#group2
+rectangles-combined.svg,#group3
 rectangle-rounded-rotated-circle.svg
 ellipses-combined.svg
 polyline.svg

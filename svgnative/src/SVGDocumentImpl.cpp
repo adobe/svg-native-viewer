@@ -988,16 +988,6 @@ Rect SVGDocumentImpl::Bounds()
     return sum_bound;
 }
 
-std::vector<Rect> SVGDocumentImpl::SubBounds()
-{
-    SVG_ASSERT(mGroup);
-    // TODO: Should we fire an assertion or raise exception?
-    if (!mGroup)
-        return std::vector<Rect>();
-    ExtractBounds(*mGroup);
-    return mBounds;
-}
-
 Rect SVGDocumentImpl::Bounds(const char* id)
 {
     SVG_ASSERT(mGroup);
@@ -1018,6 +1008,17 @@ Rect SVGDocumentImpl::Bounds(const char* id)
         sum_bound = sum_bound | bound;
     }
     return sum_bound;
+}
+
+
+std::vector<Rect> SVGDocumentImpl::SubBounds()
+{
+    SVG_ASSERT(mGroup);
+    // TODO: Should we fire an assertion or raise exception?
+    if (!mGroup)
+        return std::vector<Rect>();
+    ExtractBounds(*mGroup);
+    return mBounds;
 }
 
 void SVGDocumentImpl::ExtractBounds(const Element& element)

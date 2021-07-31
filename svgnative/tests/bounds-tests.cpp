@@ -72,8 +72,20 @@ TEST(bounds_tests, bounds_functional_test)
     bounds_file.close();
     for(auto const& item: svg_documents_bounds)
     {
-        std::string filename = std::get<0>(item);
+        std::string line = std::get<0>(item);
         Rect standard_bounds = std::get<1>(item);
+
+        bool bounds_of_group = false;
+        auto loc = line.find_first_of(",");
+        std::string filename = line;
+        std::string id;
+        if (loc != std::string::npos)
+        {
+            filename = line.substr(0, loc);
+            id = line.substr(loc + 2, std::string::npos);
+            bounds_of_group = true;
+        }
+
         std::string full_file_path = "../../tests/bound-tests-svgs/" + filename;
         std::string svgInput{};
         std::ifstream input(full_file_path);
@@ -86,7 +98,11 @@ TEST(bounds_tests, bounds_functional_test)
             svgInput.append(line);
         input.close();
         auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
-        Rect bounds = doc->Bounds();
+        Rect bounds;
+        if (bounds_of_group)
+            bounds = doc->Bounds(id.c_str());
+        else
+            bounds = doc->Bounds();
         EXPECT_EQ((bounds.IsEmpty() && !standard_bounds.IsEmpty()) ||
                   (!bounds.IsEmpty() && standard_bounds.IsEmpty()), false);
         if (bounds.IsEmpty() && standard_bounds.IsEmpty())
@@ -99,7 +115,7 @@ TEST(bounds_tests, bounds_functional_test)
         diff = diff / (std::max(standard_bounds.width, standard_bounds.height));
         if (diff < 0.1)
         {
-            printf("%s, %f, PASS\n", filename.c_str(), diff);
+            printf("%s, %f, PASS\n", line.c_str(), diff);
         }
         else
         {
@@ -110,11 +126,11 @@ TEST(bounds_tests, bounds_functional_test)
             bounds.height += buffer * 2;
             if (bounds.Contains(standard_bounds))
             {
-                printf("%s, %f, PASS because contains\n", filename.c_str(), diff);
+                printf("%s, %f, PASS because contains\n", line.c_str(), diff);
             }
             else
             {
-                printf("%s, %f, FAIL\n", filename.c_str(), diff);
+                printf("%s, %f, FAIL\n", line.c_str(), diff);
                 printf("standard: %f %f %f %f\n", standard_bounds.x, standard_bounds.y, standard_bounds.width, standard_bounds.height);
                 printf("calculated: %f %f %f %f\n", bounds.x, bounds.y, bounds.width, bounds.height);
                 FAIL();

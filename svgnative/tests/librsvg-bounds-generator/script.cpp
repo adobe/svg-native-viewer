@@ -27,8 +27,19 @@ int main(void)
     filenames_file.close();
 
     std::vector<std::tuple<float, float, float, float>> bounds;
-    for(auto const& file_name: filenames)
+    for(auto const& line: filenames)
     {
+        bool bounds_of_group = false;
+        auto loc = line.find_first_of(",");
+        std::string file_name = line;
+        std::string id;
+        if (loc != std::string::npos)
+        {
+            file_name = line.substr(0, loc);
+            id = line.substr(loc + 1, std::string::npos);
+            bounds_of_group = true;
+        }
+
         GError *error = NULL;
         RsvgHandle *handle = rsvg_handle_new_from_file(("../bound-tests-svgs/" + file_name).c_str(), &error);
         if (error)
@@ -39,7 +50,10 @@ int main(void)
         }
         cairo_surface_t *surface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, NULL);
         cairo_t *ct = cairo_create(surface);
-        rsvg_handle_render_cairo(handle, ct);
+        if (bounds_of_group)
+            rsvg_handle_render_cairo_sub(handle, ct, id.c_str());
+        else
+            rsvg_handle_render_cairo(handle, ct);
         cairo_surface_flush(surface);
         double x, y, width, height;
         cairo_recording_surface_ink_extents(surface, &x, &y, &width, &height);
