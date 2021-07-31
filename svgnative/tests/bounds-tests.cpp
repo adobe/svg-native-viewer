@@ -87,6 +87,13 @@ TEST(bounds_tests, bounds_functional_test)
         input.close();
         auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
         Rect bounds = doc->Bounds();
+        EXPECT_EQ((bounds.IsEmpty() && !standard_bounds.IsEmpty()) ||
+                  (!bounds.IsEmpty() && standard_bounds.IsEmpty()), false);
+        if (bounds.IsEmpty() && standard_bounds.IsEmpty())
+        {
+            printf("%s, PASS because both empty\n", filename.c_str());
+            continue;
+        }
         float diff = bounds.MaxDiffVertex(standard_bounds);
         //printf("diff: %f\n", diff);
         diff = diff / (std::max(standard_bounds.width, standard_bounds.height));

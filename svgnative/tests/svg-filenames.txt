@@ -17,5 +17,7 @@ stroke-linejoin-miter.svg
 stroke-linejoin-round.svg
 use.svg
 images.svg
+dot.svg
+zero-stroke.svg
 
 arcs.svg

@@ -329,9 +329,6 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
     Save(graphicStyle);
     // get the internal SkPath
     SkPath mPath = (static_cast<const SkiaSVGPath&>(path).mPath);
-    // TODO: set the fill rule, not sure if the bound calculation functionality would take care of
-    // this but ideally it should and stuff that's not going to be filled shouldn't be a part of
-    // the bounding box
     mPath.setFillType(fillStyle.fillRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
     // compute the tight fill bounds for the path
     bounds = mPath.computeTightBounds();
@@ -373,7 +370,11 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
         bounds = SkRect::MakeXYWH(new_bounds.x, new_bounds.y, new_bounds.width, new_bounds.height);
     }
     Restore();
-    return Rect{bounds.x(), bounds.y(), bounds.width(), bounds.height()};
+    Rect snv_bounds = Rect{bounds.x(), bounds.y(), bounds.width(), bounds.height()};
+    if (!snv_bounds.IsEmpty())
+        return snv_bounds;
+    else
+        return Rect{}; // ensure that {0, 0, 0, 0} is returned when it's an empty rectangle
 }
 
 
