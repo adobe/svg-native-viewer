@@ -1064,7 +1064,7 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
                 strokeStyle = graphic.strokeStyle;
                 ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
                 Rect bounds = mRenderer->GetBounds(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
-                if (!bounds.isEmpty())
+                if (!bounds.IsEmpty())
                     mBounds.push_back(bounds);
                 break;
             }
@@ -1076,7 +1076,7 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
                 auto path = mRenderer->CreatePath();
                 path->Rect(image.fillArea.x, image.fillArea.y, image.fillArea.width, image.fillArea.height);
                 Rect bounds = mRenderer->GetBounds(*path.get(), GraphicStyle{}, FillStyle{}, StrokeStyle{});
-                if (!bounds.isEmpty())
+                if (!bounds.IsEmpty())
                     mBounds.push_back(bounds);
                 break;
             }

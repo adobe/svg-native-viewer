@@ -486,15 +486,15 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib-uninstalled.pc.in
 # setup Google Test for testing
 ################################
 if (TESTING)
-	enable_testing()
-	include(FetchContent)
-	FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git)
-	# For Windows: Prevent overriding the parent project's compiler/linker settings
-	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-	message(STATUS "Fetching Google Test framework for automated testing")
-	FetchContent_MakeAvailable(googletest)
-	message(STATUS "Successfully fetched Google Test framework")
-	add_subdirectory(tests)
+    enable_testing()
+    include(FetchContent)
+    FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git)
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    message(STATUS "Fetching Google Test framework for automated testing")
+    FetchContent_MakeAvailable(googletest)
+    message(STATUS "Successfully fetched Google Test framework")
+    add_subdirectory(tests)
 endif()
 
 ##############################

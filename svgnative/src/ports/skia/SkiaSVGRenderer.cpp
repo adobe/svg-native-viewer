@@ -188,8 +188,7 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
             const auto& matrix = static_cast<const SkiaSVGTransform*>(graphicStyle.clippingPath->transform.get())->mMatrix;
             clippingPath.transform(matrix);
         }
-        //clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
-        clippingPath.setFillType(SkPathFillType::kEvenOdd);
+        clippingPath.setFillType(graphicStyle.clippingPath->clipRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
         mCanvas->clipPath(clippingPath);
     }
 }
@@ -338,26 +337,26 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
     bounds = mPath.computeTightBounds();
     if (strokeStyle.hasStroke)
     {
-      // create the stroke paint and then find the stroke bounds
-      SkPaint stroke;
-      stroke.setStyle(SkPaint::kStroke_Style);
-      stroke.setStrokeWidth(strokeStyle.lineWidth);
-      if (!strokeStyle.dashArray.empty())
-      {
-        stroke.setPathEffect(SkDashPathEffect::Make((SkScalar*)(strokeStyle.dashArray.data()),
-              strokeStyle.dashArray.size(),
-              (SkScalar)strokeStyle.dashOffset));
-      }
-      CreateSkPaint(strokeStyle.paint, strokeStyle.strokeOpacity, stroke);
-      SkPath mPath = (static_cast<const SkiaSVGPath&>(path).mPath);
-      if (stroke.canComputeFastBounds())
-      {
-        bounds = stroke.computeFastBounds(bounds, &bounds);
-      }
-      else
-      {
-        // TODO: When would canComputeFastBounds return false and how to handle that?
-      }
+        // create the stroke paint and then find the stroke bounds
+        SkPaint stroke;
+        stroke.setStyle(SkPaint::kStroke_Style);
+        stroke.setStrokeWidth(strokeStyle.lineWidth);
+        if (!strokeStyle.dashArray.empty())
+        {
+            stroke.setPathEffect(SkDashPathEffect::Make((SkScalar*)(strokeStyle.dashArray.data()),
+                        strokeStyle.dashArray.size(),
+                        (SkScalar)strokeStyle.dashOffset));
+        }
+        CreateSkPaint(strokeStyle.paint, strokeStyle.strokeOpacity, stroke);
+        SkPath mPath = (static_cast<const SkiaSVGPath&>(path).mPath);
+        if (stroke.canComputeFastBounds())
+        {
+            bounds = stroke.computeFastBounds(bounds, &bounds);
+        }
+        else
+        {
+            // TODO: When would canComputeFastBounds return false and how to handle that?
+        }
     }
 
     // the bounds should be transformed according to the current transformation matrix
@@ -367,11 +366,11 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
     // the bound calculated so far, then return that intersection
     if (graphicStyle.clippingPath && graphicStyle.clippingPath->path)
     {
-      Rect old_bounds{bounds.x(), bounds.y(), bounds.width(), bounds.height()};
-      SkIRect clip = mCanvas->getDeviceClipBounds();
-      Rect clip_bounds{(float)clip.x(), (float)clip.y(), (float)clip.width(), (float)clip.height()};
-      Rect new_bounds = clip_bounds;
-      bounds = SkRect::MakeXYWH(new_bounds.x, new_bounds.y, new_bounds.width, new_bounds.height);
+        Rect old_bounds{bounds.x(), bounds.y(), bounds.width(), bounds.height()};
+        SkIRect clip = mCanvas->getDeviceClipBounds();
+        Rect clip_bounds{(float)clip.x(), (float)clip.y(), (float)clip.width(), (float)clip.height()};
+        Rect new_bounds = clip_bounds;
+        bounds = SkRect::MakeXYWH(new_bounds.x, new_bounds.y, new_bounds.width, new_bounds.height);
     }
     Restore();
     return Rect{bounds.x(), bounds.y(), bounds.width(), bounds.height()};

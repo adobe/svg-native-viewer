@@ -184,7 +184,6 @@ public:
      * set, otherwise an assertion will fire.
      */
     Rect Bounds();
-    std::vector<Rect> SubBounds();
 
     /**
      * Retrieves the bounds of the subtree of an element with the given XML ID.
@@ -196,6 +195,13 @@ public:
      */
     Rect Bounds(const char *id);
 
+    /**
+     * TODO: Remove this.
+     *
+     * This is a temporary API for the purpose of testing that will be removed when I convert
+     * the PR from draft status to a regular PR.
+     */
+    std::vector<Rect> SubBounds();
 private:
     SVGDocument();
 

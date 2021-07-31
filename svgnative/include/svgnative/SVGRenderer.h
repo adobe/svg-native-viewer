@@ -107,6 +107,8 @@ using ColorMap = std::map<std::string, Color>;
 /**
  * Represents a closed interval.
  *
+ * TODO: Just remove these mathematical definitions?
+ *
  * The following statements hold true for an interval:
  * 1. An interval $I$ is defined as the set of all numbers between two
  * numbers $u$ and $v$ on the number line, but not equal to either of them.
@@ -117,14 +119,11 @@ using ColorMap = std::map<std::string, Color>;
  * 4. The join of two intervals $A$ and $B$ is defined as an interval whose
  * set is defined as the smallest possible set of *complete* real numbers that
  * contain all members of $A$ as well as $B$. By complete we simply mean that
- * if for any possible two members of the set, all real numbers between the two
- * must also be within the set.
+ * for any possible two members of the set, all real numbers between the two
+ * must also be within the set. The word smallest here means that no other proper
+ * subset of that set will satisfy all the requirements.
  * 5. The intersection of two intervals $A$ and $B$ is the one whose set is
  * the intersection of the sets of $A$ and $B$.
- * TODO: Fix the size thing here as these are infinite sets, so comparing
- * lengths doesn't work. What should work is saying is that the interval's
- * set should be such that no proper subset of this set will satisfy all the
- * requirements.
  */
 class Interval
 {
@@ -132,24 +131,33 @@ class Interval
     Interval() = default;
     Interval(float u): Interval(u, u) {}
     Interval(float u, float v);
-    /** Returns the greatest possible real number that's small than every
+
+    /**
+     * Returns the greatest possible real number that's small than every
      * member of this interval's set.
      */
     float Min() { return a; }
-    /** Returns the smallest possible real number that's greater than every
+
+    /**
+     * Returns the smallest possible real number that's greater than every
      * member of this interval's set.
      */
     float Max() { return b; }
-    operator bool() { return !isEmpty(); }
+    operator bool() { return !IsEmpty(); }
+
     /* Computes the intersection of this interval with another one */
     Interval operator&(Interval other);
+
     /* Computes the join of this interval with another one, think of an interval that
      * contains both the intervals */
     Interval operator|(Interval other);
+
     /* Returns true if one interval contains another one */
-    bool contains(Interval other);
+    bool Contains(Interval other);
+
     /* Is the interval empty? having no points in its set? */
-    bool isEmpty() { return a == b; }
+    bool IsEmpty() { return a == b; }
+
     float a = 0;
     float b = 0;
 };
@@ -171,24 +179,21 @@ class Interval
  * 5. The join of two rectangles $A$ and $B$ is a rectangle with the smallest
  * possible point set such that it has all points of $A$ as well as those of
  * set $B$ and is complete, meaning that for any two points in the set, all
- * the points lying between will also be a part of the set.
- * TODO: Fix the size thing here as these are infinite sets, so comparing
- * lengths doesn't work. What should work is saying is that the rectangle's
- * set should be such that no proper subset of this set will satisfy all the
- * requirements.
+ * the points lying between will also be a part of the set. By smallest we mean
+ * that no other proper subset of that set should satisfy this requirement.
  */
 class Rect
 {
   public:
-    using Intervals = std::tuple<Interval, Interval>;
+    using IntervalPair = std::tuple<Interval, Interval>;
     Rect() = default;
     Rect(float aX, float aY, float aWidth, float aHeight);
     /* Returns if the rectangle is empty */
-    bool isEmpty();
+    bool IsEmpty();
     /* Returns the two intervals defining the rectangle */
-    Intervals intervals() { return Intervals(Interval(x, x + width), Interval(y, y + height)); }
+    IntervalPair Intervals() { return IntervalPair(Interval(x, x + width), Interval(y, y + height)); }
     /* Returns true if Rect contains the other Rect within it */
-    bool contains(Rect other);
+    bool Contains(Rect other);
     /* Computes the intersection of Rect with the other Rect, meaning a rectangle encompassing area
      * that is common in both. */
     Rect operator&(Rect other);
@@ -351,7 +356,7 @@ public:
     virtual void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) = 0;
     virtual Rect GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
     {
-      //throw "Bound calculation functionality not implemented in this port";
+      throw "Bound calculation functionality not implemented in this port";
       return Rect{};
     }
 };

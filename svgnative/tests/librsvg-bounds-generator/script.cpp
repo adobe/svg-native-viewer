@@ -58,7 +58,7 @@ int main(void)
     bounds_file.open("../svg-bounds.txt", std::ios::out);
     if (!bounds_file)
     {
-        std::cout << "Couldn't open the file tot write the bounds to" << std::endl;
+        std::cout << "Couldn't open the file to write the bounds to" << std::endl;
         return -1;
     }
     for(auto const& bound: bounds)

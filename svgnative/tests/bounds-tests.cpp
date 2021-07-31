@@ -101,7 +101,7 @@ TEST(bounds_tests, bounds_functional_test)
             bounds.y -= buffer;
             bounds.width += buffer * 2;
             bounds.height += buffer * 2;
-            if (bounds.contains(standard_bounds))
+            if (bounds.Contains(standard_bounds))
             {
                 printf("%s, %f, PASS because contains\n", filename.c_str(), diff);
             }
