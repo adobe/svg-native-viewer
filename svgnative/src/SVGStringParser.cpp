@@ -1059,12 +1059,21 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
         std::string urlString(pos, pos + 5);
         if (urlString.find("url(#") == 0)
         {
-            // FIXME: Add proper parser for url()
-            auto position = colorString.find(')');
-            if (position == std::string::npos)
+            pos += urlString.size();
+            auto startPos = pos;
+            bool success{};
+            while (pos != end)
+            {
+                if (*pos++ == ')')
+                {
+                    success = true;
+                    break;
+                }
+            }
+            if (!success || (pos != end && !isWsp(*pos)))
                 return SVGDocumentImpl::Result::kInvalid;
-            auto id = colorString.substr(5, position - 5);
-            auto it = gradientMap.find(id);
+            std::string idString(startPos, pos - 1);
+            auto it = gradientMap.find(idString);
             if (it != gradientMap.end())
             {
                 // * No color stops means the same as if 'none' was specified.
@@ -1101,7 +1110,6 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
                     paint = gradient;
                 }
             }
-            pos += position + 1;
         }
     }
     if (!SkipOptWsp(pos, end))

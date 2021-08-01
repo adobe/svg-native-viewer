@@ -100,6 +100,9 @@
             [path Rect(80,60,20,20)
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
                 stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path Rect(80,60,20,20)
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
             [path Rect(100,60,20,20)
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
                 stroke: {hasStroke: false width: 1 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]

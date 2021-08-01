@@ -42,12 +42,13 @@
     </g>
     <rect x="140" y="40" width="20" height="20" fill="#F00 red" stroke="#F00 red"/>
     <rect x="160" y="40" width="20" height="20" fill="#F00 #F00" stroke="#F00 #F00"/>
-    <rect x="180" y="40" width="20" height="20" fill="url(#notPresent) #008000" stroke="url(#notPresent) #008000"/>
-    <rect x="0" y="60" width="20" height="20" fill="url(#notPresent) green" stroke="url(#notPresent) green"/>
+    <rect x="180" y="40" width="20" height="20" fill="url(#notPresent) #008000" stroke=" url(#notPresent) #008000"/>
+    <rect x="0" y="60" width="20" height="20" fill=" url(#notPresent) green" stroke="url(#notPresent) green"/>
     <rect x="20" y="60" width="20" height="20" fill="url(#notPresent) none" stroke="url(#notPresent) none"/>
     <rect x="40" y="60" width="20" height="20" fill="url(#notPresent) #008000 #008000" stroke="url(#notPresent) #008000 #008000"/>
     <rect x="60" y="60" width="20" height="20" fill="#F00 url(#notPresent)" stroke="#F00 url(#notPresent)"/>
     <rect x="80" y="60" width="20" height="20" fill="url(#notPresent), #F00" stroke="url(#notPresent), #F00"/>
+    <rect x="80" y="60" width="20" height="20" fill="url(#notPresent)#F00" stroke="url(#notPresent)#F00"/>
 
     <!-- var(): invalid -->
     <rect x="100" y="60" width="20" height="20" fill="var(test-green)" stroke="var(test-green)"/>
