@@ -48,6 +48,7 @@ option(TEXT "Enable Text port for testing" ON)
 option(CG "Enable CoreGraphics/Quartz2D port")
 option(SKIA "Enable Skia port")
 option(GDIPLUS "Enable GDI+ port")
+option(D2D "Enable Direct2D port")
 option(STYLE "Enable deprecated CSS Styling support")
 option(CAIRO "Enable Cairo port")
 
@@ -58,6 +59,7 @@ CMAKE_DEPENDENT_OPTION(USE_TEXT "Text port for testing" TRUE "TEXT" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CG "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "APPLE;CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA "Skia" TRUE "SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS "GDI+ port" TRUE "MSVC;GDIPLUS" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_D2D "Direct2D port" TRUE "MSVC;D2D" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CAIRO "Cairo" TRUE "CAIRO" FALSE)
 
 CMAKE_DEPENDENT_OPTION(USE_TEXT_EXAMPLE "Text port for testing" TRUE "NOT LIB_ONLY;TEXT" FALSE)
@@ -65,6 +67,7 @@ CMAKE_DEPENDENT_OPTION(USE_C_EXAMPLE "C Wrapper port for demonstration" TRUE "NO
 CMAKE_DEPENDENT_OPTION(USE_CG_EXAMPLE "CoreGraphics needs to be enabled and run on macOS/iOS" TRUE "NOT LIB_ONLY;USE_CG" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_SKIA_EXAMPLE "Skia" TRUE "NOT LIB_ONLY;SKIA" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_GDIPLUS_EXAMPLE "GDI+ example app" TRUE "NOT LIB_ONLY;GDIPLUS" FALSE)
+CMAKE_DEPENDENT_OPTION(USE_D2D_EXAMPLE "Direct2D example app" TRUE "NOT LIB_ONLY;D2D" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_CAIRO_EXAMPLE "Cairo example" TRUE "NOT LIB_ONLY;CAIRO" FALSE)
 
 find_package(PkgConfig)
@@ -173,6 +176,9 @@ endif()
 if(USE_GDIPLUS)
     add_definitions(-DUSE_GDIPLUS)
 endif()
+if(USE_D2D)
+    add_definitions(-DUSE_D2D)
+endif()
 if (USE_SKIA)
     add_definitions(-DUSE_SKIA)
 endif()
@@ -195,6 +201,9 @@ if (USE_SKIA_EXAMPLE)
 endif()
 if (USE_GDIPLUS_EXAMPLE)
     add_subdirectory(example/testGDIPlus)
+endif()
+if (USE_D2D_EXAMPLE)
+    add_subdirectory(example/testD2D)
 endif()
 if (USE_C_EXAMPLE)
     add_subdirectory(example/testC)
@@ -278,6 +287,18 @@ file(GLOB gdiplus_port
 )
 set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/gdiplus/GDIPlusSVGRenderer.h)
 endif()
+
+set(d2d_port)
+if (USE_D2D)
+file(GLOB d2d_port
+    src/ports/d2d/D2DSVGRenderer.h
+    src/ports/d2d/D2DSVGRenderer.cpp
+    ../third_party/cpp-base64/base64.h
+    ../third_party/cpp-base64/base64.cpp
+)
+set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/d2d/D2DSVGRenderer.h)
+endif()
+
 set(cairo_port)
 if (USE_CAIRO)
 file(GLOB cairo_port
@@ -325,6 +346,7 @@ set(svgNative_src
     ${cg_port}
     ${skia_port}
     ${gdiplus_port}
+    ${d2d_port}
     ${cairo_port}
     ${dll_version}
     ${xml_parser}
@@ -364,6 +386,9 @@ endif()
 if (USE_GDIPLUS)
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 endif()
+if (USE_D2D)
+target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
+endif()
 if (USE_CAIRO)
 target_include_directories(SVGNativeViewerLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpp-base64")
 target_include_directories(SVGNativeViewerLib PUBLIC "${CAIRO_INCLUDE_DIRS}")
@@ -393,6 +418,11 @@ endif()
 if (USE_GDIPLUS)
     target_link_libraries(SVGNativeViewerLib "gdiplus.lib")
     set(PRIVATE_LIBS "${PRIVATE_LIBS} gdiplus.lib")
+endif()
+
+if (USE_D2D)
+    target_link_libraries(SVGNativeViewerLib "d2d1.lib")
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} d2d1.lib")
 endif()
 
 if (USE_CAIRO)
