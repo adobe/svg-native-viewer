@@ -730,7 +730,7 @@ void ParsePathString(const std::string& pathString, Path& p)
                 currentY += newY;
             }
 
-            //SVG_ASSERT(angle == 0);
+            SVG_ASSERT(angle == 0);
 
             ArcToCurve(p, startX, startY, rx, ry, angle, flagLarge, flagSweep, currentX, currentY, prevControlX, prevControlY);
 
@@ -954,37 +954,31 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
             std::int32_t r{};
             std::int32_t g{};
             std::int32_t b{};
-            bool r_percentage = false;
-            bool g_percentage = false;
-            bool b_percentage = false;
+            bool hasRPercentage = false;
+            bool hasGPercentage = false;
+            bool hasBPercentage = false;
             if (!SkipOptWsp(pos, end))
                 return false;
-            if (!ParseDigitOrPercentage(pos, end, r, r_percentage))
+            if (!ParseDigitOrPercentage(pos, end, r, hasRPercentage))
                 return false;
             if (!SkipOptWspDelimiterOptWsp(pos, end))
                 return false;
-            if (!ParseDigitOrPercentage(pos, end, g, g_percentage))
+            if (!ParseDigitOrPercentage(pos, end, g, hasGPercentage))
                 return false;
             if (!SkipOptWspDelimiterOptWsp(pos, end))
                 return false;
-            if (!ParseDigitOrPercentage(pos, end, b, b_percentage))
+            if (!ParseDigitOrPercentage(pos, end, b, hasBPercentage))
                 return false;
             if (!SkipOptWsp(pos, end))
                 return false;
             if (*pos++ != ')')
                 return false;
-            if (r_percentage && g_percentage && b_percentage)
-            {
-              color[0] = std::min(100, r) / 100.0f;
-              color[1] = std::min(100, g) / 100.0f;
-              color[2] = std::min(100, b) / 100.0f;
-            }
-            else if (!r_percentage && !g_percentage && !b_percentage)
-            {
-              color[0] = std::min(255, r) / 255.0f;
-              color[1] = std::min(255, g) / 255.0f;
-              color[2] = std::min(255, b) / 255.0f;
-            }
+            if (hasRPercentage != hasGPercentage || hasRPercentage != hasBPercentage)
+                return false;
+            float base = hasRPercentage ? 100.0f: 255.0f;
+            color[0] = std::min(base, r) / base;
+            color[1] = std::min(base, g) / base;
+            color[2] = std::min(base, b) / base;
             paint = color;
             result = SVGDocumentImpl::Result::kSuccess;
             return true;
