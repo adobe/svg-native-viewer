@@ -67,7 +67,7 @@ void SkiaSVGPath::CurveTo(float x1, float y1, float x2, float y2, float x3, floa
 
 void SkiaSVGPath::CurveToV(float x2, float y2, float x3, float y3)
 {
-    mPath.quadTo(x2, y2, x3, y3);
+    mPath.cubicTo(mCurrentX, mCurrentY, x2, y2, x3, y3);
     mCurrentX = x3;
     mCurrentY = y3;
 }

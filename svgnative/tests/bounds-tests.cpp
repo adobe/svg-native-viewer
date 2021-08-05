@@ -100,9 +100,9 @@ TEST(bounds_tests, bounds_functional_test)
         auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
         Rect bounds;
         if (bounds_of_group)
-            bounds = doc->Bounds(id.c_str());
+            bounds = doc->GetBoundingBox(id.c_str());
         else
-            bounds = doc->Bounds();
+            bounds = doc->GetBoundingBox();
         EXPECT_EQ((bounds.IsEmpty() && !standard_bounds.IsEmpty()) ||
                   (!bounds.IsEmpty() && standard_bounds.IsEmpty()), false);
         if (bounds.IsEmpty() && standard_bounds.IsEmpty())

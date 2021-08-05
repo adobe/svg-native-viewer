@@ -29,21 +29,6 @@ TEST(rectangle_tests, rectangle_regular_test)
     EXPECT_EQ(rect.height, 6);
 }
 
-TEST(rectangle_tests, rectangle_regular_intervals_test)
-{
-    Rect rect(1, 2, 4, 6);
-    EXPECT_EQ(rect.IsEmpty(), false);
-    EXPECT_EQ(rect.x, 1);
-    EXPECT_EQ(rect.y, 2);
-    EXPECT_EQ(rect.width, 4);
-    EXPECT_EQ(rect.height, 6);
-    Rect::IntervalPair intervals = rect.Intervals();
-    EXPECT_EQ(std::get<0>(intervals).Min(), 1);
-    EXPECT_EQ(std::get<0>(intervals).Max(), 5);
-    EXPECT_EQ(std::get<1>(intervals).Min(), 2);
-    EXPECT_EQ(std::get<1>(intervals).Max(), 8);
-}
-
 TEST(rectangle_tests, rectangle_equality_test)
 {
     Rect rect1(1, 2, 4, 6);

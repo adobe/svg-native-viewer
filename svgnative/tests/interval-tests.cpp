@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <svgnative/SVGRenderer.h>
+#include "Interval.h"
 
 using namespace SVGNative;
 

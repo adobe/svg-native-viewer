@@ -1,4 +1,5 @@
 add_executable(intervalTests interval-tests.cpp)
+target_include_directories(intervalTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 target_link_libraries(intervalTests SVGNativeViewerLib)
 target_link_libraries(intervalTests gtest_main)
 add_test(NAME interval_tests COMMAND intervalTests)
@@ -7,6 +8,7 @@ add_executable(rectangleTests rectangle-tests.cpp)
 target_link_libraries(rectangleTests SVGNativeViewerLib)
 target_link_libraries(rectangleTests gtest_main)
 add_test(NAME rectangle_tests COMMAND rectangleTests)
+
 
 # TODO: For now we just use the Skia port, but later on we should
 # extend this and generalize this so that all the ports are equally

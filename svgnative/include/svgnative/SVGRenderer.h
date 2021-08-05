@@ -98,69 +98,13 @@ struct Gradient;
 class Transform;
 class Path;
 class Shape;
+class Interval;
 
 using Color = std::array<float, 4>;
 using Paint = boost::variant<Color, Gradient>;
 using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
 
-/**
- * Represents a closed interval.
- *
- * TODO: Just remove these mathematical definitions?
- *
- * The following statements hold true for an interval:
- * 1. An interval $I$ is defined as the set of all numbers between two
- * numbers $u$ and $v$ on the number line, but not equal to either of them.
- * 2. If $u$ and $v$ are the same numbers, the set becomes empty and thus
- * the interval is also recognized as empty.
- * 3. An interval $I$ is said to contain an interval $C$ if each element in
- * the set of interval $C$ is also a member of the set of interval $I$.
- * 4. The join of two intervals $A$ and $B$ is defined as an interval whose
- * set is defined as the smallest possible set of *complete* real numbers that
- * contain all members of $A$ as well as $B$. By complete we simply mean that
- * for any possible two members of the set, all real numbers between the two
- * must also be within the set. The word smallest here means that no other proper
- * subset of that set will satisfy all the requirements.
- * 5. The intersection of two intervals $A$ and $B$ is the one whose set is
- * the intersection of the sets of $A$ and $B$.
- */
-class Interval
-{
-  public:
-    Interval() = default;
-    Interval(float u): Interval(u, u) {}
-    Interval(float u, float v);
-
-    /**
-     * Returns the greatest possible real number that's small than every
-     * member of this interval's set.
-     */
-    float Min() { return a; }
-
-    /**
-     * Returns the smallest possible real number that's greater than every
-     * member of this interval's set.
-     */
-    float Max() { return b; }
-    operator bool() { return !IsEmpty(); }
-
-    /* Computes the intersection of this interval with another one */
-    Interval operator&(Interval other);
-
-    /* Computes the join of this interval with another one, think of an interval that
-     * contains both the intervals */
-    Interval operator|(Interval other);
-
-    /* Returns true if one interval contains another one */
-    bool Contains(Interval other);
-
-    /* Is the interval empty? having no points in its set? */
-    bool IsEmpty() { return a == b; }
-
-    float a = 0;
-    float b = 0;
-};
 
 /**
  * Represents a rectangle.
@@ -184,33 +128,37 @@ class Interval
  */
 class Rect
 {
+using IntervalPair = std::tuple<Interval, Interval>;
   public:
-    using IntervalPair = std::tuple<Interval, Interval>;
+
     Rect() = default;
     Rect(float aX, float aY, float aWidth, float aHeight);
     /* Returns if the rectangle is empty */
-    bool IsEmpty();
+    bool IsEmpty() const;
     /* Returns the two intervals defining the rectangle */
-    IntervalPair Intervals() { return IntervalPair(Interval(x, x + width), Interval(y, y + height)); }
     /* Returns true if Rect contains the other Rect within it */
-    bool Contains(Rect other);
+    bool Contains(Rect other) const;
     /* Computes the intersection of Rect with the other Rect, meaning a rectangle encompassing area
      * that is common in both. */
-    Rect operator&(Rect other);
+    Rect operator&(Rect other) const;
     /* Returns true if two rectangles are the same */
-    bool operator==(Rect other);
+    bool operator==(Rect other) const;
     /* Computes the join of two rectangles, meaning a bigger rectangle that contains both of those. */
-    Rect operator|(Rect other);
-    float Area() { return width * height; }
-    float MaxDiffVertex(Rect other);
-    float Left() { return x; }
-    float Right() { return x + width; }
-    float Top() { return y; }
-    float Bottom() { return y + height; }
+    Rect operator|(Rect other) const;
+    float Area() const { return width * height; }
+    float MaxDiffVertex(Rect other) const;
+    float Left() const { return x; }
+    float Right() const { return x + width; }
+    float Top() const { return y; }
+    float Bottom() const { return y + height; }
+
     float x = 0;
     float y = 0;
     float width = 0;
     float height = 0;
+
+  private:
+    IntervalPair Intervals() const;
 };
 
 /**

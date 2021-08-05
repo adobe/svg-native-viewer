@@ -183,7 +183,7 @@ public:
      * is used to calculate the bounds so the user must make sure that a context has been
      * set, otherwise an assertion will fire.
      */
-    Rect Bounds();
+    Rect GetBoundingBox();
 
     /**
      * Retrieves the bounds of the subtree of an element with the given XML ID.
@@ -193,7 +193,7 @@ public:
      * is used to calculate the bounds so the user must make sure that a context has been
      * set, otherwise an assertion will fire.
      */
-    Rect Bounds(const char *id);
+    Rect GetBoundingBox(const char* id);
 
     /**
      * TODO: Remove this.

@@ -126,7 +126,7 @@ void SVGDocument::Render(const char* id, const ColorMap& colorMap, float width, 
     mDocument->Render(id, colorMap, width, height);
 }
 
-Rect SVGDocument::Bounds()
+Rect SVGDocument::GetBoundingBox()
 {
     // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
     if (!mDocument)
@@ -134,7 +134,7 @@ Rect SVGDocument::Bounds()
     return mDocument->Bounds();
 }
 
-Rect SVGDocument::Bounds(const char *id)
+Rect SVGDocument::GetBoundingBox(const char *id)
 {
     // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
     if (!mDocument)
