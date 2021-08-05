@@ -973,53 +973,70 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
     SVG_ASSERT(mVisitedElements.empty());
 }
 
-Rect SVGDocumentImpl::Bounds()
+bool SVGDocumentImpl::GetBoundingBox(Rect& bound)
 {
     SVG_ASSERT(mGroup);
-    // TODO: Should we fire an assertion or raise exception?
     if (!mGroup)
-        return Rect{0, 0, 0, 0};
+        return false;
+
     ExtractBounds(*mGroup);
+
     Rect sumBound{0, 0, 0, 0};
+#ifdef DEBUG_API
     for(auto const& bound : mBounds)
-    {
         sumBound = sumBound | bound;
-    }
-    return sumBound;
+#else
+    sumBound = mBound;
+#endif
+    bound = sumBound;
+    return true;
 }
 
-Rect SVGDocumentImpl::Bounds(const char* id)
+bool SVGDocumentImpl::GetBoundingBox(const char* id, Rect& bound)
 {
     SVG_ASSERT(mGroup);
-    // TODO: Should we fire an assertion or raise exception?
     if (!mGroup)
-        return Rect{0, 0, 0, 0};
+        return false;
 
     const auto elementIter = mIdToElementMap.find(id);
-    if (elementIter != mIdToElementMap.end())
-        ExtractBounds(*elementIter->second);
-    else
-    {
-        // TODO: if such an element does not exist, should we raise an exception?
-    }
+    SVG_ASSERT(elementIter != mIdToElementMap.end());
+    ExtractBounds(*elementIter->second);
+
     Rect sumBound{0, 0, 0, 0};
+#ifdef DEBUG_API
     for(auto const& bound : mBounds)
-    {
         sumBound = sumBound | bound;
-    }
-    return sumBound;
+#else
+    sumBound = mBound;
+#endif
+    bound = sumBound;
+    return true;
 }
 
 
-std::vector<Rect> SVGDocumentImpl::SubBounds()
+#ifdef DEBUG_API
+bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
 {
     SVG_ASSERT(mGroup);
-    // TODO: Should we fire an assertion or raise exception?
     if (!mGroup)
-        return std::vector<Rect>();
+        return false;
     ExtractBounds(*mGroup);
-    return mBounds;
+    bounds = mBounds;
+    return true;
 }
+
+bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);
+{
+    SVG_ASSERT(mGroup);
+    if (!mGroup)
+        return false;
+    const auto elementIter = mIdToElementMap.find(id);
+    SVG_ASSERT(elementIter != mIdToElementMap.end());
+    ExtractBounds(*elementIter->second);
+    bounds = mBounds;
+    return true;
+}
+#endif
 
 void SVGDocumentImpl::ExtractBounds(const Element& element)
 {
@@ -1066,7 +1083,13 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
                 ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
                 Rect bounds = mRenderer->GetBounds(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
                 if (!bounds.IsEmpty())
+                {
+#ifdef DEBUG_API
                     mBounds.push_back(bounds);
+#else
+                    mBound = mBound | bounds;
+#endif
+                }
                 break;
             }
         case ElementType::kImage:
@@ -1078,7 +1101,13 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
                 path->Rect(image.fillArea.x, image.fillArea.y, image.fillArea.width, image.fillArea.height);
                 Rect bounds = mRenderer->GetBounds(*path.get(), GraphicStyle{}, FillStyle{}, StrokeStyle{});
                 if (!bounds.IsEmpty())
+                {
+#ifdef DEBUG_API
                     mBounds.push_back(bounds);
+#else
+                    mBound = mBound | bounds;
+#endif
+                }
                 break;
             }
         case ElementType::kGroup:

@@ -126,29 +126,28 @@ void SVGDocument::Render(const char* id, const ColorMap& colorMap, float width, 
     mDocument->Render(id, colorMap, width, height);
 }
 
-Rect SVGDocument::GetBoundingBox()
+bool SVGDocument::GetBoundingBox(Rect& bounds)
 {
-    // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
     if (!mDocument)
-        return Rect{0, 0, 0, 0};
-    return mDocument->Bounds();
+        return false;
+    return mDocument->GetBoundingBox(bounds);
 }
 
-Rect SVGDocument::GetBoundingBox(const char *id)
+bool SVGDocument::GetBoundingBox(const char *id, Rect& bounds)
 {
-    // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
     if (!mDocument)
-        return Rect{0, 0, 0, 0};
-    return mDocument->Bounds(id);
+        return false;
+    return mDocument->GetBoundingBox(id, bounds);
 }
 
-std::vector<Rect> SVGDocument::SubBounds()
+#ifdef DEBUG_API
+bool GetSubBoundingBoxes(std::vector<Rect>& bounds)
 {
-    // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
     if (!mDocument)
-        return std::vector<Rect>();
-    return mDocument->SubBounds();
+        return false;
+    return mDocument->GetSubBoundingBoxes(bounds);
 }
+#endif
 
 std::int32_t SVGDocument::Width() const
 {

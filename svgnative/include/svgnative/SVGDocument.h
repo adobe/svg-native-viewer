@@ -178,30 +178,31 @@ public:
     /**
      * Retrieves the bounds of the SVG Document.
      *
-     * The bounds are as tightly computed as possible. The bounds are based on the SVG canvas
-     * and don't take into account the viewBox on the root node. The rendering port's canvas
+     * The bounds are as tightly computed as possible. The rendering port's canvas
      * is used to calculate the bounds so the user must make sure that a context has been
      * set, otherwise an assertion will fire.
      */
-    Rect GetBoundingBox();
+    bool GetBoundingBox(Rect& bounds);
 
     /**
      * Retrieves the bounds of the subtree of an element with the given XML ID.
      *
-     * The bounds are as tightly computed as possible. The bounds are based on the SVG canvas
-     * and don't take into account the viewBox on the root node. The rendering port's canvas
+     * The bounds are as tightly computed as possible. The rendering port's canvas
      * is used to calculate the bounds so the user must make sure that a context has been
      * set, otherwise an assertion will fire.
      */
-    Rect GetBoundingBox(const char* id);
+    bool GetBoundingBox(const char* id, Rect& bounds);
 
+#ifdef DEBUG_API
     /**
      * TODO: Remove this.
      *
      * This is a temporary API for the purpose of testing that will be removed when I convert
      * the PR from draft status to a regular PR.
      */
-    std::vector<Rect> SubBounds();
+    bool SubBounds(std::vector<Rect>& bounds);
+#endif
+
 private:
     SVGDocument();
 

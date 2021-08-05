@@ -195,11 +195,13 @@ public:
     void Render(const ColorMap& colorMap, float width, float height);
     void Render(const char* id, const ColorMap& colorMap, float width, float height);
 
-    Rect Bounds();
-    Rect Bounds(const char* id);
+    bool GetBoundingBox(Rect& bounds);
+    bool GetBoundingBox(const char* id, Rect& bounds);
 
-    std::vector<Rect> SubBounds();
-    std::vector<Rect> SubBounds(const char* id);
+#ifdef DEBUG_API
+    bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
+    bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);
+#endif
 
     std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
@@ -247,7 +249,11 @@ private:
     // hierarchy.
     std::stack<StrokeStyleImpl> mStrokeStyleStack;
     std::stack<FillStyleImpl> mFillStyleStack;
+#ifdef DEBUG_API
     std::vector<Rect> mBounds;
+#else
+    Rect mBound{0, 0, 0, 0};
+#endif
 
 #ifdef STYLE_SUPPORT
     const StyleSheet::CssDocument* mOverrideStyle{};

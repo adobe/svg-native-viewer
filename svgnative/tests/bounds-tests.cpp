@@ -100,14 +100,14 @@ TEST(bounds_tests, bounds_functional_test)
         auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
         Rect bounds;
         if (bounds_of_group)
-            bounds = doc->GetBoundingBox(id.c_str());
+            doc->GetBoundingBox(id.c_str(), bounds);
         else
-            bounds = doc->GetBoundingBox();
+            doc->GetBoundingBox(bounds);
         EXPECT_EQ((bounds.IsEmpty() && !standard_bounds.IsEmpty()) ||
                   (!bounds.IsEmpty() && standard_bounds.IsEmpty()), false);
         if (bounds.IsEmpty() && standard_bounds.IsEmpty())
         {
-            printf("%s, PASS because both empty\n", filename.c_str());
+            printf("\033[32m%s, PASS because both empty \033[0m\n", filename.c_str());
             continue;
         }
         float diff = bounds.MaxDiffVertex(standard_bounds);
@@ -115,7 +115,7 @@ TEST(bounds_tests, bounds_functional_test)
         diff = diff / (std::max(standard_bounds.width, standard_bounds.height));
         if (diff < 0.1)
         {
-            printf("%s, %f, PASS\n", line.c_str(), diff);
+            printf("\033[32m%s, %f, PASS\033[0m\n", line.c_str(), diff);
         }
         else
         {
@@ -126,11 +126,11 @@ TEST(bounds_tests, bounds_functional_test)
             bounds.height += buffer * 2;
             if (bounds.Contains(standard_bounds))
             {
-                printf("%s, %f, PASS because contains\n", line.c_str(), diff);
+                printf("\033[35m%s, %f, PASS BECAUSE CONTAINS!\033[0m\n", line.c_str(), diff);
             }
             else
             {
-                printf("%s, %f, FAIL\n", line.c_str(), diff);
+                printf("\033[31m%s, %f, FAIL\033[0m\n", line.c_str(), diff);
                 printf("standard: %f %f %f %f\n", standard_bounds.x, standard_bounds.y, standard_bounds.width, standard_bounds.height);
                 printf("calculated: %f %f %f %f\n", bounds.x, bounds.y, bounds.width, bounds.height);
                 FAIL();
