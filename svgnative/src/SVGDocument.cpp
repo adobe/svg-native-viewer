@@ -130,7 +130,7 @@ Rect SVGDocument::GetBoundingBox()
 {
     // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
     if (!mDocument)
-        return Rect{};
+        return Rect{0, 0, 0, 0};
     return mDocument->Bounds();
 }
 
@@ -138,7 +138,7 @@ Rect SVGDocument::GetBoundingBox(const char *id)
 {
     // TODO: Should we return an exception or fire an assertion for this or just return an empty rectangle?
     if (!mDocument)
-        return Rect{};
+        return Rect{0, 0, 0, 0};
     return mDocument->Bounds(id);
 }
 

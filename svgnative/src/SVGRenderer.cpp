@@ -4,8 +4,8 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace SVGNative {
-
+namespace SVGNative
+{
     Rect::Rect(float aX, float aY, float aWidth, float aHeight)
     {
         if (aWidth < 0 || aHeight < 0)
@@ -40,7 +40,7 @@ namespace SVGNative {
         Interval result_x = std::get<0>(intervals_a) & std::get<0>(intervals_b);
         Interval result_y = std::get<1>(intervals_a) & std::get<1>(intervals_b);
         if (result_x.IsEmpty() || result_y.IsEmpty())
-            return Rect{};
+            return Rect{0, 0, 0, 0};
         return Rect(result_x.Min(), result_y.Min(), result_x.Max() - result_x.Min(), result_y.Max() - result_y.Min());
     }
     Rect Rect::operator|(Rect other) const
@@ -50,7 +50,7 @@ namespace SVGNative {
         Interval result_x = std::get<0>(intervals_a) | std::get<0>(intervals_b);
         Interval result_y = std::get<1>(intervals_a) | std::get<1>(intervals_b);
         if (result_x.IsEmpty() || result_y.IsEmpty())
-            return Rect{};
+            return Rect{0, 0, 0, 0};
         return Rect(result_x.Min(), result_y.Min(), result_x.Max() - result_x.Min(), result_y.Max() - result_y.Min());
     }
     float Rect::MaxDiffVertex(Rect other) const

@@ -13,14 +13,7 @@ governing permissions and limitations under the License.
 #ifndef SVGViewer_Interval_h
 #define SVGViewer_Interval_h
 
-#include <array>
-#include <boost/variant.hpp>
-#include <limits>
-#include <map>
-#include <memory>
-#include <string>
 #include <tuple>
-#include <vector>
 
 namespace SVGNative {
 /**
@@ -76,7 +69,6 @@ class Interval
 
     /* Is the interval empty? having no points in its set? */
     bool IsEmpty() const { return a == b; }
-
   private:
     float a = 0;
     float b = 0;

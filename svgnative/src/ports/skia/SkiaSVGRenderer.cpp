@@ -374,7 +374,7 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
     if (!snv_bounds.IsEmpty())
         return snv_bounds;
     else
-        return Rect{}; // ensure that {0, 0, 0, 0} is returned when it's an empty rectangle
+        return Rect{0, 0, 0, 0};
 }
 
 

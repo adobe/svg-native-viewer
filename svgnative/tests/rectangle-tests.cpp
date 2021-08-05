@@ -61,9 +61,9 @@ TEST(rectangle_tests, rectangle_intersection_test)
     Rect rect3(0, 0, 10, 10);
     Rect rect4(-10, -10, 5, 5);
     Rect rect5(-8, -8, 5, 5);
-    EXPECT_EQ((Rect() & Rect()).IsEmpty(), true);
-    EXPECT_EQ((Rect(1, 1, 10, 10) & Rect()).IsEmpty(), true);
-    EXPECT_EQ((Rect() & Rect(1, 1, 10, 10)).IsEmpty(), true);
+    EXPECT_EQ((Rect{0, 0, 0, 0} & Rect{0, 0, 0, 0}).IsEmpty(), true);
+    EXPECT_EQ((Rect(1, 1, 10, 10) & Rect{0, 0, 0, 0}).IsEmpty(), true);
+    EXPECT_EQ((Rect{0, 0, 0, 0} & Rect(1, 1, 10, 10)).IsEmpty(), true);
     EXPECT_EQ((Rect(1, 1, 10, 10) & Rect(1, 1, 10, 10)).IsEmpty(), false);
     EXPECT_EQ((Rect(1, 1, 10, 10) & Rect(1, 1, 10, 10)) == Rect(1, 1, 10, 10), true);
     EXPECT_EQ((rect1 & rect2).IsEmpty(), false);
@@ -90,10 +90,10 @@ TEST(rectangle_tests, rectangle_join_test)
     EXPECT_EQ(result.y, 1);
     EXPECT_EQ(result.width, 8);
     EXPECT_EQ(result.height, 8);
-    EXPECT_EQ((Rect() | Rect()).IsEmpty(), true);
+    EXPECT_EQ((Rect{0, 0, 0, 0} | Rect{0, 0, 0, 0}).IsEmpty(), true);
     EXPECT_EQ((rect1 | rect1) == rect1, true);
-    EXPECT_EQ((rect1 | Rect{}) == rect1, true);
-    EXPECT_EQ((rect2 | Rect{}) == rect2, true);
+    EXPECT_EQ((rect1 | Rect{0, 0, 0, 0}) == rect1, true);
+    EXPECT_EQ((rect2 | Rect{0, 0, 0, 0}) == rect2, true);
 }
 
 TEST(rectangle_tests, rectangle_side_tests)

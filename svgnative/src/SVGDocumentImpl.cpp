@@ -978,14 +978,14 @@ Rect SVGDocumentImpl::Bounds()
     SVG_ASSERT(mGroup);
     // TODO: Should we fire an assertion or raise exception?
     if (!mGroup)
-        return Rect{};
+        return Rect{0, 0, 0, 0};
     ExtractBounds(*mGroup);
-    Rect sum_bound;
-    for(auto const &bound: mBounds)
+    Rect sumBound{0, 0, 0, 0};
+    for(auto const& bound : mBounds)
     {
-        sum_bound = sum_bound | bound;
+        sumBound = sumBound | bound;
     }
-    return sum_bound;
+    return sumBound;
 }
 
 Rect SVGDocumentImpl::Bounds(const char* id)
@@ -993,21 +993,21 @@ Rect SVGDocumentImpl::Bounds(const char* id)
     SVG_ASSERT(mGroup);
     // TODO: Should we fire an assertion or raise exception?
     if (!mGroup)
-        return Rect{};
+        return Rect{0, 0, 0, 0};
 
-    auto elementIter = mIdToElementMap.find(id);
+    const auto elementIter = mIdToElementMap.find(id);
     if (elementIter != mIdToElementMap.end())
         ExtractBounds(*elementIter->second);
     else
     {
         // TODO: if such an element does not exist, should we raise an exception?
     }
-    Rect sum_bound;
-    for(auto const &bound: mBounds)
+    Rect sumBound{0, 0, 0, 0};
+    for(auto const& bound : mBounds)
     {
-        sum_bound = sum_bound | bound;
+        sumBound = sumBound | bound;
     }
-    return sum_bound;
+    return sumBound;
 }
 
 

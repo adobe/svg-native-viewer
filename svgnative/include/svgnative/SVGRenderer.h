@@ -104,7 +104,7 @@ using Color = std::array<float, 4>;
 using Paint = boost::variant<Color, Gradient>;
 using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
-
+using IntervalPair = std::tuple<Interval, Interval>;
 
 /**
  * Represents a rectangle.
@@ -128,9 +128,7 @@ using ColorMap = std::map<std::string, Color>;
  */
 class Rect
 {
-using IntervalPair = std::tuple<Interval, Interval>;
   public:
-
     Rect() = default;
     Rect(float aX, float aY, float aWidth, float aHeight);
     /* Returns if the rectangle is empty */
@@ -152,10 +150,10 @@ using IntervalPair = std::tuple<Interval, Interval>;
     float Top() const { return y; }
     float Bottom() const { return y + height; }
 
-    float x = 0;
-    float y = 0;
-    float width = 0;
-    float height = 0;
+    float x = std::numeric_limits<float>::quiet_NaN();
+    float y = std::numeric_limits<float>::quiet_NaN();
+    float width = std::numeric_limits<float>::quiet_NaN();
+    float height = std::numeric_limits<float>::quiet_NaN();
 
   private:
     IntervalPair Intervals() const;
@@ -305,7 +303,7 @@ public:
     virtual Rect GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
     {
       throw "Bound calculation functionality not implemented in this port";
-      return Rect{};
+      return Rect{0, 0, 0, 0};
     }
 };
 
