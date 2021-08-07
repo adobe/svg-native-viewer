@@ -1,4 +1,5 @@
 rectangles-combined.svg
+rectangles-combined-viewbox.svg
 rectangles-combined.svg,#group1
 rectangles-combined.svg,#group2
 rectangles-combined.svg,#group3

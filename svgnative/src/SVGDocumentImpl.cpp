@@ -979,7 +979,12 @@ bool SVGDocumentImpl::GetBoundingBox(Rect& bound)
     if (!mGroup)
         return false;
 
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     ExtractBounds(*mGroup);
+    SVG_ASSERT(mVisitedElements.empty());
 
     Rect sumBound{0, 0, 0, 0};
 #ifdef DEBUG_API
@@ -998,9 +1003,16 @@ bool SVGDocumentImpl::GetBoundingBox(const char* id, Rect& bound)
     if (!mGroup)
         return false;
 
+    // TODO: Maybe this needs fixing as I'm not doing any scaling, we must
+    // figure out a way to supply width/height for this I guess?
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     const auto elementIter = mIdToElementMap.find(id);
     SVG_ASSERT(elementIter != mIdToElementMap.end());
     ExtractBounds(*elementIter->second);
+    SVG_ASSERT(mVisitedElements.empty());
 
     Rect sumBound{0, 0, 0, 0};
 #ifdef DEBUG_API
@@ -1020,7 +1032,12 @@ bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
     SVG_ASSERT(mGroup);
     if (!mGroup)
         return false;
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     ExtractBounds(*mGroup);
+    SVG_ASSERT(mVisitedElements.empty());
     bounds = mBounds;
     return true;
 }
@@ -1030,9 +1047,14 @@ bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);
     SVG_ASSERT(mGroup);
     if (!mGroup)
         return false;
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     const auto elementIter = mIdToElementMap.find(id);
     SVG_ASSERT(elementIter != mIdToElementMap.end());
     ExtractBounds(*elementIter->second);
+    SVG_ASSERT(mVisitedElements.empty());
     bounds = mBounds;
     return true;
 }
