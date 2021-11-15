@@ -1132,6 +1132,7 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
     {
         if (urlResult == SVGDocumentImpl::Result::kInvalid && result != SVGDocumentImpl::Result::kInvalid)
             paint = altPaint;
+        
         return result;
     }
 

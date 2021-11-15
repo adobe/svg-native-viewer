@@ -133,24 +133,6 @@ public:
         ElementType Type() const override { return ElementType::kGroup; }
     };
 
-    struct Graphic : public Element
-    {
-        Graphic(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
-            std::shared_ptr<Path> aPath)
-            : Element(aGraphicStyle, aClasses)
-            , fillStyle{aFillStyle}
-            , strokeStyle{aStrokeStyle}
-            , path{std::move(aPath)}
-        {
-        }
-
-        FillStyleImpl fillStyle;
-        StrokeStyleImpl strokeStyle;
-        std::shared_ptr<Path> path;
-
-        ElementType Type() const override { return ElementType::kGraphic; }
-    };
-
     struct Reference : public Element
     {
         Reference(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
@@ -167,6 +149,30 @@ public:
         std::string href;
 
         ElementType Type() const override { return ElementType::kReference; }
+    };
+    
+    struct Graphic : public Element
+    {
+        Graphic(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
+            std::shared_ptr<Path> aPath)
+            : Element(aGraphicStyle, aClasses)
+            , fillStyle{aFillStyle}
+            , strokeStyle{aStrokeStyle}
+            , path{std::move(aPath)}
+        {
+        }
+
+        FillStyleImpl fillStyle;
+        StrokeStyleImpl strokeStyle;
+        std::shared_ptr<Path> path;
+
+        ElementType Type() const override { return ElementType::kGraphic; }
+        Graphic& operator= (const Reference& refObj)
+        {
+            this->fillStyle = refObj.fillStyle; //internal Paint is transferred
+            this->strokeStyle = refObj.strokeStyle;
+            return *this;
+        }
     };
 
     SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer);
