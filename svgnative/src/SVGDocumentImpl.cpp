@@ -1071,6 +1071,18 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
                 // it will call assignment operator and pass fillStyle from reference to graphic
                 graphic = reference;
             }
+            else if((*(refIt->second)).Type() == ElementType::kGroup)
+            {
+                Group& group = static_cast<Group&>(*(refIt->second));
+                for (auto& child : group.children)
+                {
+                    if ((*child).Type() == ElementType::kGraphic)
+                    {
+                        Graphic& graphic = static_cast<Graphic&>(*child);
+                        graphic = reference;
+                    }
+                }
+            }
             TraverseTree(colorMap, *(refIt->second));
         }
 
