@@ -321,6 +321,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         auto hrefAttr = child->GetAttribute(kHrefAttr, kXlinkNS);
         if (!hrefAttr.found || !hrefAttr.value || hrefAttr.value[0] != '#')
             return;
+
         const float x = ParseLengthFromAttr(child, kXAttr, LengthType::kHorizontal);
         const float y = ParseLengthFromAttr(child, kYAttr, LengthType::kVertical);
         if (!isCloseToZero(x) || !isCloseToZero(y))
@@ -329,6 +330,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
                 graphicStyle.transform = mRenderer->CreateTransform();
             graphicStyle.transform->Concat(1, 0, 0, 1, x, y);
         }
+
         std::string href{(hrefAttr.value + 1)};
         AddChildToCurrentGroup(std::make_shared<Reference>(graphicStyle, classNames, fillStyle, strokeStyle, std::move(href)), std::move(idString));
     }
@@ -604,6 +606,7 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
         else if (result == SVGDocumentImpl::Result::kSuccess)
             fillStyle.hasFill = true;
     }
+
     prop = propertySet.find(kFillOpacityProp);
     if (prop != iterEnd)
     {
@@ -817,6 +820,7 @@ float SVGDocumentImpl::ParseColorStop(const XMLNode* node, std::vector<ColorStop
         // Value is "currentColor". Simply set value to CSS color property.
         paint = fillStyle.color;
     }
+
     graphicStyle.stopOpacity = std::max<float>(0.0, std::min<float>(1.0, graphicStyle.stopOpacity));
 
     colorStops.push_back(std::make_tuple(offset, paint, graphicStyle.stopOpacity));
@@ -1059,6 +1063,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         if (it != mVisitedElements.end())
             break; // We found a cycle. Do not continue rendering.
         auto insertResult = mVisitedElements.insert(&reference);
+
         // Render referenced content.
         auto refIt = mIdToElementMap.find(reference.href);
         if (refIt != mIdToElementMap.end())
@@ -1128,7 +1133,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     }
 }
 
-#ifndef STYLE_SUPPORTn
+#ifndef STYLE_SUPPORT
 // Deprecated style support
 void SVGDocumentImpl::ApplyCSSStyle(
     const std::set<std::string>&, GraphicStyleImpl&, FillStyleImpl&, StrokeStyleImpl&) {}
