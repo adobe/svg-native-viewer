@@ -225,8 +225,7 @@ public:
     
             return *this;
         }
-    };
-    
+    }; 
     SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer);
     ~SVGDocumentImpl() {}
 
