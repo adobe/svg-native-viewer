@@ -169,26 +169,47 @@ public:
         ElementType Type() const override { return ElementType::kGraphic; }
         Graphic& operator= (const Reference& refObj)
         {
-            if (refObj.fillStyle.hasFill)
+            PaintImpl internalPaint = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
+            if (refObj.fillStyle.internalPaint.type() == typeid(Color))
             {
-                this->fillStyle.hasFill       = refObj.fillStyle.hasFill;
+                if (boost::get<Color>(internalPaint) != boost::get<Color>(refObj.fillStyle.internalPaint))
+                {
+                    // default value of hasFill is true
+                    this->fillStyle.hasFill = refObj.fillStyle.hasFill;
+                    this->fillStyle.internalPaint = refObj.fillStyle.internalPaint;
+                }
+            }
+            else
+            {
+                this->fillStyle.hasFill = refObj.fillStyle.hasFill;
                 this->fillStyle.internalPaint = refObj.fillStyle.internalPaint;
             }
+            
             if (refObj.fillStyle.fillRule != WindingRule::kNonZero)
                 this->fillStyle.fillRule = refObj.fillStyle.fillRule;
             
             if (refObj.fillStyle.fillOpacity != 1.0f)
                 this->fillStyle.fillOpacity = refObj.fillStyle.fillOpacity;
     
-            Color paint = Color{{0, 0, 0, 1.0}};
-            if (paint != boost::get<Color>(refObj.fillStyle.paint))
+            Paint paint = Color{{0, 0, 0, 1.0}};
+            if (refObj.fillStyle.paint.type() == typeid(Color))
+            {
+                if (boost::get<Color>(paint) != boost::get<Color>(refObj.fillStyle.paint))
+                    this->fillStyle.paint = refObj.fillStyle.paint;
+            }
+            else
                 this->fillStyle.paint = refObj.fillStyle.paint;
       
             if (refObj.fillStyle.visibility != true)
                 this->fillStyle.visibility = refObj.fillStyle.visibility;
     
             ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-            if (refObj.fillStyle.color != color)
+            if (refObj.fillStyle.color.type() == typeid(Color))
+            {
+                if (boost::get<Color>(color) != boost::get<Color>(refObj.fillStyle.color))
+                    this->fillStyle.color = refObj.fillStyle.color;
+            }
+            else
                 this->fillStyle.color = refObj.fillStyle.color;
     
             if (refObj.fillStyle.clipRule != WindingRule::kNonZero)
@@ -196,8 +217,9 @@ public:
             
             if (refObj.strokeStyle.hasStroke)
             {
-                this->strokeStyle.hasStroke       = refObj.strokeStyle.hasStroke;
-                this->strokeStyle.internalPaint   = refObj.strokeStyle.internalPaint;
+                //default value of hasStroke is false
+                this->strokeStyle.hasStroke = refObj.strokeStyle.hasStroke;
+                this->strokeStyle.internalPaint = refObj.strokeStyle.internalPaint;
             }
             if (refObj.strokeStyle.strokeOpacity != 1.0f)
                 this->strokeStyle.strokeOpacity = refObj.strokeStyle.strokeOpacity;
@@ -220,7 +242,12 @@ public:
             if (refObj.strokeStyle.dashOffset != 4.0f)
                 this->strokeStyle.dashOffset = refObj.strokeStyle.dashOffset;
     
-            if (paint != boost::get<Color>(refObj.strokeStyle.paint))
+            if (refObj.strokeStyle.paint.type() == typeid(Color))
+            {
+                if (boost::get<Color>(paint) != boost::get<Color>(refObj.strokeStyle.paint))
+                  this->strokeStyle.paint = refObj.strokeStyle.paint;
+            }
+            else
                 this->strokeStyle.paint = refObj.strokeStyle.paint;
     
             return *this;
