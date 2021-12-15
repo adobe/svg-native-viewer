@@ -175,7 +175,7 @@ void SkiaSVGRenderer::Save(const GraphicStyle& graphicStyle)
 {
     SVG_ASSERT(mCanvas);
     if (graphicStyle.opacity != 1.0)
-        mCanvas->saveLayerAlpha(nullptr, graphicStyle.opacity);
+        mCanvas->saveLayerAlpha(nullptr, static_cast<U8CPU>(graphicStyle.opacity * 255));
     else
         mCanvas->save();
     if (graphicStyle.transform)
