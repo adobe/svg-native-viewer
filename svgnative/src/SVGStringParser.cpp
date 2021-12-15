@@ -72,8 +72,44 @@ inline bool SkipOptWspDelimiterOptWsp(CharIt& pos, const CharIt& end, char delim
     return pos != end && hasDelimiter;
 }
 
+inline bool SkipOptWspOptPercentageDelimiterOptWsp(CharIt& pos, const CharIt& end, char delimiter, bool& hasPercentage)
+{
+    bool hasDelimiter{};
+    while (pos < end && isWsp(*pos))
+        pos++;
+    if (*pos == '%')
+    {
+        hasPercentage = true;
+        pos++;
+    }
+    if (*pos == delimiter)
+    {
+        hasDelimiter = true;
+        pos++;
+    }
+    while (pos < end && isWsp(*pos))
+        pos++;
+    return pos != end && hasDelimiter;
+}
+
 inline bool SkipOptWsp(CharIt& pos, const CharIt& end)
 {
+    while (pos < end && isWsp(*pos))
+        ++pos;
+    return pos != end;
+}
+
+inline bool SkipOptWspOptPercentOptWsp(CharIt& pos, const CharIt& end, bool &hasPercentage)
+{
+    while (pos < end && isWsp(*pos))
+        ++pos;
+    if (*pos == '%')
+    {
+        hasPercentage = true;
+        pos++;
+    }
+    else
+        hasPercentage = false;
     while (pos < end && isWsp(*pos))
         ++pos;
     return pos != end;
@@ -89,6 +125,69 @@ inline bool ParseDigit(CharIt& pos, const CharIt& end, std::int32_t& digit)
         digit += static_cast<std::int32_t>(*pos++ - '0');
     }
     return true;
+}
+
+static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
+{
+    // if there is not a single character to process, just return false
+    if (pos == end)
+        return false;
+
+    number = 0;
+
+    // by default assume it's a positive number
+    float sign{1};
+
+    // get the sign, if present
+    if (*pos == '-' || *pos == '+')
+    {
+        if (*pos == '-')
+            sign = -1;
+        pos++;
+        if (pos == end)
+            return false;
+    }
+
+    bool hasNumber{};
+    bool hasFraction{};
+
+    // parse the number and if we don't have anything else
+    // remaining, just return the number with correct sign
+    while (pos < end && isDigit(*pos))
+    {
+        hasNumber = true;
+        number *= 10;
+        number += static_cast<float>(*pos++ - '0');
+    }
+    if (pos == end)
+    {
+        number *= sign;
+        return std::isfinite(number);
+    }
+
+    // if there is a decimal point
+    if (*pos == '.')
+    {
+        // skip the decimal, if no digits remain, just return
+        pos++;
+        if (pos == end || !isDigit(*pos))
+            return false;
+
+        // read the numbers after decimal while correctly shifting digits
+        float division = 10;
+        while (pos < end && isDigit(*pos))
+        {
+            hasFraction = true;
+            number += static_cast<float>(*pos++ - '0') / division;
+            division *= 10;
+        }
+    }
+
+    if (!hasFraction && !hasNumber)
+        return false;
+
+    number *= sign;
+    return std::isfinite(number);
 }
 
 static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
@@ -933,28 +1032,40 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
         {
             result = SVGDocumentImpl::Result::kInvalid;
             pos += 4;
-            std::int32_t r{};
-            std::int32_t g{};
-            std::int32_t b{};
+            float r{};
+            float g{};
+            float b{};
+            bool hasRPercentage = false;
+            bool hasGPercentage = false;
+            bool hasBPercentage = false;
             if (!SkipOptWsp(pos, end))
                 return false;
-            if (!ParseDigit(pos, end, r))
+            if (!ParseFloatingPoint(pos, end, r))
                 return false;
-            if (!SkipOptWspDelimiterOptWsp(pos, end))
+            if (!SkipOptWspOptPercentageDelimiterOptWsp(pos, end, ',', hasRPercentage))
                 return false;
-            if (!ParseDigit(pos, end, g))
+            if (!ParseFloatingPoint(pos, end, g))
                 return false;
-            if (!SkipOptWspDelimiterOptWsp(pos, end))
+            if (!SkipOptWspOptPercentageDelimiterOptWsp(pos, end, ',', hasGPercentage))
                 return false;
-            if (!ParseDigit(pos, end, b))
+            if (!ParseFloatingPoint(pos, end, b))
                 return false;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWspOptPercentOptWsp(pos, end, hasBPercentage))
                 return false;
             if (*pos++ != ')')
                 return false;
-            color[0] = std::min(255, r) / 255.0f;
-            color[1] = std::min(255, g) / 255.0f;
-            color[2] = std::min(255, b) / 255.0f;
+            if (hasRPercentage != hasGPercentage || hasRPercentage != hasBPercentage)
+                return false;
+            float base = hasRPercentage ? 100.0f: 255.0f;
+            if (!hasRPercentage)
+            {
+                r = std::floor(r);
+                b = std::floor(b);
+                g = std::floor(g);
+            }
+            color[0] = std::min(base, r) / base;
+            color[1] = std::min(base, g) / base;
+            color[2] = std::min(base, b) / base;
             paint = color;
             result = SVGDocumentImpl::Result::kSuccess;
             return true;
