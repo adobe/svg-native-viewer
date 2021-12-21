@@ -51,7 +51,7 @@ option(GDIPLUS "Enable GDI+ port")
 option(D2D "Enable Direct2D port")
 option(STYLE "Enable deprecated CSS Styling support")
 option(CAIRO "Enable Cairo port")
-option(TESTING "Enable automated testing using Google Tests" ON)
+option(TESTING "Enable automated testing using Google Tests" OFF)
 
 CMAKE_DEPENDENT_OPTION(USE_SHARED "Dynamic library" TRUE "SHARED" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_PLATFORM_XML "Platform XML parser" TRUE "PLATFORM_XML" FALSE)
@@ -220,13 +220,14 @@ file(GLOB gl_public
     include/SVGDocument.h
     include/SVGNativeCWrapper.h
     include/SVGRenderer.h
+    include/Rect.h
 )
 file(GLOB gl_source
     src/Constants.h
     src/SVGDocumentImpl.h
     src/SVGDocumentImpl.cpp
     src/SVGDocument.cpp
-    src/SVGRenderer.cpp
+    src/Rect.cpp
     src/Interval.h
     src/Interval.cpp
     src/SVGNativeCWrapper.cpp
@@ -250,7 +251,7 @@ file(GLOB gl_headers ${PROJECT_SOURCE_DIR}/include/*.h)
 set(text_port)
 if(USE_TEXT)
 file(GLOB text_port
-    src/ports/string/StringSVGRenderer.h
+  i  src/ports/string/StringSVGRenderer.h
     src/ports/string/StringSVGRenderer.cpp
 )
 set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/string/StringSVGRenderer.h)
@@ -518,15 +519,15 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib-uninstalled.pc.in
 # setup Google Test for testing
 ################################
 if (TESTING)
-    enable_testing()
-    include(FetchContent)
-    FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git)
-    # For Windows: Prevent overriding the parent project's compiler/linker settings
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    message(STATUS "Fetching Google Test framework for automated testing")
-    FetchContent_MakeAvailable(googletest)
-    message(STATUS "Successfully fetched Google Test framework")
-    add_subdirectory(tests)
+    #enable_testing()
+    #include(FetchContent)
+    #FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git)
+    ## For Windows: Prevent overriding the parent project's compiler/linker settings
+    #set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    #message(STATUS "Fetching Google Test framework for automated testing")
+    #FetchContent_MakeAvailable(googletest)
+    #message(STATUS "Successfully fetched Google Test framework")
+    #add_subdirectory(tests)
 endif()
 
 ##############################

@@ -48,13 +48,13 @@ class Interval
      * Returns the greatest possible real number that's small than every
      * member of this interval's set.
      */
-    float Min() const { return a; }
+    float Min() const { return mA; }
 
     /**
      * Returns the smallest possible real number that's greater than every
      * member of this interval's set.
      */
-    float Max() const { return b; }
+    float Max() const { return mB; }
     operator bool() const { return !IsEmpty(); }
 
     /* Computes the intersection of this interval with another one */
@@ -68,10 +68,10 @@ class Interval
     bool Contains (Interval other) const;
 
     /* Is the interval empty? having no points in its set? */
-    bool IsEmpty() const { return a == b; }
+    bool IsEmpty() const { return mA == mB; }
   private:
-    float a = 0;
-    float b = 0;
+    float mA{};
+    float mB{};
 };
 
 

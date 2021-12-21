@@ -11,19 +11,20 @@ governing permissions and limitations under the License.
 */
 
 #include "Interval.h"
+#include <algorithm>
 
 namespace SVGNative {
     Interval::Interval(float u, float v)
     {
         if (u <= v)
         {
-            a = u;
-            b = v;
+            mA = u;
+            mB = v;
         }
         else
         {
-            a = v;
-            b = u;
+            mA = v;
+            mB = u;
         }
     }
 

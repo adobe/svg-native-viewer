@@ -193,16 +193,6 @@ public:
      */
     bool GetBoundingBox(const char* id, Rect& bounds);
 
-#ifdef DEBUG_API
-    /**
-     * TODO: Remove this.
-     *
-     * This is a temporary API for the purpose of testing that will be removed when I convert
-     * the PR from draft status to a regular PR.
-     */
-    bool SubBounds(std::vector<Rect>& bounds);
-#endif
-
 private:
     SVGDocument();
 
