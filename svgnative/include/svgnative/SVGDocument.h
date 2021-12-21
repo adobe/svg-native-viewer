@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 #define SVGViewer_SVGParser_h
 
 #include "Config.h"
+#include "SVGRenderer.h"
 
 #include <array>
 #include <map>
@@ -173,6 +174,34 @@ public:
      * See /ref Render(const ColorMap& colorMap, float width, float height) for details.
      */
     void Render(const char* id, const ColorMap& colorMap, float width, float height);
+
+    /**
+     * Retrieves the bounds of the SVG Document.
+     *
+     * The bounds are as tightly computed as possible. The rendering port's canvas
+     * is used to calculate the bounds so the user must make sure that a context has been
+     * set, otherwise an assertion will fire.
+     */
+    bool GetBoundingBox(Rect& bounds);
+
+    /**
+     * Retrieves the bounds of the subtree of an element with the given XML ID.
+     *
+     * The bounds are as tightly computed as possible. The rendering port's canvas
+     * is used to calculate the bounds so the user must make sure that a context has been
+     * set, otherwise an assertion will fire.
+     */
+    bool GetBoundingBox(const char* id, Rect& bounds);
+
+#ifdef DEBUG_API
+    /**
+     * TODO: Remove this.
+     *
+     * This is a temporary API for the purpose of testing that will be removed when I convert
+     * the PR from draft status to a regular PR.
+     */
+    bool SubBounds(std::vector<Rect>& bounds);
+#endif
 
 private:
     SVGDocument();

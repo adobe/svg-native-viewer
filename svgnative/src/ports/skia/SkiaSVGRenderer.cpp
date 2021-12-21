@@ -321,6 +321,63 @@ void SkiaSVGRenderer::DrawImage(
     Restore();
 }
 
+Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
+{
+    SkRect bounds;
+    SVG_ASSERT(mCanvas);
+    // we save the state while applying transforms and clippings if needed
+    Save(graphicStyle);
+    // get the internal SkPath
+    SkPath mPath = (static_cast<const SkiaSVGPath&>(path).mPath);
+    mPath.setFillType(fillStyle.fillRule == WindingRule::kNonZero ? SkPathFillType::kWinding : SkPathFillType::kEvenOdd);
+    // compute the tight fill bounds for the path
+    bounds = mPath.computeTightBounds();
+    if (strokeStyle.hasStroke)
+    {
+        // create the stroke paint and then find the stroke bounds
+        SkPaint stroke;
+        stroke.setStyle(SkPaint::kStroke_Style);
+        stroke.setStrokeWidth(strokeStyle.lineWidth);
+        if (!strokeStyle.dashArray.empty())
+        {
+            stroke.setPathEffect(SkDashPathEffect::Make((SkScalar*)(strokeStyle.dashArray.data()),
+                        strokeStyle.dashArray.size(),
+                        (SkScalar)strokeStyle.dashOffset));
+        }
+        CreateSkPaint(strokeStyle.paint, strokeStyle.strokeOpacity, stroke);
+        SkPath mPath = (static_cast<const SkiaSVGPath&>(path).mPath);
+        if (stroke.canComputeFastBounds())
+        {
+            bounds = stroke.computeFastBounds(bounds, &bounds);
+        }
+        else
+        {
+            // TODO: When would canComputeFastBounds return false and how to handle that?
+        }
+    }
+
+    // the bounds should be transformed according to the current transformation matrix
+    SkMatrix matrix = mCanvas->getLocalToDeviceAs3x3();
+    bounds = matrix.mapRect(bounds);
+    // if there is clipping, take the clip bounds and intersect them with
+    // the bound calculated so far, then return that intersection
+    if (graphicStyle.clippingPath && graphicStyle.clippingPath->path)
+    {
+        Rect old_bounds{bounds.x(), bounds.y(), bounds.width(), bounds.height()};
+        SkIRect clip = mCanvas->getDeviceClipBounds();
+        Rect clip_bounds{(float)clip.x(), (float)clip.y(), (float)clip.width(), (float)clip.height()};
+        Rect new_bounds = clip_bounds;
+        bounds = SkRect::MakeXYWH(new_bounds.x, new_bounds.y, new_bounds.width, new_bounds.height);
+    }
+    Restore();
+    Rect snv_bounds = Rect{bounds.x(), bounds.y(), bounds.width(), bounds.height()};
+    if (!snv_bounds.IsEmpty())
+        return snv_bounds;
+    else
+        return Rect{0, 0, 0, 0};
+}
+
+
 void SkiaSVGRenderer::SetSkCanvas(SkCanvas* canvas)
 {
     SVG_ASSERT(canvas);

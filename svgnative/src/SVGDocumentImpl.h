@@ -195,6 +195,14 @@ public:
     void Render(const ColorMap& colorMap, float width, float height);
     void Render(const char* id, const ColorMap& colorMap, float width, float height);
 
+    bool GetBoundingBox(Rect& bounds);
+    bool GetBoundingBox(const char* id, Rect& bounds);
+
+#ifdef DEBUG_API
+    bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
+    bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);
+#endif
+
     std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
 
@@ -219,6 +227,7 @@ private:
     PropertySet ParsePresentationAttributes(const xml::XMLNode* node);
 
     void RenderElement(const Element& element, const ColorMap& colorMap, float width, float height);
+    void ExtractBounds(const Element& element);
 
     void TraverseTree(const ColorMap& colorMap, const Element&);
 
@@ -240,6 +249,11 @@ private:
     // hierarchy.
     std::stack<StrokeStyleImpl> mStrokeStyleStack;
     std::stack<FillStyleImpl> mFillStyleStack;
+#ifdef DEBUG_API
+    std::vector<Rect> mBounds;
+#else
+    Rect mBound{0, 0, 0, 0};
+#endif
 
 #ifdef STYLE_SUPPORT
     const StyleSheet::CssDocument* mOverrideStyle{};

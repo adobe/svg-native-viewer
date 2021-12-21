@@ -6,7 +6,7 @@ orbs:
 jobs:
   build_test:
     docker:
-      - image: debian:stretch
+      - image: debian:latest
     steps:
       - run:
           name: Installing sudo
@@ -37,7 +37,7 @@ jobs:
           command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test --program=build/linux-libxml2/example/testText/testSVGNative'
   build_with_clang:
     docker:
-      - image: debian:stretch
+      - image: debian:latest
     steps:
       - run:
           name: Installing sudo
@@ -56,7 +56,7 @@ jobs:
           command: 'cd svgnative && cmake --build build/linux'
   build_with_style_support:
     docker:
-      - image: debian:stretch
+      - image: debian:latest
     steps:
       - run:
           name: Installing sudo

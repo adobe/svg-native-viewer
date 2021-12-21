@@ -241,7 +241,10 @@ features are used:
 used by deprecated CSS `<style>` element parsing.)_
 
 ## Tests
+SVG Native Viewer has two testing mechanisms. A python script that performs the renderings on the *Text* port and compares the renderings with the existing ones and automated software testing using Google Tests framework. 
 
+### *Text* port testing
+To use the python script:
 1. Make sure your system has Python installed.
 2. By default, CMake creates the project files for
 **SVGNativeViewerLib** and **testSVGNative**. Follow the steps above to
@@ -256,6 +259,10 @@ build the test app.
     default, relative build path.
   * `--debug` Debug build or Release build of **testSVGNative**. Only
     relevant if `--program` was not set and defaults to `--debug`.
+### Google Test based testing
+In order to build and run the tests, pass the argument `-DTESTING=ON` when running Cmake. Cmake will automatically download and build Google Tests and compile the tests. In order to run the tests you can run `make test` or just use `ctest` in the build folder.
+
+Ultimately, we aim to improve software unit testing as well as add rendering tests to ensure that SVG Native Viewer's renderings are accurate.
 
 ## Known limitations in SVG Native Viewer
 * `preserveAspectRatio` is not supported on the `<svg>` element yet.
