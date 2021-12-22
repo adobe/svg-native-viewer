@@ -98,7 +98,6 @@ struct Gradient;
 class Transform;
 class Path;
 class Shape;
-//class Rect;
 
 using Color = std::array<float, 4>;
 using Paint = boost::variant<Color, Gradient>;
