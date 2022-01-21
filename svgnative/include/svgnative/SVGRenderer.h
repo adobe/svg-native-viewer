@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 #define SVGViewer_SVGRenderer_h
 
 #include "Config.h"
+#include "Rect.h"
 
 #include <array>
 #include <boost/variant.hpp>
@@ -23,7 +24,7 @@ governing permissions and limitations under the License.
 #include <string>
 #include <tuple>
 #include <vector>
-#include "Rect.h"
+
 namespace SVGNative
 {
 /**
@@ -97,7 +98,7 @@ enum class SpreadMethod
 struct Gradient;
 class Transform;
 class Path;
-class Shape;
+//class Shape;
 
 using Color = std::array<float, 4>;
 using Paint = boost::variant<Color, Gradient>;

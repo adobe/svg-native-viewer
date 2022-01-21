@@ -51,7 +51,6 @@ option(GDIPLUS "Enable GDI+ port")
 option(D2D "Enable Direct2D port")
 option(STYLE "Enable deprecated CSS Styling support")
 option(CAIRO "Enable Cairo port")
-option(TESTING "Enable automated testing using Google Tests" OFF)
 
 CMAKE_DEPENDENT_OPTION(USE_SHARED "Dynamic library" TRUE "SHARED" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_PLATFORM_XML "Platform XML parser" TRUE "PLATFORM_XML" FALSE)

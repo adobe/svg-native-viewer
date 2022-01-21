@@ -10,8 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#ifndef SVGViewer_Rect_h
-#define SVGViewer_Rect_h
+#pragma once
 
 #include "Config.h"
 
@@ -55,17 +54,27 @@ class Rect
   public:
     Rect() = default;
     Rect(float aX, float aY, float aWidth, float aHeight);
-    /* Returns if the rectangle is empty */
+    /**
+     * Returns if the rectangle is empty
+     */
     bool IsEmpty() const;
-    /* Returns the two intervals defining the rectangle */
-    /* Returns true if Rect contains the other Rect within it */
+    /**
+     * Returns the two intervals defining the rectangle
+     * Returns true if Rect contains the other Rect within it
+     */
     bool Contains(Rect other) const;
-    /* Computes the intersection of Rect with the other Rect, meaning a rectangle encompassing area
-     * that is common in both. */
+    /**
+     * Computes the intersection of Rect with the other Rect, meaning a rectangle encompassing area
+     * that is common in both.
+     */
     Rect operator&(Rect other) const;
-    /* Returns true if two rectangles are the same */
+    /**
+     * Returns true if two rectangles are the same
+     */
     bool operator==(Rect other) const;
-    /* Computes the join of two rectangles, meaning a bigger rectangle that contains both of those. */
+    /**
+     * Computes the join of two rectangles, meaning a bigger rectangle that contains both of those.
+     */
     Rect operator|(Rect other) const;
     float Area() const { return width * height; }
     float MaxDiffVertex(Rect other) const;
@@ -85,4 +94,3 @@ class Rect
 
 } // namespace SVGNative
 
-#endif // SVGViewer_Rect_h
