@@ -250,7 +250,7 @@ file(GLOB gl_headers ${PROJECT_SOURCE_DIR}/include/*.h)
 set(text_port)
 if(USE_TEXT)
 file(GLOB text_port
-  i  src/ports/string/StringSVGRenderer.h
+    src/ports/string/StringSVGRenderer.h
     src/ports/string/StringSVGRenderer.cpp
 )
 set(gl_headers ${gl_headers} ${PROJECT_SOURCE_DIR}/ports/string/StringSVGRenderer.h)
@@ -514,20 +514,6 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib.pc.in"
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib-uninstalled.pc.in"
                "${CMAKE_CURRENT_BINARY_DIR}/SVGNativeViewerLib-uninstalled.pc" @ONLY)
 
-################################
-# setup Google Test for testing
-################################
-if (TESTING)
-    #enable_testing()
-    #include(FetchContent)
-    #FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git)
-    ## For Windows: Prevent overriding the parent project's compiler/linker settings
-    #set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    #message(STATUS "Fetching Google Test framework for automated testing")
-    #FetchContent_MakeAvailable(googletest)
-    #message(STATUS "Successfully fetched Google Test framework")
-    #add_subdirectory(tests)
-endif()
 
 ##############################
 # Installation
