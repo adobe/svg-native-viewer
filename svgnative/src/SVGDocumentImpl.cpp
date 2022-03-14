@@ -964,7 +964,7 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
 
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
-    //graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     graphicStyle.transform->Scale(scale, scale);
 
     auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
