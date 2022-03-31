@@ -16,6 +16,7 @@ governing permissions and limitations under the License.
 #include <expat.h>
 #include <map>
 #include <stack>
+#include <string>
 #include <string.h>
 
 namespace SVGNative
