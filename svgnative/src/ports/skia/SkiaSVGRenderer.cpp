@@ -155,6 +155,10 @@ SkiaSVGImageData::SkiaSVGImageData(const std::string& base64, ImageEncoding /*en
     }
 }
 
+SkiaSVGImageData::~SkiaSVGImageData()
+{
+}
+
 float SkiaSVGImageData::Width() const
 {
     if (!mImageData)
