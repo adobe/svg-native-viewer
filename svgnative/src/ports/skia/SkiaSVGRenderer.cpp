@@ -145,7 +145,10 @@ SkiaSVGImageData::SkiaSVGImageData(const std::string& base64, ImageEncoding /*en
 {
     std::string imageString = base64_decode(base64);
     auto skData = SkData::MakeWithCopy(imageString.data(), imageString.size());
-    SkEncodedOrigin origin = SkCodec::MakeFromData(skData, nullptr)->getOrigin();
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(skData, nullptr);
+    if (!codec)
+        return;
+    SkEncodedOrigin origin = codec->getOrigin();
     if (origin == SkEncodedOrigin::kTopLeft_SkEncodedOrigin)
         mImageData = SkImage::MakeFromEncoded(skData);
     else
