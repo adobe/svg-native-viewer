@@ -12,6 +12,7 @@ governing permissions and limitations under the License.
 
 #include "svgnative/SVGDocument.h"
 #include "SkData.h"
+#include "SkEncodedImageFormat.h"
 #include "SkImage.h"
 #include "SkStream.h"
 #include "SkSurface.h"
