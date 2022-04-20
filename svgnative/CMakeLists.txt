@@ -11,7 +11,7 @@ cmake --build build/win64 --config Release
 # Version of SVGNativeViewerLib based on semver (major-, minor-, patch-release)
 set(VERSION "0.9.0")
 
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.11.0)
 if (CMAKE_VERSION VERSION_GREATER "3.15")
     cmake_policy(SET CMP0091 NEW)
 endif()
