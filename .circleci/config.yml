@@ -13,7 +13,10 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build System
-          command: 'apt-get update && apt-get install -y git build-essential cmake python2.7 libxml2-dev'
+          command: 'apt-get update && apt-get install -y git build-essential python2.7 libxml2-dev'
+      - run:
+          name: Installing Build System
+          command: 'apt-get update && apt-get install wget -y && apt-get install zlib1g-dev -y && apt-get install libcurl4-openssl-dev -y && wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz && tar -zxvf cmake-3.15.2.tar.gz && cd cmake-3.15.2 && ./bootstrap --system-curl && make && sudo make install && cd - && rm -rf cmake-3.15.2*'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
@@ -44,7 +47,10 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build System
-          command: 'apt-get update && apt-get install -y git build-essential clang cmake python2.7'
+          command: 'apt-get update && apt-get install -y git build-essential clang python2.7'
+      - run:
+          name: Installing Build System
+          command: 'apt-get update && apt-get install wget -y && apt-get install zlib1g-dev -y && apt-get install libcurl4-openssl-dev -y && wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz && tar -zxvf cmake-3.15.2.tar.gz && cd cmake-3.15.2 && ./bootstrap --system-curl && make && sudo make install && cd - && rm -rf cmake-3.15.2*'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
@@ -66,7 +72,7 @@ jobs:
           command: 'apt-get update && apt-get install -y git build-essential libboost-system-dev python2.7'
       - run:
           name: Installing Build System
-          command: 'pwd && apt-get update && apt-get install wget -y && apt-get install zlib1g-dev -y && apt-get install libcurl4-openssl-dev -y && wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz && tar -zxvf cmake-3.15.2.tar.gz && cd cmake-3.15.2 && ./bootstrap --system-curl && make && sudo make install && cd - && rm -rf cmake-3.15.2* && pwd && cmake --version'
+          command: 'apt-get update && apt-get install wget -y && apt-get install zlib1g-dev -y && apt-get install libcurl4-openssl-dev -y && wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz && tar -zxvf cmake-3.15.2.tar.gz && cd cmake-3.15.2 && ./bootstrap --system-curl && make && sudo make install && cd - && rm -rf cmake-3.15.2*'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
