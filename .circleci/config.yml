@@ -64,6 +64,9 @@ jobs:
       - run:
           name: Installing Build System
           command: 'apt-get update && apt-get install -y git build-essential cmake libboost-system-dev python2.7'
+      - run:
+          name: Installing Build System
+          command: 'apt-get update && deb http://ftp.debian.org/debian stretch-backports main && sudo apt-get -t stretch-backports install -y cmake'
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
