@@ -1,10 +1,19 @@
-add_executable(intervalTests interval-tests.cpp)
-target_include_directories(intervalTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+set (SOURCE_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/Interval.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/Interval.h
+)
+add_executable(intervalTests interval-tests.cpp ${SOURCE_FILES})
+target_include_directories(intervalTests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 target_link_libraries(intervalTests SVGNativeViewerLib)
 target_link_libraries(intervalTests gtest_main)
 add_test(NAME interval_tests COMMAND intervalTests)
 
-add_executable(rectangleTests rectangle-tests.cpp)
+set (SOURCE_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/Interval.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/Rect.cpp
+)
+add_executable(rectangleTests rectangle-tests.cpp ${SOURCE_FILES})
+target_include_directories(rectangleTests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 target_link_libraries(rectangleTests SVGNativeViewerLib)
 target_link_libraries(rectangleTests gtest_main)
 add_test(NAME rectangle_tests COMMAND rectangleTests)
