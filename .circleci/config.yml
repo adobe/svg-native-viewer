@@ -53,7 +53,7 @@ jobs:
       - run: git submodule update --init
       - run:
           name: Creating Build Files
-          command: 'cd svgnative && cmake -Bbuild/linux -H. -DLIB_ONLY=ON'
+          command: 'cd svgnative && cmake -Bbuild/linux -H. -DCMAKE_CXX_COMPILER=clang -DLIB_ONLY=ON -lstdc++'
       - run:
           name: Installing Build System
           command: 'apt-get update && apt-get install wget -y && apt-get install zlib1g-dev -y && apt-get install libcurl4-openssl-dev -y && wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz && tar -zxvf cmake-3.15.2.tar.gz && cd cmake-3.15.2 && ./bootstrap --system-curl && make && sudo make install && cd - && rm -rf cmake-3.15.2*'
