@@ -47,7 +47,7 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build System
-          command: 'apt-get update && apt-get install -y git build-essential clang python2.7 && apt-get install g++-multilib'
+          command: 'apt-get update && apt-get install -y git build-essential clang python2.7 && apt-get install g++-multilib -y'
       - run:
           name: Installing Build System
           command: 'apt-get update && apt-get install wget -y && apt-get install zlib1g-dev -y && apt-get install libcurl4-openssl-dev -y && wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz && tar -zxvf cmake-3.15.2.tar.gz && cd cmake-3.15.2 && ./bootstrap --system-curl && make && sudo make install && cd - && rm -rf cmake-3.15.2*'
