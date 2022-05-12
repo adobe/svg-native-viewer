@@ -62,6 +62,7 @@ class SkiaSVGImageData final : public ImageData
 {
 public:
     SkiaSVGImageData(const std::string& base64, ImageEncoding encoding);
+    ~SkiaSVGImageData() override;
 
     float Width() const override;
 
