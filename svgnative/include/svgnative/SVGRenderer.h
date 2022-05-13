@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 #define SVGViewer_SVGRenderer_h
 
 #include "Config.h"
+#include "Rect.h"
 
 #include <array>
 #include <boost/variant.hpp>
@@ -97,28 +98,11 @@ enum class SpreadMethod
 struct Gradient;
 class Transform;
 class Path;
-class Shape;
 
 using Color = std::array<float, 4>;
 using Paint = boost::variant<Color, Gradient>;
 using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
-
-struct Rect
-{
-    Rect() = default;
-    Rect(float aX, float aY, float aWidth, float aHeight)
-        : x{aX}
-        , y{aY}
-        , width{aWidth}
-        , height{aHeight}
-    {
-    }
-    float x = std::numeric_limits<float>::quiet_NaN();
-    float y = std::numeric_limits<float>::quiet_NaN();
-    float width = std::numeric_limits<float>::quiet_NaN();
-    float height = std::numeric_limits<float>::quiet_NaN();
-};
 
 /**
  * Representation of a linear gradient paint server.
@@ -261,6 +245,11 @@ public:
     virtual void DrawPath(
         const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) = 0;
     virtual void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) = 0;
+    virtual Rect GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
+    {
+      throw "Bound calculation functionality not implemented in this port";
+      return Rect{0, 0, 0, 0};
+    }
 };
 
 class SaveRestoreHelper

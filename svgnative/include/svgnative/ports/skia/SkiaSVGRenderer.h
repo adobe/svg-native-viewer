@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 #define SVGViewer_SkiaSVGRenderer_h
 
 #include "svgnative/SVGRenderer.h"
+#include "svgnative/Rect.h"
 #include "SkPath.h"
 
 struct SkRect;
@@ -91,6 +92,7 @@ public:
 
     void DrawPath(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) override;
     void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) override;
+    Rect GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) override;
 
     void SetSkCanvas(SkCanvas* canvas);
 

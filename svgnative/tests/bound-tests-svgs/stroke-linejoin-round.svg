@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path d="M 100,500 l 400,-300 l 400,300 l -400,300 Z" fill="none" stroke-width="100" stroke="red" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path d="M 300,100 a 200 100 0 0 0 0,200 Z" fill="blue"/>
+  <path d="M 600,250 a 100 200 0 0 1 200,0 Z" fill="blue"/>
+  <path d="M 750,700 a 200 100 0 0 1 0,200 Z" fill="blue"/>
+  <path d="M 200,750 a 100 200 0 0 0 200,0 Z" fill="blue"/>
+</svg>

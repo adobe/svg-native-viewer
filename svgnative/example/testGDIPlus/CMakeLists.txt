@@ -8,7 +8,10 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MTd")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} /MT")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} /MT")
-
-add_executable("testGDIPlus" WIN32 "TestGDIPlus.cpp")
+set (SOURCE_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/../../src/Interval.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../../src/Rect.cpp
+)
+add_executable("testGDIPlus" WIN32 "TestGDIPlus.cpp" ${SOURCE_FILES})
 target_link_libraries("testGDIPlus" PUBLIC SVGNativeViewerLib)
 target_include_directories("testGDIPlus" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../" "${CMAKE_CURRENT_SOURCE_DIR}/../../ports/gdiplus")

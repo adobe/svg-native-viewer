@@ -126,6 +126,29 @@ void SVGDocument::Render(const char* id, const ColorMap& colorMap, float width, 
     mDocument->Render(id, colorMap, width, height);
 }
 
+bool SVGDocument::GetBoundingBox(Rect& bounds)
+{
+    if (!mDocument)
+        return false;
+    return mDocument->GetBoundingBox(bounds);
+}
+
+bool SVGDocument::GetBoundingBox(const char *id, Rect& bounds)
+{
+    if (!mDocument)
+        return false;
+    return mDocument->GetBoundingBox(id, bounds);
+}
+
+#ifdef DEBUG_API
+bool GetSubBoundingBoxes(std::vector<Rect>& bounds)
+{
+    if (!mDocument)
+        return false;
+    return mDocument->GetSubBoundingBoxes(bounds);
+}
+#endif
+
 std::int32_t SVGDocument::Width() const
 {
     if (!mDocument)

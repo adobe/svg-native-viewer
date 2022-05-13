@@ -11,7 +11,7 @@ cmake --build build/win64 --config Release
 # Version of SVGNativeViewerLib based on semver (major-, minor-, patch-release)
 set(VERSION "0.9.0")
 
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.11.0)
 if (CMAKE_VERSION VERSION_GREATER "3.15")
     cmake_policy(SET CMP0091 NEW)
 endif()
@@ -51,6 +51,7 @@ option(GDIPLUS "Enable GDI+ port")
 option(D2D "Enable Direct2D port")
 option(STYLE "Enable deprecated CSS Styling support")
 option(CAIRO "Enable Cairo port")
+option(TESTING "Enable automated testing using Google Tests" ON)
 
 CMAKE_DEPENDENT_OPTION(USE_SHARED "Dynamic library" TRUE "SHARED" FALSE)
 CMAKE_DEPENDENT_OPTION(USE_PLATFORM_XML "Platform XML parser" TRUE "PLATFORM_XML" FALSE)
@@ -219,12 +220,17 @@ file(GLOB gl_public
     include/SVGDocument.h
     include/SVGNativeCWrapper.h
     include/SVGRenderer.h
+    include/Rect.h
 )
 file(GLOB gl_source
     src/Constants.h
     src/SVGDocumentImpl.h
     src/SVGDocumentImpl.cpp
     src/SVGDocument.cpp
+    src/Rect.cpp
+    src/SVGRenderer.cpp
+    src/Interval.h
+    src/Interval.cpp
     src/SVGNativeCWrapper.cpp
     src/SVGParserArcToCurve.cpp
     src/SVGStringParser.h
@@ -509,6 +515,23 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib.pc.in"
                "${CMAKE_CURRENT_BINARY_DIR}/SVGNativeViewerLib.pc" @ONLY)
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SVGNativeViewerLib-uninstalled.pc.in"
                "${CMAKE_CURRENT_BINARY_DIR}/SVGNativeViewerLib-uninstalled.pc" @ONLY)
+
+
+################################
+# setup Google Test for testing
+################################
+if (TESTING)
+    enable_testing()
+    include(FetchContent)
+    # FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git)    
+    FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/e2239ee6043f73722e7aa812a459f54a28552929.zip)    
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    message(STATUS "Fetching Google Test framework for automated testing")
+    FetchContent_MakeAvailable(googletest)
+    message(STATUS "Successfully fetched Google Test framework")
+    add_subdirectory(tests)
+endif()
 
 ##############################
 # Installation

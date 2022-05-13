@@ -973,6 +973,179 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
     SVG_ASSERT(mVisitedElements.empty());
 }
 
+bool SVGDocumentImpl::GetBoundingBox(Rect& bound)
+{
+    SVG_ASSERT(mGroup);
+    if (!mGroup)
+        return false;
+
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    ExtractBounds(*mGroup);
+    SVG_ASSERT(mVisitedElements.empty());
+
+    Rect sumBound{0, 0, 0, 0};
+#ifdef DEBUG_API
+    for(auto const& bound : mBounds)
+        sumBound = sumBound | bound;
+#else
+    sumBound = mBound;
+#endif
+    bound = sumBound;
+    return true;
+}
+
+bool SVGDocumentImpl::GetBoundingBox(const char* id, Rect& bound)
+{
+    SVG_ASSERT(mGroup);
+    if (!mGroup)
+        return false;
+
+    // TODO: Maybe this needs fixing as I'm not doing any scaling, we must
+    // figure out a way to supply width/height for this I guess?
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    const auto elementIter = mIdToElementMap.find(id);
+    SVG_ASSERT(elementIter != mIdToElementMap.end());
+    ExtractBounds(*elementIter->second);
+    SVG_ASSERT(mVisitedElements.empty());
+
+    Rect sumBound{0, 0, 0, 0};
+#ifdef DEBUG_API
+    for(auto const& bound : mBounds)
+        sumBound = sumBound | bound;
+#else
+    sumBound = mBound;
+#endif
+    bound = sumBound;
+    return true;
+}
+
+
+#ifdef DEBUG_API
+bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
+{
+    SVG_ASSERT(mGroup);
+    if (!mGroup)
+        return false;
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    ExtractBounds(*mGroup);
+    SVG_ASSERT(mVisitedElements.empty());
+    bounds = mBounds;
+    return true;
+}
+
+bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);
+{
+    SVG_ASSERT(mGroup);
+    if (!mGroup)
+        return false;
+    GraphicStyleImpl graphicStyle{};
+    graphicStyle.transform = mRenderer->CreateTransform();
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    const auto elementIter = mIdToElementMap.find(id);
+    SVG_ASSERT(elementIter != mIdToElementMap.end());
+    ExtractBounds(*elementIter->second);
+    SVG_ASSERT(mVisitedElements.empty());
+    bounds = mBounds;
+    return true;
+}
+#endif
+
+void SVGDocumentImpl::ExtractBounds(const Element& element)
+{
+    // This function is based on the TraverseTree function, we just calculate
+    // the bounds instead of doing any drawing.
+
+    auto graphicStyle = element.graphicStyle;
+    FillStyleImpl fillStyle{};
+    StrokeStyleImpl strokeStyle{};
+    // Has no bound contribution if there is no clipContent and clip path is set
+    if (graphicStyle.clippingPath && !graphicStyle.clippingPath->hasClipContent)
+        return;
+
+    switch (element.Type())
+    {
+        case ElementType::kReference:
+            {
+                const auto& reference = static_cast<const Reference&>(element);
+                const auto it = mVisitedElements.find(&reference);
+                if (it != mVisitedElements.end())
+                    break; // We found a cycle. Do not continue rendering.
+                auto insertResult = mVisitedElements.insert(&reference);
+
+                // Render referenced content.
+                auto refIt = mIdToElementMap.find(reference.href);
+                if (refIt != mIdToElementMap.end())
+                {
+                    ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
+                    auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
+                    ExtractBounds(*(refIt->second));
+                }
+
+                // Done processing current element.
+                mVisitedElements.erase(insertResult.first);
+                break;
+            }
+        case ElementType::kGraphic:
+            {
+                const auto& graphic = static_cast<const Graphic&>(element);
+                // TODO: Since we keep the original fill, stroke and color property values
+                // we should be able to do w/o a copy.
+                fillStyle = graphic.fillStyle;
+                strokeStyle = graphic.strokeStyle;
+                ApplyCSSStyle(graphic.classNames, graphicStyle, fillStyle, strokeStyle);
+                Rect bounds = mRenderer->GetBounds(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
+                if (!bounds.IsEmpty())
+                {
+#ifdef DEBUG_API
+                    mBounds.push_back(bounds);
+#else
+                    mBound = mBound | bounds;
+#endif
+                }
+                break;
+            }
+        case ElementType::kImage:
+            {
+                const auto& image = static_cast<const Image&>(element);
+                ApplyCSSStyle(image.classNames, graphicStyle, fillStyle, strokeStyle);
+                // TODO: How to handle image's bounds?
+                auto path = mRenderer->CreatePath();
+                path->Rect(image.fillArea.x, image.fillArea.y, image.fillArea.width, image.fillArea.height);
+                Rect bounds = mRenderer->GetBounds(*path.get(), GraphicStyle{}, FillStyle{}, StrokeStyle{});
+                if (!bounds.IsEmpty())
+                {
+#ifdef DEBUG_API
+                    mBounds.push_back(bounds);
+#else
+                    mBound = mBound | bounds;
+#endif
+                }
+                break;
+            }
+        case ElementType::kGroup:
+            {
+                const auto& group = static_cast<const Group&>(element);
+                ApplyCSSStyle(group.classNames, graphicStyle, fillStyle, strokeStyle);
+                auto saveRestore = SaveRestoreHelper{mRenderer, group.graphicStyle};
+                for (const auto& child : group.children)
+                    ExtractBounds(*child);
+                break;
+            }
+        default:
+            SVG_ASSERT_MSG(false, "Unknown element type");
+    }
+}
+
 void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString)
 {
     SVG_ASSERT(!mGroupStack.empty());
