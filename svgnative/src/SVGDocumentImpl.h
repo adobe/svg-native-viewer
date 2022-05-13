@@ -12,8 +12,8 @@ governing permissions and limitations under the License.
 
 #pragma once
 
-#include "svgnative/SVGRenderer.h"
 #include "svgnative/Rect.h"
+#include "svgnative/SVGRenderer.h"
 #ifdef STYLE_SUPPORT
 #include "StyleSheet/Document.h"
 #include "StyleSheet/Parser.h"

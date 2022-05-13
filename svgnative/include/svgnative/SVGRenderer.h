@@ -98,7 +98,6 @@ enum class SpreadMethod
 struct Gradient;
 class Transform;
 class Path;
-//class Shape;
 
 using Color = std::array<float, 4>;
 using Paint = boost::variant<Color, Gradient>;
