@@ -560,7 +560,7 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     {
         ParseGraphicsProperties(graphicStyle, propertySet);
         ParseFillProperties(fillStyle, propertySet, node);
-        ParseStrokeProperties(strokeStyle, propertySet);
+        ParseStrokeProperties(strokeStyle, propertySet, node);
     }
 
     auto transformAttr = node->GetAttribute(kTransformAttr);
@@ -643,8 +643,7 @@ SVGDocumentImpl::Result SVGDocumentImpl::ParsePaint(const std::string& colorStri
                     // need to be relative to the hypotenuse of both. Example: r="50%"
                     SVG_ASSERT(node != nullptr);
                     const auto elementName = node->GetName();
-                    float x = 0.0f,y = 0.0f,width = 0.0f,height = 0.0f;
-                    float r = 0.0f,cx = 0.0f,cy = 0.0f;
+                    float x{}, y{}, width{}, height{};
                     if (!strcmp(elementName, kRectElem))
                     {
                         x = ParseLengthFromAttr(node, kXAttr, LengthType::kHorizontal);
@@ -654,11 +653,72 @@ SVGDocumentImpl::Result SVGDocumentImpl::ParsePaint(const std::string& colorStri
                     }
                     else if (!strcmp(elementName, kCircleElem))
                     {
+                        float r{}, cx{}, cy{};
                         r = ParseLengthFromAttr(node, kRAttr, LengthType::kDiagonal);
                         cx = ParseLengthFromAttr(node, kCxAttr, LengthType::kHorizontal);
                         cy = ParseLengthFromAttr(node, kCyAttr, LengthType::kVertical);
+                        x = cx-r;
+                        y = cy-r;
+                        width = 2 * r ;
+                        height = 2 * r ;
                     }
-                    
+                    else if (!strcmp(elementName, kEllipseElem))
+                    {
+                        float rx{}, ry{}, cx{}, cy{};
+                        rx = ParseLengthFromAttr(node, kRxAttr, LengthType::kHorizontal);
+                        ry = ParseLengthFromAttr(node, kRyAttr, LengthType::kVertical);
+                        cx = ParseLengthFromAttr(node, kCxAttr, LengthType::kHorizontal);
+                        cy = ParseLengthFromAttr(node, kCyAttr, LengthType::kVertical);
+                        x = cx-rx;
+                        y = cy-ry;
+                        width = 2 * rx ;
+                        height = 2 * ry ;
+                    }
+                    else if (!strcmp(elementName, kLineElem))
+                    {
+                        float x1{}, y1{}, x2{}, y2{};
+                        x1 = ParseLengthFromAttr(node, kX1Attr, LengthType::kHorizontal);
+                        y1 = ParseLengthFromAttr(node, kY1Attr, LengthType::kVertical);
+                        x2 = ParseLengthFromAttr(node, kX2Attr, LengthType::kHorizontal);
+                        y2 = ParseLengthFromAttr(node, kY2Attr, LengthType::kVertical);
+                        x = x1;
+                        y = y1;
+                        width = x2 - x1;
+                        height = y2 - y1;
+                    }
+                    else if (!strcmp(elementName, kPolygonElem) || !strcmp(elementName, kPolylineElem))
+                    {
+                        auto attr = node->GetAttribute(kPointsAttr);
+                        if (!attr.found)
+                        {
+                            float xMin{}, yMin{}, xMax{}, yMax{};
+                            std::vector<float> numberList;
+                            SVGStringParser::ParseListOfNumbers(attr.value, numberList);
+                            auto size = numberList.size();
+                            if (size > 1)
+                            {
+                                if (size % 2 == 1)
+                                    --size;
+                                decltype(size) i{};
+                                xMin = numberList[i];
+                                xMax = numberList[i];
+                                yMin = numberList[i + 1];
+                                yMax = numberList[i + 1];
+                                i +=2;
+                                for (; i < size; i += 2)
+                                {
+                                    xMin = numberList[i] < xMin ? numberList[i] : xMin;
+                                    yMin = numberList[i + 1] < yMin ? numberList[i + 1] : yMin;
+                                    xMax = numberList[i] > xMax ? numberList[i] : xMax;
+                                    yMax = numberList[i + 1] > yMax ? numberList[i + 1] : yMax;
+                                }
+                                x = xMin;
+                                y = yMin;
+                                width = xMax - xMin;
+                                height = yMax - yMin;
+                            }
+                        }
+                    }
                     if (gradient.type == GradientType::kLinearGradient)
                     {
                         // https://www.w3.org/TR/SVG11/pservers.html#LinearGradients
@@ -677,11 +737,18 @@ SVGDocumentImpl::Result SVGDocumentImpl::ParsePaint(const std::string& colorStri
                     else
                     {
                         // https://www.w3.org/TR/SVG11/pservers.html#RadialGradients
-                        gradient.cx = std::isfinite(gradient.cx) ? gradient.cx  : 0.5f;
-                        gradient.cy = std::isfinite(gradient.cy) ? gradient.cy  : 0.5f;
+                        gradient.cx = std::isfinite(gradient.cx) ? gradient.cx : 0.5f;
+                        gradient.cy = std::isfinite(gradient.cy) ? gradient.cy : 0.5f;
                         gradient.fx = std::isfinite(gradient.fx) ? gradient.fx : gradient.cx;
                         gradient.fy = std::isfinite(gradient.fy) ? gradient.fy : gradient.cy;
-                        gradient.r = std::isfinite(gradient.r) ?   gradient.r : 0.5f;
+                        gradient.r = std::isfinite(gradient.r) ? gradient.r : 0.5f;
+                        
+                        gradient.cx = x + gradient.cx * width;
+                        gradient.cy = y + gradient.cy * height;
+                        gradient.fx = x + gradient.fx * width;
+                        gradient.fy = y + gradient.fy * height;
+                        float sqr = sqrtf(((width/2) * (width/2) + (height/2) * (height/2))/2);
+                        gradient.r = gradient.r * sqr * 2 ;
                     }
                     paint = gradient;
                 }
