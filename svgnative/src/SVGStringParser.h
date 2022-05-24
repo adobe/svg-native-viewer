@@ -20,6 +20,8 @@ namespace SVGNative
 {
 namespace SVGStringParser
 {
+using CharIt = std::string::const_iterator;
+
 bool ParseTransform(const std::string& transformString, Transform& matrix);
 bool ParseNumber(const std::string& numberString, float& number);
 bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional = true);
@@ -29,9 +31,8 @@ bool ParseListOfStrings(const std::string& stringListString, std::vector<std::st
 bool ParseLengthOrPercentage(const std::string& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks = false);
 void ParsePathString(const std::string& pathString, Path& p);
 SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& paint, bool supportsCurrentColor = true);
-SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
-    const std::array<float, 4>& viewBox, PaintImpl& paint);
-
+inline bool SkipOptWsp(CharIt& pos, const CharIt& end);
+inline bool isWsp(char c);
 } // namespace SVGStringParser
 
 } // namespace SVGNative

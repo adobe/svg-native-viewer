@@ -11,7 +11,9 @@ governing permissions and limitations under the License.
 */
 
 #include "SVGStringParser.h"
+#include "SVGDocumentImpl.h"
 #include "CSSColorKeywords.h"
+#include "Constants.h"
 #include "svgnative/SVGDocument.h"
 #include <algorithm>
 #include <array>
@@ -21,6 +23,8 @@ governing permissions and limitations under the License.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
+
+#include "xml/XMLParser.h"
 
 namespace SVGNative
 {
@@ -1154,104 +1158,10 @@ SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& pa
     auto end = colorString.end();
     SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kInvalid};
     if (ParseColor(pos, end, paint, supportsCurrentColor, result))
-        return result;
-    return SVGDocumentImpl::Result::kInvalid;
-}
-
-SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,
-    const std::array<float, 4>& viewBox, PaintImpl& paint)
-{
-    SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kSuccess};
-    if (!colorString.size())
-        return SVGDocumentImpl::Result::kInvalid;
-
-    auto pos = colorString.begin();
-    auto end = colorString.end();
-    if (!SkipOptWsp(pos, end))
-        return SVGDocumentImpl::Result::kInvalid;
-
-    SVGDocumentImpl::Result urlResult{SVGDocumentImpl::Result::kInvalid};
-    if (std::distance(pos, end) >= 5)
     {
-        std::string urlString(pos, pos + 5);
-        if (urlString.find("url(#") == 0)
-        {
-            pos += urlString.size();
-            auto startPos = pos;
-            bool success{};
-            while (pos != end)
-            {
-                if (*pos++ == ')')
-                {
-                    success = true;
-                    break;
-                }
-            }
-            if (!success || (pos != end && !isWsp(*pos)))
-                return SVGDocumentImpl::Result::kInvalid;
-            std::string idString(startPos, pos - 1);
-            auto it = gradientMap.find(idString);
-            if (it != gradientMap.end())
-            {
-                // * No color stops means the same as if 'none' was specified.
-                // * 1 color stop means solid color fill.
-                // https://www.w3.org/TR/SVG11/pservers.html#GradientStops (see notes at the end)
-                // Can not be determined earlier.
-                auto gradient = it->second;
-                if (gradient.internalColorStops.empty())
-                    return SVGDocumentImpl::Result::kDisabled;
-                else if (gradient.internalColorStops.size() == 1)
-                    paint = std::get<1>(gradient.internalColorStops.front());
-                else
-                {
-                    // Percentage values that do neither correlate to horizontal nor vertical dimensions
-                    // need to be relative to the hypotenuse of both. Example: r="50%"
-                    float sqr = sqrtf(viewBox[2] * viewBox[2] + viewBox[3] * viewBox[3]);
-                    if (gradient.type == GradientType::kLinearGradient)
-                    {
-                        // https://www.w3.org/TR/SVG11/pservers.html#LinearGradients
-                        gradient.x1 = std::isfinite(gradient.x1) ? gradient.x1 : 0;
-                        gradient.y1 = std::isfinite(gradient.y1) ? gradient.y1 : 0;
-                        gradient.x2 = std::isfinite(gradient.x2) ? gradient.x2 : viewBox[2];
-                        gradient.y2 = std::isfinite(gradient.y2) ? gradient.y2 : 0;
-                    }
-                    else
-                    {
-                        // https://www.w3.org/TR/SVG11/pservers.html#RadialGradients
-                        gradient.cx = std::isfinite(gradient.cx) ? gradient.cx : 0.5f * viewBox[2];
-                        gradient.cy = std::isfinite(gradient.cy) ? gradient.cy : 0.5f * viewBox[3];
-                        gradient.fx = std::isfinite(gradient.fx) ? gradient.fx : gradient.cx;
-                        gradient.fy = std::isfinite(gradient.fy) ? gradient.fy : gradient.cy;
-                        gradient.r = std::isfinite(gradient.r) ? gradient.r : 0.5f * sqr;
-                    }
-                    paint = gradient;
-                }
-            }
-        }
-    }
-    if (!SkipOptWsp(pos, end))
-        return result;
-
-    ColorImpl altPaint;
-    if (std::distance(pos, end) >= 4 && std::string(pos, pos + 4).compare("none") == 0)
-    {
-        pos += 4;
-        if (urlResult == SVGDocumentImpl::Result::kInvalid)
-            result = SVGDocumentImpl::Result::kDisabled;
-    }
-    else
-    {
-        if (!ParseColor(pos, end, altPaint, true, result))
+        if (!SkipOptWsp(pos, end))
             return result;
     }
-
-    if (!SkipOptWsp(pos, end))
-    {
-        if (urlResult == SVGDocumentImpl::Result::kInvalid && result != SVGDocumentImpl::Result::kInvalid)
-            paint = altPaint;
-        return result;
-    }
-
     return SVGDocumentImpl::Result::kInvalid;
 }
 
