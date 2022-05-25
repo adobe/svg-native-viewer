@@ -1222,6 +1222,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     // are deprecated, we are not going to fix this nor is this expected by
     // (still existing) clients.
     auto graphicStyle = element.graphicStyle;
+    static const Element* pRefElement = nullptr;
     FillStyleImpl fillStyle{};
     StrokeStyleImpl strokeStyle{};
     // Do not draw element if an applied clipPath has no content.
@@ -1243,7 +1244,9 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         {
             ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
             auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
+            pRefElement = &element;
             TraverseTree(colorMap, *(refIt->second));
+            pRefElement = nullptr;
         }
 
         // Done processing current element.
@@ -1252,6 +1255,13 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     }
     case ElementType::kGraphic:
     {
+        if (pRefElement)
+        {
+             Graphic& graphic = static_cast<Graphic&>(const_cast<Element&>(element));
+             Reference& reference = static_cast<Reference&>(const_cast<Element&>(*pRefElement));
+             // it will call assignment operator and transfer fillStyle & strokeStyle properties
+             graphic = reference;
+        }
         const auto& graphic = static_cast<const Graphic&>(element);
         // TODO: Since we keep the original fill, stroke and color property values
         // we should be able to do w/o a copy.
