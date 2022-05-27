@@ -226,8 +226,8 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         if (imageData)
         {
-            const float imageWidth = imageData->Width();
-            const float imageHeight = imageData->Height();
+            const float imageWidth = ParseLengthFromAttr(child, kWidthAttr, LengthType::kHorizontal);
+            const float imageHeight = ParseLengthFromAttr(child, kHeightAttr, LengthType::kVertical);
 
             Rect clipArea{ParseLengthFromAttr(child, kXAttr, LengthType::kHorizontal),
                 ParseLengthFromAttr(child, kYAttr, LengthType::kVertical),
