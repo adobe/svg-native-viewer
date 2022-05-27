@@ -85,6 +85,7 @@ void SVGDocumentImpl::TraverseSVGTree(XMLNode* rootNode)
     }
     else
     {
+        mViewBoxAttrFound = true;
         std::vector<float> numberList;
         if (SVGStringParser::ParseListOfNumbers(viewBoxAttr.value, numberList) && numberList.size() == 4)
             mViewBox = {{numberList[0], numberList[1], numberList[2], numberList[3]}};
