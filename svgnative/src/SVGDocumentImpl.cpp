@@ -1248,25 +1248,9 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         {
             ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
             auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
-            if ((*(refIt->second)).Type() == ElementType::kGraphic)
-            {
-                Graphic& graphic = static_cast<Graphic&>(*(refIt->second));
-                // it will call assignment operator and pass fillStyle from reference to graphic
-                graphic = reference;
-            }
-            else if((*(refIt->second)).Type() == ElementType::kGroup)
-            {
-                Group& group = static_cast<Group&>(*(refIt->second));
-                for (auto& child : group.children)
-                {
-                    if ((*child).Type() == ElementType::kGraphic)
-                    {
-                        Graphic& graphic = static_cast<Graphic&>(*child);
-                        graphic = reference;
-                    }
-                }
-            }
+            pRefElement = &element;
             TraverseTree(colorMap, *(refIt->second));
+            pRefElement = nullptr;
         }
 
         // Done processing current element.
@@ -1274,7 +1258,14 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         break;
     }
     case ElementType::kGraphic:
-    {
+    {   
+        if (pRefElement)
+        {
+            Graphic& graphic = static_cast<Graphic&>(const_cast<Element&>(element));
+            Reference& reference = static_cast<Reference&>(const_cast<Element&>(*pRefElement));
+            // it will call assignment operator and transfer fillStyle & strokeStyle properties
+            graphic = reference;
+        }
         const auto& graphic = static_cast<const Graphic&>(element);
         // TODO: Since we keep the original fill, stroke and color property values
         // we should be able to do w/o a copy.
