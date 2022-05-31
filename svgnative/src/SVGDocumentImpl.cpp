@@ -1227,6 +1227,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     // are deprecated, we are not going to fix this nor is this expected by
     // (still existing) clients.
     auto graphicStyle = element.graphicStyle;
+    static const Element* pRefElement = nullptr;
     FillStyleImpl fillStyle{};
     StrokeStyleImpl strokeStyle{};
     // Do not draw element if an applied clipPath has no content.
