@@ -721,7 +721,7 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     auto iterEnd = propertySet.end();
     if (prop != iterEnd)
     {
-        auto result = ParsePaint(prop->second, mGradients, fillStyle.internalPaint,node);
+        auto result = ParsePaint(prop->second, mGradients, fillStyle.internalPaint, node);
         if (result == SVGDocumentImpl::Result::kDisabled)
             fillStyle.hasFill = false;
         else if (result == SVGDocumentImpl::Result::kSuccess)
@@ -781,7 +781,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     auto iterEnd = propertySet.end();
     if (prop != iterEnd)
     {
-        auto result = ParsePaint(prop->second, mGradients, strokeStyle.internalPaint,node);
+        auto result = ParsePaint(prop->second, mGradients, strokeStyle.internalPaint, node);
         if (result == SVGDocumentImpl::Result::kDisabled)
             strokeStyle.hasStroke = false;
         else if (result == SVGDocumentImpl::Result::kSuccess)

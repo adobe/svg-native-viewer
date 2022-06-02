@@ -209,7 +209,7 @@ public:
 private:
     float ParseLengthFromAttr(const xml::XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);
     float RelativeLength(LengthType lengthType) const;
-    SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,PaintImpl& paint,const xml::XMLNode* node=nullptr);
+    SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,PaintImpl& paint,const xml::XMLNode* node);
     float ParseColorStop(const xml::XMLNode* node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
     void ParseColorStops(xml::XMLNode* node, SVGNative::GradientImpl& gradient);
     void ParseGradient(xml::XMLNode* gradient);
