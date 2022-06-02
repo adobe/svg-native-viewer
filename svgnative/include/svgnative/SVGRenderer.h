@@ -31,6 +31,7 @@ namespace SVGNative
  * Supported image encoding formats are PNG and JPEG.
  * The assumed encoding format based on the base64 string.
  */
+using Rect_type = class Rect;
 enum class ImageEncoding
 {
     kPNG,
@@ -209,6 +210,7 @@ public:
     virtual void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3) = 0;
     virtual void CurveToV(float x2, float y2, float x3, float y3) = 0;
     virtual void ClosePath() = 0;
+    virtual Rect_type GetPathBounds() = 0;
 };
 
 /**

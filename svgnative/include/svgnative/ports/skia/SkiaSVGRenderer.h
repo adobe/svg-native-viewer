@@ -39,7 +39,7 @@ public:
     void ClosePath() override;
 
     SkPath mPath;
-
+    Rect_type GetPathBounds() override;
 private:
     float mCurrentX{};
     float mCurrentY{};

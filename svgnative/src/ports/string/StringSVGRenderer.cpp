@@ -50,6 +50,11 @@ void StringSVGPath::CurveToV(float x2, float y2, float x3, float y3) { mStringSt
 
 void StringSVGPath::ClosePath() { mStringStream << " Z"; }
 
+Rect_type StringSVGPath::GetPathBounds()
+{
+    return Rect_type {0,0,0,0};
+}
+
 std::string StringSVGPath::String() const { return mStringStream.str(); }
 
 float deg2rad(float angle);
