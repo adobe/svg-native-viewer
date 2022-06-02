@@ -599,12 +599,12 @@ SVGDocumentImpl::Result SVGDocumentImpl::ParsePaint(const std::string& colorStri
     SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kSuccess};
     if (!colorString.size())
         return SVGDocumentImpl::Result::kInvalid;
-
+    
     auto pos = colorString.begin();
     auto end = colorString.end();
     if (!SVGStringParser::SkipOptWsp(pos, end))
         return SVGDocumentImpl::Result::kInvalid;
-
+    
     SVGDocumentImpl::Result urlResult{SVGDocumentImpl::Result::kInvalid};
     if (std::distance(pos, end) >= 5)
     {
@@ -711,7 +711,7 @@ SVGDocumentImpl::Result SVGDocumentImpl::ParsePaint(const std::string& colorStri
         paint = altPaint;
         return result;
     }
-
+    
     return SVGDocumentImpl::Result::kInvalid;
 }
 

@@ -10,10 +10,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "SVGStringParser.h"
-#include "SVGDocumentImpl.h"
 #include "CSSColorKeywords.h"
-#include "Constants.h"
+#include "SVGStringParser.h"
 #include "svgnative/SVGDocument.h"
 #include <algorithm>
 #include <array>
@@ -24,7 +22,6 @@ governing permissions and limitations under the License.
 #define M_PI 3.14159265358979323846f
 #endif
 
-#include "xml/XMLParser.h"
 
 namespace SVGNative
 {
@@ -33,7 +30,6 @@ void ArcToCurve(Path& path, float startX, float startY, float radiusX, float rad
 
 namespace SVGStringParser
 {
-using CharIt = std::string::const_iterator;
 
 inline bool isDigit(char c)
 {
