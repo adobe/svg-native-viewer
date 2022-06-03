@@ -241,12 +241,6 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     if (!hasFraction && !hasNumber)
         return false;
     
-    if (pos < end && *pos == '%')
-    {
-        number = number/100;
-        pos++;
-    }
-    
     if (pos == end || (*pos != 'e' && *pos != 'E'))
     {
         number *= sign;
@@ -415,6 +409,13 @@ bool ParseNumber(const std::string& numberString, float& number)
         return false;
     if (!ParseScientificNumber(pos, end, number))
         return false;
+    
+    if (pos < end && *pos == '%')
+    {
+        number = number/100;
+        pos++;
+    }
+    
     return !SkipOptWsp(pos, end);
 }
 
