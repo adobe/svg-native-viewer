@@ -24,9 +24,9 @@
     <line x1="5" y1="16" x2="145" y2="16" stroke="black" stroke-opacity="2e-1"/>
     <line x1="5" y1="19" x2="145" y2="19" stroke="black" stroke-opacity="   
     2e-1  "/>
+    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="20%"/>
 
     <!-- stroke-opacity: negative tests -->
-    <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="20%"/>
     <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2px"/>
     <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2pc"/>
     <line x1="5" y1="22" x2="145" y2="22" stroke="black" stroke-opacity="2pt"/>
@@ -39,9 +39,9 @@
     <rect x="5" y="36" width="140" height="2" opacity="2e-1"/>
     <rect x="5" y="39" width="140" height="2" opacity="   
     2e-1  "/>
+    <rect x="5" y="40" width="140" height="2" opacity="20%"/>
 
     <!-- opacity: negative tests -->
-    <rect x="5" y="40" width="140" height="2" opacity="20%"/>
     <rect x="5" y="40" width="140" height="2" opacity="2px"/>
     <rect x="5" y="40" width="140" height="2" opacity="2pc"/>
     <rect x="5" y="40" width="140" height="2" opacity="2pt"/>
@@ -54,9 +54,9 @@
     <rect x="5" y="36" width="140" height="2" fill-opacity="2e-1"/>
     <rect x="5" y="39" width="140" height="2" fill-opacity="   
     2e-1  "/>
+    <rect x="5" y="42" width="140" height="2" fill-opacity="20%"/>
 
     <!-- fill-opacity: negative tests -->
-    <rect x="5" y="42" width="140" height="2" fill-opacity="20%"/>
     <rect x="5" y="42" width="140" height="2" fill-opacity="2px"/>
     <rect x="5" y="42" width="140" height="2" fill-opacity="2pc"/>
     <rect x="5" y="42" width="140" height="2" fill-opacity="2pt"/>
