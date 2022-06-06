@@ -220,8 +220,8 @@ private:
     std::unique_ptr<Path> ParseShape(xml::XMLNode* node);
 
     GraphicStyleImpl ParseGraphic(const xml::XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
-    void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet, const xml::XMLNode* node);
-    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet, const xml::XMLNode* node);
+    void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet, const xml::XMLNode* node=nullptr);
+    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet, const xml::XMLNode* node=nullptr);
     void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const PropertySet& propertySet);
 
     PropertySet ParsePresentationAttributes(const xml::XMLNode* node);

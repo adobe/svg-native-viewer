@@ -34,7 +34,7 @@ public:
     void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
     void CurveToV(float x2, float y2, float x3, float y3) override;
     void ClosePath() override;
-
+    Rect_type GetPathBounds() override;
     const Gdiplus::GraphicsPath& GetGraphicsPath() const;
 
 private:

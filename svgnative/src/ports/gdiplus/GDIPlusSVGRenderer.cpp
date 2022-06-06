@@ -104,6 +104,11 @@ void GDIPlusSVGPath::ClosePath()
     mPath.CloseFigure();
 }
 
+Rect_type GDIPlusSVGPath::GetPathBounds()
+{
+    return Rect_type {0,0,0,0};
+}
+
 const Gdiplus::GraphicsPath& GDIPlusSVGPath::GetGraphicsPath() const
 {
     return mPath;
