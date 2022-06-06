@@ -239,7 +239,7 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     }
     if (!hasFraction && !hasNumber)
         return false;
-    
+
     if (pos == end || (*pos != 'e' && *pos != 'E'))
     {
         number *= sign;

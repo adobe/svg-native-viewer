@@ -1082,14 +1082,14 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
     float scale = width / mViewBox[2];
     if (scale > height / mViewBox[3])
         scale = height / mViewBox[3];
-    
+
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     graphicStyle.transform->Scale(scale, scale);
-    
+
     auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
-    
+
     TraverseTree(colorMap, element);
     SVG_ASSERT(mVisitedElements.empty());
 }
