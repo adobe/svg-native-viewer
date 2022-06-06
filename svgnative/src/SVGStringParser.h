@@ -23,7 +23,7 @@ namespace SVGStringParser
 using CharIt = std::string::const_iterator;
 
 bool ParseTransform(const std::string& transformString, Transform& matrix);
-bool ParseNumber(const std::string& numberString, float& number);
+bool ParseNumberOrPercentage(const std::string& numberString, float& number);
 bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional = true);
 bool ParseListOfLengthOrPercentage(
     const std::string& lengthOrPercentageListString, float relDimensionLength, std::vector<float>& numberList, bool isAllOptional = true);

@@ -240,12 +240,6 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     if (!hasFraction && !hasNumber)
         return false;
     
-    if (pos < end && *pos == '%')
-    {
-        number = number/100;
-        pos++;
-    }
-    
     if (pos == end || (*pos != 'e' && *pos != 'E'))
     {
         number *= sign;
@@ -401,11 +395,10 @@ bool ParseLengthOrPercentage(const std::string& lengthString, float relDimension
     SkipOptWsp(pos, end);
     if (!ParseLengthOrPercentage(pos, end, relDimensionLength, absLengthInUnits, useQuirks))
         return false;
-
     return !SkipOptWsp(pos, end);
 }
 
-bool ParseNumber(const std::string& numberString, float& number)
+bool ParseNumberOrPercentage(const std::string& numberString, float& number)
 {
     auto pos = numberString.begin();
     auto end = numberString.end();
@@ -414,6 +407,11 @@ bool ParseNumber(const std::string& numberString, float& number)
         return false;
     if (!ParseScientificNumber(pos, end, number))
         return false;
+    if (pos < end && *pos == '%')
+    {
+        number = number/100;
+        pos++;
+    }
     return !SkipOptWsp(pos, end);
 }
 
