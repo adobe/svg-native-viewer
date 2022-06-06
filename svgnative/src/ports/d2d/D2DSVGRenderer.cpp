@@ -181,6 +181,11 @@ void D2DSVGPath::ClosePath()
     mSink.Release();
 }
 
+Rect_type D2DSVGPath::GetPathBounds()
+{
+    return Rect_type {0,0,0,0};
+}
+
 CComPtr<ID2D1PathGeometry> D2DSVGPath::GetGraphicsPath()
 {
     ClosePathSink();
