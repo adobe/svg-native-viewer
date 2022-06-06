@@ -30,8 +30,13 @@ bool ParseListOfStrings(const std::string& stringListString, std::vector<std::st
 bool ParseLengthOrPercentage(const std::string& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks = false);
 void ParsePathString(const std::string& pathString, Path& p);
 SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& paint, bool supportsCurrentColor = true);
-inline bool SkipOptWsp(CharIt& pos, const CharIt& end);
-inline bool isWsp(char c);
+inline bool isWsp(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
+inline bool SkipOptWsp(CharIt& pos, const CharIt& end)
+{
+    while (pos < end && isWsp(*pos))
+        ++pos;
+    return pos != end;
+}
 } // namespace SVGStringParser
 
 } // namespace SVGNative

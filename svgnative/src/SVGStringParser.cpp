@@ -40,8 +40,6 @@ inline bool isHex(char c)
     return isDigit(c) || (c >= 'a' && c <= 'f') ||  (c >= 'A' && c <= 'F');
 }
 
-inline bool isWsp(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
-
 inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOptional = true, char delimiter = ',')
 {
     if (!isAllOptional && !isWsp(*pos) && *pos != delimiter)
@@ -89,13 +87,6 @@ inline bool SkipOptWspOptPercentageDelimiterOptWsp(CharIt& pos, const CharIt& en
     while (pos < end && isWsp(*pos))
         pos++;
     return pos != end && hasDelimiter;
-}
-
-inline bool SkipOptWsp(CharIt& pos, const CharIt& end)
-{
-    while (pos < end && isWsp(*pos))
-        ++pos;
-    return pos != end;
 }
 
 inline bool SkipOptWspOptPercentOptWsp(CharIt& pos, const CharIt& end, bool &hasPercentage)
