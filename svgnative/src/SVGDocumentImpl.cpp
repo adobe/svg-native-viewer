@@ -559,8 +559,8 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     for (const auto& propertySet : propertySets)
     {
         ParseGraphicsProperties(graphicStyle, propertySet);
-        ParseFillProperties(fillStyle, propertySet);
-        ParseStrokeProperties(strokeStyle, propertySet);
+        ParseFillProperties(fillStyle, propertySet, node);
+        ParseStrokeProperties(strokeStyle, propertySet, node);
     }
 
     auto transformAttr = node->GetAttribute(kTransformAttr);
@@ -594,13 +594,134 @@ PropertySet SVGDocumentImpl::ParsePresentationAttributes(const XMLNode* node)
     return propertySet;
 }
 
-void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet)
+SVGDocumentImpl::Result SVGDocumentImpl::ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,PaintImpl& paint, const xml::XMLNode* node)
+{
+    SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kSuccess};
+    if (!colorString.size())
+        return SVGDocumentImpl::Result::kInvalid;
+    
+    auto pos = colorString.begin();
+    auto end = colorString.end();
+    if (!SVGStringParser::SkipOptWsp(pos, end))
+        return SVGDocumentImpl::Result::kInvalid;
+    
+    SVGDocumentImpl::Result urlResult{SVGDocumentImpl::Result::kInvalid};
+    if (std::distance(pos, end) >= 5)
+    {
+        std::string urlString(pos, pos + 5);
+        if (urlString.find("url(#") == 0)
+        {
+            pos += urlString.size();
+            auto startPos = pos;
+            bool success{};
+            while (pos != end)
+            {
+                if (*pos++ == ')')
+                {
+                    success = true;
+                    break;
+                }
+            }
+            if (!success || (pos != end && !SVGStringParser::isWsp(*pos)))
+                return SVGDocumentImpl::Result::kInvalid;
+            std::string idString(startPos, pos - 1);
+            auto it = gradientMap.find(idString);
+            if (it != gradientMap.end())
+            {
+                // * No color stops means the same as if 'none' was specified.
+                // * 1 color stop means solid color fill.
+                // https://www.w3.org/TR/SVG11/pservers.html#GradientStops (see notes at the end)
+                // Can not be determined earlier.
+                auto gradient = it->second;
+                if (gradient.internalColorStops.empty())
+                    return SVGDocumentImpl::Result::kDisabled;
+                else if (gradient.internalColorStops.size() == 1)
+                    paint = std::get<1>(gradient.internalColorStops.front());
+                else
+                {
+                    // Percentage values that do neither correlate to horizontal nor vertical dimensions
+                    // need to be relative to the hypotenuse of both. Example: r="50%"
+                    SVG_ASSERT(node != nullptr);
+                    auto path = ParseShape(const_cast<xml::XMLNode*>(node));
+                    float x{}, y{}, width{}, height{};
+                    if (path)
+                    {
+                        Rect_type r = path->GetPathBounds();
+                        x = r.x;
+                        y = r.y;
+                        width = r.width;
+                        height = r.height;
+                    }
+                    if (gradient.type == GradientType::kLinearGradient)
+                    {
+                        // https://www.w3.org/TR/SVG11/pservers.html#LinearGradients
+                        // default there is horizontal linear gradient
+                        gradient.x1 = std::isfinite(gradient.x1) ? gradient.x1 : 0;
+                        gradient.y1 = std::isfinite(gradient.y1) ? gradient.y1 : 0;
+                        gradient.x2 = std::isfinite(gradient.x2) ? gradient.x2 : 1;
+                        gradient.y2 = std::isfinite(gradient.y2) ? gradient.y2 : 0;
+                        
+                        // update gradient coordinates
+                        gradient.x1 = x + gradient.x1 * width;
+                        gradient.y1 = y + gradient.y1 * height;
+                        gradient.x2 = x + gradient.x2 * width;
+                        gradient.y2 = y + gradient.y2 * height;
+                    }
+                    else
+                    {
+                        // https://www.w3.org/TR/SVG11/pservers.html#RadialGradients
+                        gradient.cx = std::isfinite(gradient.cx) ? gradient.cx : 0.5f;
+                        gradient.cy = std::isfinite(gradient.cy) ? gradient.cy : 0.5f;
+                        gradient.fx = std::isfinite(gradient.fx) ? gradient.fx : gradient.cx;
+                        gradient.fy = std::isfinite(gradient.fy) ? gradient.fy : gradient.cy;
+                        gradient.r = std::isfinite(gradient.r) ? gradient.r : 0.5f;
+                        
+                        gradient.cx = x + gradient.cx * width;
+                        gradient.cy = y + gradient.cy * height;
+                        gradient.fx = x + gradient.fx * width;
+                        gradient.fy = y + gradient.fy * height;
+                        float sqr = sqrtf(((width/2) * (width/2) + (height/2) * (height/2))/2);
+                        gradient.r = gradient.r * sqr * 2 ;
+                    }
+                    paint = gradient;
+                }
+            }
+        }
+    }
+    if (!SVGStringParser::SkipOptWsp(pos, end))
+        return result;
+    
+    ColorImpl altPaint;
+    if (std::distance(pos, end) >= 4 && std::string(pos, pos + 4).compare("none") == 0)
+    {
+        pos += 4;
+        if (urlResult == SVGDocumentImpl::Result::kInvalid)
+            result = SVGDocumentImpl::Result::kDisabled;
+    }
+    else
+    {
+        auto ColorStr = std::string(pos,end);
+        result = SVGStringParser::ParseColor(ColorStr,altPaint, true);
+        if (result == SVGDocumentImpl::Result::kInvalid)
+            return result;
+    }
+    
+    if (urlResult == SVGDocumentImpl::Result::kInvalid && result != SVGDocumentImpl::Result::kInvalid)
+    {
+        paint = altPaint;
+        return result;
+    }
+    
+    return SVGDocumentImpl::Result::kInvalid;
+}
+
+void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet, const XMLNode* node)
 {
     auto prop = propertySet.find(kFillProp);
     auto iterEnd = propertySet.end();
     if (prop != iterEnd)
     {
-        auto result = SVGStringParser::ParsePaint(prop->second, mGradients, mViewBox, fillStyle.internalPaint);
+        auto result = ParsePaint(prop->second, mGradients, fillStyle.internalPaint, node);
         if (result == SVGDocumentImpl::Result::kDisabled)
             fillStyle.hasFill = false;
         else if (result == SVGDocumentImpl::Result::kSuccess)
@@ -611,7 +732,7 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseNumberOrPercentage(prop->second, opacity))
             fillStyle.fillOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -654,13 +775,13 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     }
 }
 
-void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet)
+void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet, const XMLNode* node)
 {
     auto prop = propertySet.find(kStrokeProp);
     auto iterEnd = propertySet.end();
     if (prop != iterEnd)
     {
-        auto result = SVGStringParser::ParsePaint(prop->second, mGradients, mViewBox, strokeStyle.internalPaint);
+        auto result = ParsePaint(prop->second, mGradients, strokeStyle.internalPaint, node);
         if (result == SVGDocumentImpl::Result::kDisabled)
             strokeStyle.hasStroke = false;
         else if (result == SVGDocumentImpl::Result::kSuccess)
@@ -703,7 +824,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     {
         float miter{};
         // Miter must be bigger 1. Otherwise ignore.
-        if (SVGStringParser::ParseNumber(prop->second, miter) && miter >= 1)
+        if (SVGStringParser::ParseNumberOrPercentage(prop->second, miter) && miter >= 1)
             strokeStyle.miterLimit = miter;
     }
 
@@ -744,7 +865,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseNumberOrPercentage(prop->second, opacity))
             strokeStyle.strokeOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 }
@@ -756,7 +877,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseNumberOrPercentage(prop->second, opacity))
             graphicStyle.opacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -783,7 +904,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseNumberOrPercentage(prop->second, opacity))
             graphicStyle.stopOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -810,7 +931,7 @@ float SVGDocumentImpl::ParseColorStop(const XMLNode* node, std::vector<ColorStop
     // * Stops must be in the range [0.0, 1.0].
     float offset{};
     auto attr = node->GetAttribute(kOffsetAttr);
-    offset = (attr.found && SVGStringParser::ParseNumber(attr.value, offset)) ? offset : lastOffset;
+    offset = (attr.found && SVGStringParser::ParseNumberOrPercentage(attr.value, offset)) ? offset : lastOffset;
     offset = std::max<float>(lastOffset, offset);
     offset = std::min<float>(1.0, std::max<float>(0.0, offset));
 

@@ -35,6 +35,7 @@ public:
     void ClosePath() override;
 
     CGMutablePathRef mPath;
+    Rect_type GetPathBounds() override;
 
 private:
     float mCurrentX{};

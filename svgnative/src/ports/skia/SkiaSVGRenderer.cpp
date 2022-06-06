@@ -74,6 +74,16 @@ void SkiaSVGPath::CurveToV(float x2, float y2, float x3, float y3)
 
 void SkiaSVGPath::ClosePath() { mPath.close(); }
 
+Rect_type SkiaSVGPath::GetPathBounds()
+{
+    SkRect bounds = mPath.computeTightBounds();
+    Rect_type path_bounds = Rect_type {bounds.x(), bounds.y(), bounds.width(), bounds.height()};
+    if (!path_bounds.IsEmpty())
+        return path_bounds;
+    else
+        return Rect_type {0, 0, 0, 0};
+}
+
 SkiaSVGTransform::SkiaSVGTransform(float a, float b, float c, float d, float tx, float ty) { Set(a, b, c, d, tx, ty); }
 
 void SkiaSVGTransform::Set(float a, float b, float c, float d, float tx, float ty) { mMatrix.setAll(a, c, tx, b, d, ty, 0, 0, 1); }

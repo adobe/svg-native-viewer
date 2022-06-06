@@ -206,11 +206,10 @@ public:
 
     std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
-
 private:
     float ParseLengthFromAttr(const xml::XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);
     float RelativeLength(LengthType lengthType) const;
-
+    SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::map<std::string, GradientImpl>& gradientMap,PaintImpl& paint,const xml::XMLNode* node);
     float ParseColorStop(const xml::XMLNode* node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
     void ParseColorStops(xml::XMLNode* node, SVGNative::GradientImpl& gradient);
     void ParseGradient(xml::XMLNode* gradient);
@@ -221,8 +220,8 @@ private:
     std::unique_ptr<Path> ParseShape(xml::XMLNode* node);
 
     GraphicStyleImpl ParseGraphic(const xml::XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
-    void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet);
-    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet);
+    void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet, const xml::XMLNode* node=nullptr);
+    void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet, const xml::XMLNode* node=nullptr);
     void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const PropertySet& propertySet);
 
     PropertySet ParsePresentationAttributes(const xml::XMLNode* node);

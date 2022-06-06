@@ -64,6 +64,11 @@ void CGSVGPath::CurveToV(float x2, float y2, float x3, float y3)
 
 void CGSVGPath::ClosePath() { CGPathCloseSubpath(mPath); }
 
+Rect_type CGSVGPath::GetPathBounds()
+{
+    return Rect_type {0,0,0,0};
+}
+
 CGSVGTransform::CGSVGTransform(float a, float b, float c, float d, float tx, float ty) { mTransform = {a, b, c, d, tx, ty}; }
 
 void CGSVGTransform::Set(float a, float b, float c, float d, float tx, float ty) { mTransform = {a, b, c, d, tx, ty}; }
