@@ -400,7 +400,7 @@ bool ParseLengthOrPercentage(const std::string& lengthString, float relDimension
     return !SkipOptWsp(pos, end);
 }
 
-bool ParseNumber(const std::string& numberString, float& number)
+bool ParseNumberOrPercentage(const std::string& numberString, float& number)
 {
     auto pos = numberString.begin();
     auto end = numberString.end();
@@ -409,6 +409,11 @@ bool ParseNumber(const std::string& numberString, float& number)
         return false;
     if (!ParseScientificNumber(pos, end, number))
         return false;
+    if (pos < end && *pos == '%')
+    {
+        number = number/100;
+        pos++;
+    }
     return !SkipOptWsp(pos, end);
 }
 
