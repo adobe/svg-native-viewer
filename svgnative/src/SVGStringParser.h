@@ -21,7 +21,7 @@ namespace SVGNative
 namespace SVGStringParser
 {
 bool ParseTransform(const std::string& transformString, Transform& matrix);
-bool ParseNumberOrPercentage(const std::string& numberString, float& number);
+bool ParseNumber(const std::string& numberString, float& number);
 bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional = true);
 bool ParseListOfLengthOrPercentage(
     const std::string& lengthOrPercentageListString, float relDimensionLength, std::vector<float>& numberList, bool isAllOptional = true);
