@@ -412,6 +412,23 @@ bool ParseNumber(const std::string& numberString, float& number)
     return !SkipOptWsp(pos, end);
 }
 
+bool ParseAlphaValue(const std::string& numberString, float& number)
+{
+    auto pos = numberString.begin();
+    auto end = numberString.end();
+
+    if (!SkipOptWsp(pos, end))
+        return false;
+    if (!ParseScientificNumber(pos, end, number))
+        return false;
+    if (pos < end && *pos == '%')
+    {
+        number = number/100.0f;
+        pos++;
+    }
+    return !SkipOptWsp(pos, end);
+}
+
 bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional /*= true*/)
 {
     auto pos = numberListString.begin();

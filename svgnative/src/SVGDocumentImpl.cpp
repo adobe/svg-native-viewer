@@ -612,7 +612,7 @@ void SVGDocumentImpl::ParseFillProperties(FillStyleImpl& fillStyle, const Proper
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseAlphaValue(prop->second, opacity))
             fillStyle.fillOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -745,7 +745,7 @@ void SVGDocumentImpl::ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const 
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseAlphaValue(prop->second, opacity))
             strokeStyle.strokeOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 }
@@ -757,7 +757,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseAlphaValue(prop->second, opacity))
             graphicStyle.opacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -784,7 +784,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     if (prop != iterEnd)
     {
         float opacity{};
-        if (SVGStringParser::ParseNumber(prop->second, opacity))
+        if (SVGStringParser::ParseAlphaValue(prop->second, opacity))
             graphicStyle.stopOpacity = std::max<float>(0.0, std::min<float>(1.0, opacity));
     }
 
@@ -811,7 +811,7 @@ float SVGDocumentImpl::ParseColorStop(const XMLNode* node, std::vector<ColorStop
     // * Stops must be in the range [0.0, 1.0].
     float offset{};
     auto attr = node->GetAttribute(kOffsetAttr);
-    offset = (attr.found && SVGStringParser::ParseNumber(attr.value, offset)) ? offset : lastOffset;
+    offset = (attr.found && SVGStringParser::ParseAlphaValue(attr.value, offset)) ? offset : lastOffset;
     offset = std::max<float>(lastOffset, offset);
     offset = std::min<float>(1.0, std::max<float>(0.0, offset));
 
