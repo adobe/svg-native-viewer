@@ -424,6 +424,7 @@ bool ParseAlphaValue(const std::string& numberString, float& number)
     if (pos < end && *pos == '%')
     {
         number = number/100.0f;
+        pos++;
     }
     return !SkipOptWsp(pos, end);
 }
