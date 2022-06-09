@@ -45,6 +45,17 @@ int main(int argc, char* const argv[])
 
     auto doc = std::unique_ptr<SVGNative::SVGDocument>(SVGNative::SVGDocument::CreateSVGDocument(svgInput.c_str(), renderer));
 
+    {
+        // make initially default canvas and compute the bounds , after computation make
+        // new canvas again of actual bounds.
+        auto skRasterSurface = SkSurface::MakeRasterN32Premul(doc->Width(), doc->Height());
+        auto skRasterCanvas = skRasterSurface->getCanvas();
+
+        renderer->SetSkCanvas(skRasterCanvas);
+        SVGNative::Rect bounds {0,0,0,0};
+        doc->GetBoundingBox(bounds);
+    }
+
     auto skRasterSurface = SkSurface::MakeRasterN32Premul(doc->Width(), doc->Height());
     auto skRasterCanvas = skRasterSurface->getCanvas();
 
