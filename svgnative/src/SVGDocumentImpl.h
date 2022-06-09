@@ -201,7 +201,7 @@ public:
 
     bool GetBoundingBox(Rect& bounds);
     bool GetBoundingBox(const char* id, Rect& bounds);
-
+    void UpdateViewBox(Rect& bounds);
 #ifdef DEBUG_API
     bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
     bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);

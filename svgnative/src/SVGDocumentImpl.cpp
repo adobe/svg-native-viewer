@@ -1028,6 +1028,13 @@ bool SVGDocumentImpl::GetBoundingBox(const char* id, Rect& bound)
     return true;
 }
 
+void SVGDocumentImpl::UpdateViewBox(Rect& bounds)
+{
+    mViewBox[0] = bounds.x;
+    mViewBox[1] = bounds.y;
+    mViewBox[2] = bounds.width;
+    mViewBox[3] = bounds.height;
+}
 
 #ifdef DEBUG_API
 bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
