@@ -965,7 +965,7 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
 
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
-    // graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
+    graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     graphicStyle.transform->Scale(scale, scale);
 
     auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
@@ -982,7 +982,6 @@ bool SVGDocumentImpl::GetBoundingBox(Rect& bound)
 
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
-    /*Not making a change here right now as this API is not called by us currently, it was newly added*/
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     ExtractBounds(*mGroup);
@@ -1009,7 +1008,6 @@ bool SVGDocumentImpl::GetBoundingBox(const char* id, Rect& bound)
     // figure out a way to supply width/height for this I guess?
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
-    /*Not making a change here right now as this API is not called by us currently, it was newly added*/
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     const auto elementIter = mIdToElementMap.find(id);
@@ -1044,7 +1042,6 @@ bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
         return false;
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
-    /*Not making a change here right now as this API is not called by us currently, it was newly added*/
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     ExtractBounds(*mGroup);
@@ -1060,7 +1057,6 @@ bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);
         return false;
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
-    /*Not making a change here right now as this API is not called by us currently, it was newly added*/
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
     const auto elementIter = mIdToElementMap.find(id);
