@@ -250,10 +250,6 @@ public:
       throw "Bound calculation functionality not implemented in this port";
       return Rect{0, 0, 0, 0};
     }
-    virtual void UpdateWidthAndHeight(float& width,float& height)
-    {
-        // reason for being empty function is "no need to define same function in skia unless it requires"
-    }
 };
 
 class SaveRestoreHelper

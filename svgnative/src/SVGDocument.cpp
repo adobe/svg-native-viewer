@@ -66,12 +66,6 @@ void SVGDocument::Render()
 
     ColorMap colorMap;
     mDocument->Render(colorMap, mDocument->mViewBox[2], mDocument->mViewBox[3]);
-    // to update width and height in doc if view box is not present in svg file
-    // so that no problem in transformation matrix
-    if (mDocument->mViewBoxAttrFound == false)
-    {
-        mDocument->mRenderer->UpdateWidthAndHeight(mDocument->mViewBox[2], mDocument->mViewBox[3]);
-    }
 }
 
 void SVGDocument::Render(float width, float height)
