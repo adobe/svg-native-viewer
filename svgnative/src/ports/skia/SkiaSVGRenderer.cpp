@@ -363,9 +363,6 @@ Rect SkiaSVGRenderer::GetBounds(const Path& path, const GraphicStyle& graphicSty
         }
     }
 
-    // the bounds should be transformed according to the current transformation matrix
-    SkMatrix matrix = mCanvas->getLocalToDeviceAs3x3();
-    bounds = matrix.mapRect(bounds);
     // if there is clipping, take the clip bounds and intersect them with
     // the bound calculated so far, then return that intersection
     if (graphicStyle.clippingPath && graphicStyle.clippingPath->path)
