@@ -192,6 +192,10 @@ public:
      * set, otherwise an assertion will fire.
      */
     bool GetBoundingBox(const char* id, Rect& bounds);
+    
+    void GetViewBox(Rect& viewBox);
+    
+    std::shared_ptr<Transform> GetRootNodeTransform();
 
 private:
     SVGDocument();

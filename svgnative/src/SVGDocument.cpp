@@ -143,6 +143,14 @@ bool SVGDocument::GetBoundingBox(const char *id, Rect& bounds)
     return mDocument->GetBoundingBox(id, bounds);
 }
 
+void SVGDocument::GetViewBox(Rect& viewBox)
+{
+    viewBox.x = mDocument->mViewBox[0];
+    viewBox.y = mDocument->mViewBox[1];
+    viewBox.width = mDocument->mViewBox[2];
+    viewBox.height = mDocument->mViewBox[3];
+}
+
 #ifdef DEBUG_API
 bool GetSubBoundingBoxes(std::vector<Rect>& bounds)
 {
@@ -173,6 +181,11 @@ SVGRenderer* SVGDocument::Renderer() const
         return 0;
 
     return mDocument->mRenderer.get();
+}
+
+std::shared_ptr<Transform> SVGDocument::GetRootNodeTransform()
+{
+    return mDocument->mRootNodeTransform;
 }
 
 #ifdef STYLE_SUPPORT
