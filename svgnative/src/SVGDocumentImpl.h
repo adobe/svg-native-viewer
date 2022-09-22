@@ -209,8 +209,6 @@ public:
 
     std::array<float, 4> mViewBox;
     std::shared_ptr<SVGRenderer> mRenderer;
-    bool mViewBoxAttrFound {false};
-    std::shared_ptr<Transform> mRootNodeTransform;
 
 private:
     float ParseLengthFromAttr(const xml::XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);

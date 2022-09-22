@@ -571,13 +571,7 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
         if (!SVGStringParser::ParseTransform(transformAttr.value, *graphicStyle.transform))
             graphicStyle.transform.reset();
     }
-    else if (transformAttr.found && node == mRootNode)
-    {
-        SVG_ASSERT(mRenderer != nullptr);
-        mRootNodeTransform = mRenderer->CreateTransform();
-        if (!SVGStringParser::ParseTransform(transformAttr.value, *mRootNodeTransform))
-            mRootNodeTransform.reset();
-    }
+
     return graphicStyle;
 }
 
@@ -1035,6 +1029,8 @@ void SVGDocumentImpl::UpdateViewBox(Rect& bounds)
 {
     mViewBox[0] = bounds.x;
     mViewBox[1] = bounds.y;
+    mViewBox[2] = bounds.width;
+    mViewBox[3] = bounds.height;
 }
 
 #ifdef DEBUG_API
