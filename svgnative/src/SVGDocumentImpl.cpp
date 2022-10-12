@@ -225,8 +225,8 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
 
         if (imageData)
         {
-            const float imageWidth = imageData->Width();
-            const float imageHeight = imageData->Height();
+            const float imageWidth = ParseLengthFromAttr(child, kWidthAttr, LengthType::kHorizontal);
+            const float imageHeight = ParseLengthFromAttr(child, kHeightAttr, LengthType::kVertical);
 
             Rect clipArea{ParseLengthFromAttr(child, kXAttr, LengthType::kHorizontal),
                 ParseLengthFromAttr(child, kYAttr, LengthType::kVertical),
@@ -1023,14 +1023,6 @@ bool SVGDocumentImpl::GetBoundingBox(const char* id, Rect& bound)
 #endif
     bound = sumBound;
     return true;
-}
-
-void SVGDocumentImpl::UpdateViewBox(Rect& bounds)
-{
-    mViewBox[0] = bounds.x;
-    mViewBox[1] = bounds.y;
-    mViewBox[2] = bounds.width;
-    mViewBox[3] = bounds.height;
 }
 
 #ifdef DEBUG_API

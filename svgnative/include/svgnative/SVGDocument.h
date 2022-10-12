@@ -192,7 +192,9 @@ public:
      * set, otherwise an assertion will fire.
      */
     bool GetBoundingBox(const char* id, Rect& bounds);
-
+    
+    void GetViewBox(Rect& viewBox);
+    
 private:
     SVGDocument();
 
