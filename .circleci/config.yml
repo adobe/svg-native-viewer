@@ -84,7 +84,7 @@ jobs:
           command: 'cd svgnative && cmake --build build/linux'
   build_with_cocoa:
     macos:
-      xcode: "12.5.1"
+      xcode: "10.3.0"
     steps:
       - checkout
       - run: git submodule sync

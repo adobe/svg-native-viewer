@@ -130,7 +130,10 @@ bool SVGDocument::GetBoundingBox(Rect& bounds)
 {
     if (!mDocument)
         return false;
-    return mDocument->GetBoundingBox(bounds);
+    bool bStatus = mDocument->GetBoundingBox(bounds);
+    if (bStatus && bounds.IsEmpty()== false)
+        mDocument->UpdateViewBox(bounds);
+    return bStatus;
 }
 
 bool SVGDocument::GetBoundingBox(const char *id, Rect& bounds)
@@ -138,14 +141,6 @@ bool SVGDocument::GetBoundingBox(const char *id, Rect& bounds)
     if (!mDocument)
         return false;
     return mDocument->GetBoundingBox(id, bounds);
-}
-
-void SVGDocument::GetViewBox(Rect& viewBox)
-{
-    viewBox.x = mDocument->mViewBox[0];
-    viewBox.y = mDocument->mViewBox[1];
-    viewBox.width = mDocument->mViewBox[2];
-    viewBox.height = mDocument->mViewBox[3];
 }
 
 #ifdef DEBUG_API
