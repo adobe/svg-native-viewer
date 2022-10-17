@@ -18,7 +18,7 @@ governing permissions and limitations under the License.
 #endif
 #ifdef USE_CG
 #include "svgnative/ports/cg/CGSVGRenderer.h"
-#include <ApplicationServices/ApplicationServices.h>
+#include <CoreServices/CoreServices.h>
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 #ifdef USE_SKIA
