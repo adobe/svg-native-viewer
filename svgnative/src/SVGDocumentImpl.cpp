@@ -1221,6 +1221,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     // are deprecated, we are not going to fix this nor is this expected by
     // (still existing) clients.
     auto graphicStyle = element.graphicStyle;
+    static const Element* pRefElement = nullptr;
     FillStyleImpl fillStyle{};
     StrokeStyleImpl strokeStyle{};
     // Do not draw element if an applied clipPath has no content.
@@ -1242,7 +1243,9 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         {
             ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
             auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
+            pRefElement = &element;
             TraverseTree(colorMap, *(refIt->second));
+            pRefElement = nullptr;
         }
 
         // Done processing current element.
@@ -1250,7 +1253,14 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         break;
     }
     case ElementType::kGraphic:
-    {
+    {   
+        if (pRefElement)
+        {
+            Graphic& graphic = static_cast<Graphic&>(const_cast<Element&>(element));
+            Reference& reference = static_cast<Reference&>(const_cast<Element&>(*pRefElement));
+            // it will call assignment operator and transfer fillStyle & strokeStyle properties
+            graphic = reference;
+        }
         const auto& graphic = static_cast<const Graphic&>(element);
         // TODO: Since we keep the original fill, stroke and color property values
         // we should be able to do w/o a copy.
@@ -1285,6 +1295,91 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     default:
         SVG_ASSERT_MSG(false, "Unknown element type");
     }
+}
+
+SVGDocumentImpl::Graphic& SVGDocumentImpl::Graphic::operator=(const Reference& refObj)
+{
+    PaintImpl internalPaint = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
+    if (refObj.fillStyle.internalPaint.type() == typeid(Color))
+    {
+        if (boost::get<Color>(internalPaint) != boost::get<Color>(refObj.fillStyle.internalPaint))
+        {
+            // default value of hasFill is true
+            this->fillStyle.hasFill = refObj.fillStyle.hasFill;
+            this->fillStyle.internalPaint = refObj.fillStyle.internalPaint;
+        }
+    }
+    else
+    {
+        this->fillStyle.hasFill       = refObj.fillStyle.hasFill;
+        this->fillStyle.internalPaint = refObj.fillStyle.internalPaint;
+    }
+    if (refObj.fillStyle.fillRule != WindingRule::kNonZero)
+        this->fillStyle.fillRule = refObj.fillStyle.fillRule;
+
+    if (refObj.fillStyle.fillOpacity != 1.0f)
+        this->fillStyle.fillOpacity = refObj.fillStyle.fillOpacity;
+
+    Paint paint = Color{{0, 0, 0, 1.0}};
+    if (refObj.fillStyle.paint.type() == typeid(Color))
+    {
+        if (boost::get<Color>(paint) != boost::get<Color>(refObj.fillStyle.paint))
+            this->fillStyle.paint = refObj.fillStyle.paint;
+    }
+    else
+        this->fillStyle.paint = refObj.fillStyle.paint;
+
+    if (refObj.fillStyle.visibility != true)
+        this->fillStyle.visibility = refObj.fillStyle.visibility;
+
+    ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
+    if (refObj.fillStyle.color.type() == typeid(Color))
+    {
+        if (boost::get<Color>(color) != boost::get<Color>(refObj.fillStyle.color))
+            this->fillStyle.color = refObj.fillStyle.color;
+    }
+    else
+        this->fillStyle.color = refObj.fillStyle.color;
+
+    if (refObj.fillStyle.clipRule != WindingRule::kNonZero)
+        this->fillStyle.clipRule = refObj.fillStyle.clipRule;
+
+    if (refObj.strokeStyle.hasStroke)
+    {
+        //default value of hasStroke is false
+        this->strokeStyle.hasStroke       = refObj.strokeStyle.hasStroke;
+        this->strokeStyle.internalPaint   = refObj.strokeStyle.internalPaint;
+    }
+    if (refObj.strokeStyle.strokeOpacity != 1.0f)
+        this->strokeStyle.strokeOpacity = refObj.strokeStyle.strokeOpacity;
+
+    if (refObj.strokeStyle.lineWidth != 1.0f)
+        this->strokeStyle.lineWidth = refObj.strokeStyle.lineWidth;
+
+    if (refObj.strokeStyle.lineCap != LineCap::kButt)
+        this->strokeStyle.lineCap = refObj.strokeStyle.lineCap;
+
+    if (refObj.strokeStyle.lineJoin != LineJoin::kMiter)
+        this->strokeStyle.lineJoin = refObj.strokeStyle.lineJoin;
+
+    if (refObj.strokeStyle.dashArray.size() != 0)
+        this->strokeStyle.dashArray = refObj.strokeStyle.dashArray;
+
+   if (refObj.strokeStyle.miterLimit != 4.0f)
+        this->strokeStyle.miterLimit = refObj.strokeStyle.miterLimit;
+
+    if (refObj.strokeStyle.dashOffset != 4.0f)
+        this->strokeStyle.dashOffset = refObj.strokeStyle.dashOffset;
+
+    if (refObj.strokeStyle.paint.type() == typeid(Color))
+    {
+        if (boost::get<Color>(paint) != boost::get<Color>(refObj.strokeStyle.paint))
+          this->strokeStyle.paint = refObj.strokeStyle.paint;
+    }
+    else
+        this->strokeStyle.paint = refObj.strokeStyle.paint;
+
+    return *this;
 }
 
 #ifndef STYLE_SUPPORT

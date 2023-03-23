@@ -134,6 +134,8 @@ public:
         ElementType Type() const override { return ElementType::kGroup; }
     };
 
+    struct Reference;
+
     struct Graphic : public Element
     {
         Graphic(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
@@ -150,6 +152,7 @@ public:
         std::shared_ptr<Path> path;
 
         ElementType Type() const override { return ElementType::kGraphic; }
+        Graphic& operator= (const Reference& refObj);
     };
 
     struct Reference : public Element
