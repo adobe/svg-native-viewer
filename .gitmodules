@@ -8,4 +8,4 @@
 [submodule "third_party/boost_variant_property_tree"]
 	path = third_party/boost_variant_property_tree
 	url = https://github.com/dirkschulze/boost_variant_property_tree.git
-	branch = v1_65_1
+	branch = v1_81_0
