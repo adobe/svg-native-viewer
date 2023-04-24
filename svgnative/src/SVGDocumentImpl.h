@@ -134,24 +134,6 @@ public:
         ElementType Type() const override { return ElementType::kGroup; }
     };
 
-    struct Graphic : public Element
-    {
-        Graphic(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
-            std::shared_ptr<Path> aPath)
-            : Element(aGraphicStyle, aClasses)
-            , fillStyle{aFillStyle}
-            , strokeStyle{aStrokeStyle}
-            , path{std::move(aPath)}
-        {
-        }
-
-        FillStyleImpl fillStyle;
-        StrokeStyleImpl strokeStyle;
-        std::shared_ptr<Path> path;
-
-        ElementType Type() const override { return ElementType::kGraphic; }
-    };
-
     struct Reference : public Element
     {
         Reference(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
@@ -170,6 +152,108 @@ public:
         ElementType Type() const override { return ElementType::kReference; }
     };
 
+    struct Graphic : public Element
+    {
+        Graphic(GraphicStyleImpl& aGraphicStyle, std::set<std::string>& aClasses, FillStyleImpl& aFillStyle, StrokeStyleImpl& aStrokeStyle,
+            std::shared_ptr<Path> aPath)
+            : Element(aGraphicStyle, aClasses)
+            , fillStyle{aFillStyle}
+            , strokeStyle{aStrokeStyle}
+            , path{std::move(aPath)}
+        {
+        }
+
+        FillStyleImpl fillStyle;
+        StrokeStyleImpl strokeStyle;
+        std::shared_ptr<Path> path;
+
+        ElementType Type() const override { return ElementType::kGraphic; }
+        Graphic& operator= (const Reference& refObj)
+        {
+            PaintImpl internalPaint = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
+            if (refObj.fillStyle.internalPaint.type() == typeid(Color))
+            {
+                if (boost::get<Color>(internalPaint) != boost::get<Color>(refObj.fillStyle.internalPaint))
+                {
+                    // default value of hasFill is true
+                    this->fillStyle.hasFill = refObj.fillStyle.hasFill;
+                    this->fillStyle.internalPaint = refObj.fillStyle.internalPaint;
+                }
+            }
+            else
+            {
+                this->fillStyle.hasFill = refObj.fillStyle.hasFill;
+                this->fillStyle.internalPaint = refObj.fillStyle.internalPaint;
+            }
+            
+            if (refObj.fillStyle.fillRule != WindingRule::kNonZero)
+                this->fillStyle.fillRule = refObj.fillStyle.fillRule;
+            
+            if (refObj.fillStyle.fillOpacity != 1.0f)
+                this->fillStyle.fillOpacity = refObj.fillStyle.fillOpacity;
+    
+            Paint paint = Color{{0, 0, 0, 1.0}};
+            if (refObj.fillStyle.paint.type() == typeid(Color))
+            {
+                if (boost::get<Color>(paint) != boost::get<Color>(refObj.fillStyle.paint))
+                    this->fillStyle.paint = refObj.fillStyle.paint;
+            }
+            else
+                this->fillStyle.paint = refObj.fillStyle.paint;
+      
+            if (refObj.fillStyle.visibility != true)
+                this->fillStyle.visibility = refObj.fillStyle.visibility;
+    
+            ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
+            if (refObj.fillStyle.color.type() == typeid(Color))
+            {
+                if (boost::get<Color>(color) != boost::get<Color>(refObj.fillStyle.color))
+                    this->fillStyle.color = refObj.fillStyle.color;
+            }
+            else
+                this->fillStyle.color = refObj.fillStyle.color;
+    
+            if (refObj.fillStyle.clipRule != WindingRule::kNonZero)
+                this->fillStyle.clipRule = refObj.fillStyle.clipRule;
+            
+            if (refObj.strokeStyle.hasStroke)
+            {
+                //default value of hasStroke is false
+                this->strokeStyle.hasStroke = refObj.strokeStyle.hasStroke;
+                this->strokeStyle.internalPaint = refObj.strokeStyle.internalPaint;
+            }
+            if (refObj.strokeStyle.strokeOpacity != 1.0f)
+                this->strokeStyle.strokeOpacity = refObj.strokeStyle.strokeOpacity;
+            
+            if (refObj.strokeStyle.lineWidth != 1.0f)
+                this->strokeStyle.lineWidth = refObj.strokeStyle.lineWidth;
+            
+            if (refObj.strokeStyle.lineCap != LineCap::kButt)
+                this->strokeStyle.lineCap = refObj.strokeStyle.lineCap;
+            
+            if (refObj.strokeStyle.lineJoin != LineJoin::kMiter)
+                this->strokeStyle.lineJoin = refObj.strokeStyle.lineJoin;
+            
+            if (refObj.strokeStyle.dashArray.size() != 0)
+                this->strokeStyle.dashArray = refObj.strokeStyle.dashArray;
+    
+           if (refObj.strokeStyle.miterLimit != 4.0f)
+                this->strokeStyle.miterLimit = refObj.strokeStyle.miterLimit;
+    
+            if (refObj.strokeStyle.dashOffset != 4.0f)
+                this->strokeStyle.dashOffset = refObj.strokeStyle.dashOffset;
+    
+            if (refObj.strokeStyle.paint.type() == typeid(Color))
+            {
+                if (boost::get<Color>(paint) != boost::get<Color>(refObj.strokeStyle.paint))
+                  this->strokeStyle.paint = refObj.strokeStyle.paint;
+            }
+            else
+                this->strokeStyle.paint = refObj.strokeStyle.paint;
+    
+            return *this;
+        }
+    }; 
     SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer);
     ~SVGDocumentImpl() {}
 
