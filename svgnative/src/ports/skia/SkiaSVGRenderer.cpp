@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 #include "svgnative/ports/skia/SkiaSVGRenderer.h"
 #include "base64.h"
 #include "svgnative/Config.h"
+#include "SkPathEffect.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkData.h"
