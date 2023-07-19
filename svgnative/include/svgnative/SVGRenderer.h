@@ -24,6 +24,7 @@ governing permissions and limitations under the License.
 #include <string>
 #include <tuple>
 #include <vector>
+#include <cstdint>
 
 namespace SVGNative
 {
