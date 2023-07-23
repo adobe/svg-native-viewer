@@ -150,10 +150,10 @@ SkiaSVGImageData::SkiaSVGImageData(const std::string& base64, ImageEncoding /*en
         return;
     SkEncodedOrigin origin = codec->getOrigin();
     if (origin == SkEncodedOrigin::kTopLeft_SkEncodedOrigin)
-        mImageData = SkImage::MakeFromEncoded(skData);
+        mImageData = SkImages::DeferredFromEncodedData(skData);
     else
     {
-        auto rawImg = SkImage::MakeFromEncoded(skData);
+        auto rawImg = SkImages::DeferredFromEncodedData(skData);
         mImageData = getOrientedImage(rawImg, origin);
     }
 }
