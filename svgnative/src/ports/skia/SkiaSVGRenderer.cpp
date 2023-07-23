@@ -126,7 +126,7 @@ inline sk_sp<SkImage> getOrientedImage(sk_sp<SkImage> srcImg, SkEncodedOrigin or
         return nullptr;
     }
 
-    auto skRasterSurface = SkSurface::MakeRasterN32Premul(width, height);
+    auto skRasterSurface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height));
     auto skRasterCanvas = skRasterSurface->getCanvas();
     if (offsetX != 0 || offsetY != 0)
         skRasterCanvas->translate(offsetX, offsetY);
