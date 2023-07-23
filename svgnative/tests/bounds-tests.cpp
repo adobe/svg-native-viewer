@@ -32,7 +32,7 @@ using namespace SVGNative;
 
 TEST(bounds_tests, bounds_basic_test)
 {
-    auto surface = SkSurface::MakeNull(1000, 1000);
+    auto surface = SkSurfaces::Null(1000, 1000);
     auto canvas = surface->getCanvas();
     SkiaSVGRenderer renderer;
     renderer.SetSkCanvas(canvas);
@@ -53,7 +53,7 @@ TEST(bounds_tests, bounds_basic_test)
 TEST(bounds_tests, bounds_functional_test)
 {
     // get the surface and the canvas
-    auto surface = SkSurface::MakeNull(1000, 1000);
+    auto surface = SkSurfaces::Null(1000, 1000);
     auto canvas = surface->getCanvas();
     auto renderer = std::make_shared<SVGNative::SkiaSVGRenderer>();
     renderer->SetSkCanvas(canvas);
