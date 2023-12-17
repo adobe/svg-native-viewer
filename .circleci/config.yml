@@ -6,12 +6,14 @@ orbs:
 jobs:
   build_test:
     docker:
-      - image: debian:stretch
+      - image: cimg/base:2023.12
     steps:
-      - run:|
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo apt-get update
-          sudo apt-get install -y git build-essential python2.7 libxml2-dev
+      - run:
+          name: Installing sudo
+          command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
+      - run:
+          name: Installing Build System
+          command: 'apt-get update && apt-get install -y git build-essential python2.7 libxml2-dev'
       - run:
           name: Installing Build System
           command: 'apt-get update && apt-get install wget -y && apt-get install zlib1g-dev -y && apt-get install libcurl4-openssl-dev -y && wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz && tar -zxvf cmake-3.15.2.tar.gz && cd cmake-3.15.2 && ./bootstrap --system-curl && make && sudo make install && cd - && rm -rf cmake-3.15.2*'
@@ -38,7 +40,7 @@ jobs:
           command: 'cd svgnative && /usr/bin/python2.7 script/runTest.py --test=test --program=build/linux-libxml2/example/testText/testSVGNative'
   build_with_clang:
     docker:
-      - image: debian:stretch
+      - image: cimg/base:2023.12
     steps:
       - run:
           name: Installing sudo
@@ -60,7 +62,7 @@ jobs:
           command: 'cd svgnative && cmake --build build/linux'
   build_with_style_support:
     docker:
-      - image: debian:stretch
+      - image: cimg/base:2023.12
     steps:
       - run:
           name: Installing sudo
