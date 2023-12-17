@@ -1087,7 +1087,7 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
             result = SVGDocumentImpl::Result::kSuccess;
             return true;
         }
-        if (char4string.compare("var(") == 0)
+        else if (char4string.compare("var(") == 0)
         {
             result = SVGDocumentImpl::Result::kInvalid;
             pos += 4;
@@ -1121,6 +1121,82 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
             paint = Variable{customPropertyName, SVGNative::get<Color>(fallbackPaint)};
             result = SVGDocumentImpl::Result::kSuccess;
             return true;
+        }
+        else if (char4string.compare("colo") == 0)
+        {
+            if (std::distance(pos, end) > 10 && std::string(pos, pos + 10).compare("r-mix(") == 0)
+            {
+                pos += 10;
+                if (!SkipOptWsp(pos, end))
+                    return false;
+                if (std::distance(pos, end) > 2 && *pos == 'i' && *(pos + 1) == 'n' && isWsp(*(pos + 2)))
+                    pos += 3;
+                else
+                    return false;
+
+                if (!SkipOptWsp(pos, end))
+                    return false;
+                if (std::distance(pos, end) > 4 && std::string(pos, pos + 4).compare("srgb") == 0)
+                    pos += 4;
+                else
+                    return false;
+                if (!SkipOptWspDelimiterOptWsp(pos, end))
+                    return false;
+
+                auto colorMixPtr = std::make_shared<ColorMix>();
+
+                auto resultColor{SVGDocumentImpl::Result::kInvalid};
+                if (!ParseColor(pos, end, colorMixPtr->color1, supportsCurrentColor, resultColor)
+                    || resultColor != SVGDocumentImpl::Result::kSuccess)
+                    return false;
+                float blendProgress1{ 50.f };
+                bool hasBlendProgress1{};
+                auto tempPos = pos;
+                if (tempPos != end && isWsp(*tempPos)
+                    && ParseFloatingPoint(tempPos, end, blendProgress1)
+                    && tempPos != end && *tempPos == '%')
+                {
+                    pos = tempPos + 1;
+                    hasBlendProgress1 = true;
+                }
+
+                if (!SkipOptWspDelimiterOptWsp(pos, end))
+                    return false;
+
+                resultColor = SVGDocumentImpl::Result::kInvalid;
+                if (!ParseColor(pos, end, colorMixPtr->color1, supportsCurrentColor, resultColor)
+                    || resultColor != SVGDocumentImpl::Result::kSuccess)
+                    return false;
+                float blendProgress2{ 50.f };
+                bool hasBlendProgress2{};
+                tempPos = pos;
+                if (tempPos != end && isWsp(*tempPos)
+                    && ParseFloatingPoint(tempPos, end, blendProgress2)
+                    && tempPos != end && *tempPos == '%')
+                {
+                    pos = tempPos + 1;
+                    hasBlendProgress2 = true;
+                }
+
+                if (!SkipOptWsp(pos, end))
+                    return false;
+                if (pos == end || *pos != ')')
+                    return false;
+                pos++;
+
+                blendProgress1 /= 100.f;
+                blendProgress2 /= 100.f;
+                if (!hasBlendProgress1 && hasBlendProgress2)
+                    blendProgress1 = 1 - blendProgress2;
+                else if (hasBlendProgress1 && !hasBlendProgress2)
+                    hasBlendProgress2 = 1 - blendProgress1;
+
+                colorMixPtr->blendProgress = blendProgress1 / (blendProgress1 + blendProgress2);
+
+                paint = colorMixPtr;
+                result = SVGDocumentImpl::Result::kSuccess;
+                return true;
+            }
         }
     }
 

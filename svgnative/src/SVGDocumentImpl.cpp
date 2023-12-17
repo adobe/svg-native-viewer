@@ -1167,6 +1167,8 @@ static void ResolveColorImpl(const ColorMap& colorMap, const ColorImpl& colorImp
     }
     else if (SVGNative::holds_alternative<Color>(colorImpl))
         color = SVGNative::get<Color>(colorImpl);
+    else if (SVGNative::holds_alternative<ColorMixPtr>(colorImpl))
+        color = SVGNative::get<ColorMixPtr>(colorImpl)->BlendedColor(colorMap);
     else
         // Can only be reached if fallback color value of var() is currentColor.
         color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -1211,8 +1213,20 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
     else if (SVGNative::holds_alternative<ColorKeys>(internalPaint))
         // currentColor is the only possible enum value for now.
         paint = currentColor;
+    else if (SVGNative::holds_alternative<ColorMixPtr>(internalPaint))
+        paint = SVGNative::get<ColorMixPtr>(internalPaint)->BlendedColor(colorMap);
     else
         SVG_ASSERT_MSG(false, "Unhandled PaintImpl type");
+}
+
+Color ColorMix::BlendedColor(const ColorMap& colorMap) const
+{
+    Color resolvedColor1;
+    ResolveColorImpl(colorMap, color1, resolvedColor1);
+    Color resolvedColor2;
+    ResolveColorImpl(colorMap, color2, resolvedColor2);
+	// TODO:
+    return resolvedColor1;
 }
 
 void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& element)
