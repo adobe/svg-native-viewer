@@ -307,7 +307,7 @@ inline void createCairoPattern(const Paint& paint, float opacity, cairo_pattern_
     if (paint.type() != typeid(Gradient))
         return;
 
-    const auto& gradient = boost::get<Gradient>(paint);
+    const auto& gradient = VARIANT_GET<Gradient>(paint);
 
     SVG_ASSERT(gradient.type <= GradientType::kRadialGradient);
 
@@ -380,7 +380,7 @@ void CairoSVGRenderer::DrawPath(
 
     if (fillStyle.hasFill)
     {
-        if (fillStyle.paint.type() == typeid(Gradient))
+        if (IS_VARIANT_TYPE(Gradient, fillStyle.paint))
         {
             cairo_pattern_t* pat;
             createCairoPattern(fillStyle.paint, fillStyle.fillOpacity * graphicStyle.opacity, &pat);
@@ -388,7 +388,7 @@ void CairoSVGRenderer::DrawPath(
         }
         else
         {
-            const auto& color = boost::get<Color>(fillStyle.paint);
+            const auto& color = VARIANT_GET<Color>(fillStyle.paint);
             cairo_set_source_rgba(mCairo,
                                   color[0],
                                   color[1],
@@ -403,7 +403,7 @@ void CairoSVGRenderer::DrawPath(
     }
     if (strokeStyle.hasStroke)
     {
-        const auto& color = boost::get<Color>(strokeStyle.paint);
+        const auto& color = VARIANT_GET<Color>(strokeStyle.paint);
         cairo_set_source_rgba(mCairo,
                               color[0],
                               color[1],

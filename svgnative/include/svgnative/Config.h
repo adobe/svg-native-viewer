@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 #if defined(SVGNATIVE_USER_CONFIG)
 #include SVGNATIVE_USER_CONFIG
 #endif
+#include <cassert>
 
 #ifndef SVGViewer_Config_h
 #define SVGViewer_Config_h

@@ -179,18 +179,18 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
     {
         CGContextBeginPath(mContext);
         CGContextAddPath(mContext, static_cast<const CGSVGPath&>(path).mPath);
-        if (fillStyle.paint.type() == typeid(Color))
+        if (IS_VARIANT_TYPE(Color, fillStyle.paint))
         {
-            const auto& color = boost::get<Color>(fillStyle.paint);
+            const auto& color = VARIANT_GET<Color>(fillStyle.paint);
             CGContextSetRGBFillColor(mContext, color[0], color[1], color[2], color[3] * fillStyle.fillOpacity);
             if (fillStyle.fillRule == WindingRule::kEvenOdd)
                 CGContextEOFillPath(mContext);
             else
                 CGContextFillPath(mContext);
         }
-        else if (fillStyle.paint.type() == typeid(Gradient))
+        else if (IS_VARIANT_TYPE(Gradient, fillStyle.paint))
         {
-            const auto& gradient = boost::get<Gradient>(fillStyle.paint);
+            const auto& gradient = VARIANT_GET<Gradient>(fillStyle.paint);
             CGContextSaveGState(mContext);
 
             if (gradient.transform)
@@ -236,15 +236,15 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
 
         CGContextBeginPath(mContext);
         CGContextAddPath(mContext, static_cast<const CGSVGPath&>(path).mPath);
-        if (strokeStyle.paint.type() == typeid(Color))
+        if (IS_VARIANT_TYPE(Color, strokeStyle.paint))
         {
-            const auto& color = boost::get<Color>(strokeStyle.paint);
+            const auto& color = VARIANT_GET<Color>(strokeStyle.paint);
             CGContextSetRGBStrokeColor(mContext, color[0], color[1], color[2], color[3] * strokeStyle.strokeOpacity);
             CGContextStrokePath(mContext);
         }
-        else if (strokeStyle.paint.type() == typeid(Gradient))
+        else if (IS_VARIANT_TYPE(Gradient, strokeStyle.paint))
         {
-            const auto& gradient = boost::get<Gradient>(strokeStyle.paint);
+            const auto& gradient = VARIANT_GET<Gradient>(strokeStyle.paint);
             CGContextSaveGState(mContext);
 
             CGContextReplacePathWithStrokedPath(mContext);
