@@ -1124,7 +1124,7 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
         }
         else if (char4string.compare("colo") == 0)
         {
-            if (std::distance(pos, end) > 10 && std::string(pos, pos + 10).compare("r-mix(") == 0)
+            if (std::distance(pos, end) > 10 && std::string(pos + 4, pos + 10).compare("r-mix(") == 0)
             {
                 pos += 10;
                 if (!SkipOptWsp(pos, end))
@@ -1152,7 +1152,7 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
                 float blendProgress1{ 50.f };
                 bool hasBlendProgress1{};
                 auto tempPos = pos;
-                if (tempPos != end && isWsp(*tempPos)
+                if (tempPos != end && isWsp(*tempPos) && SkipOptWsp(tempPos, end)
                     && ParseFloatingPoint(tempPos, end, blendProgress1)
                     && tempPos != end && *tempPos == '%')
                 {
@@ -1164,13 +1164,13 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
                     return false;
 
                 resultColor = SVGDocumentImpl::Result::kInvalid;
-                if (!ParseColor(pos, end, colorMixPtr->color1, supportsCurrentColor, resultColor)
+                if (!ParseColor(pos, end, colorMixPtr->color2, supportsCurrentColor, resultColor)
                     || resultColor != SVGDocumentImpl::Result::kSuccess)
                     return false;
                 float blendProgress2{ 50.f };
                 bool hasBlendProgress2{};
                 tempPos = pos;
-                if (tempPos != end && isWsp(*tempPos)
+                if (tempPos != end && isWsp(*tempPos) && SkipOptWsp(tempPos, end)
                     && ParseFloatingPoint(tempPos, end, blendProgress2)
                     && tempPos != end && *tempPos == '%')
                 {
@@ -1189,9 +1189,9 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
                 if (!hasBlendProgress1 && hasBlendProgress2)
                     blendProgress1 = 1 - blendProgress2;
                 else if (hasBlendProgress1 && !hasBlendProgress2)
-                    hasBlendProgress2 = 1 - blendProgress1;
+                    blendProgress2 = 1 - blendProgress1;
 
-                colorMixPtr->blendProgress = blendProgress1 / (blendProgress1 + blendProgress2);
+                colorMixPtr->blendProgress = blendProgress2 / (blendProgress1 + blendProgress2);
 
                 paint = colorMixPtr;
                 result = SVGDocumentImpl::Result::kSuccess;
