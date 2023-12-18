@@ -375,7 +375,7 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
             Gdiplus::Color penColor = ColorToGdiplusColor(color);
             pen = std::unique_ptr<Gdiplus::Pen>(new Gdiplus::Pen(penColor, strokeStyle.lineWidth));
         }
-        else if (Gradient(Color, strokeStyle.paint))
+        else if (IS_VARIANT_TYPE(Gradient, strokeStyle.paint))
         {
             const auto& gradient = VARIANT_GET<Gradient>(fillStyle.paint);
             brush = CreateGradientBrush(gradient, fillStyle.fillOpacity * mOpacityStack.top());
