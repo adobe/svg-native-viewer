@@ -26,12 +26,12 @@ governing permissions and limitations under the License.
 
 #if (__cplusplus >= 201703L)
 #include <variant>
-#define VARIANT std::variant
+#define VARIANT(...) std::variant<__VA_ARGS__>
 #define VARIANT_GET std::get
 #define IS_VARIANT_TYPE(typeId, var) std::holds_alternative<typeId>(var)
 #else
 #include <boost/variant.hpp>
-#define VARIANT boost::variant
+#define VARIANT(...) boost::variant<__VA_ARGS__>
 #define VARIANT_GET boost::get
 #define IS_VARIANT_TYPE(typeId, var) (var.type() == typeid(typeId))
 #endif
@@ -111,7 +111,7 @@ class Transform;
 class Path;
 
 using Color = std::array<float, 4>;
-using Paint = VARIANT<Color, Gradient>;
+using Paint = VARIANT(Color, Gradient);
 using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
 

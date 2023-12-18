@@ -43,8 +43,8 @@ enum class ColorKeys
 };
 
 using Variable = std::pair<std::string, Color>;
-using ColorImpl = VARIANT<Color, Variable, ColorKeys>;
-using PaintImpl = VARIANT<Color, GradientImpl, Variable, ColorKeys>;
+using ColorImpl = VARIANT(Color, Variable, ColorKeys);
+using PaintImpl = VARIANT(Color, GradientImpl, Variable, ColorKeys);
 using ColorStopImpl = std::tuple<float, ColorImpl, float>;
 #ifdef STYLE_SUPPORT
 using PropertySet = StyleSheet::CssPropertySet;
