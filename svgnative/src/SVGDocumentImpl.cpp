@@ -1219,13 +1219,21 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
         SVG_ASSERT_MSG(false, "Unhandled PaintImpl type");
 }
 
+constexpr float BlendChannel(float from, float to, float progress)
+{
+    return from + (to - from) * progress;
+}
+
 Color ColorMix::BlendedColor(const ColorMap& colorMap) const
 {
     Color resolvedColor1;
     ResolveColorImpl(colorMap, color1, resolvedColor1);
     Color resolvedColor2;
     ResolveColorImpl(colorMap, color2, resolvedColor2);
-	// TODO:
+    resolvedColor1[0] = BlendChannel(resolvedColor1[0], resolvedColor2[0], blendProgress);
+    resolvedColor1[1] = BlendChannel(resolvedColor1[1], resolvedColor2[1], blendProgress);
+    resolvedColor1[2] = BlendChannel(resolvedColor1[2], resolvedColor2[2], blendProgress);
+    resolvedColor1[3] = BlendChannel(resolvedColor1[3], resolvedColor2[3], blendProgress);
     return resolvedColor1;
 }
 
