@@ -24,16 +24,20 @@ governing permissions and limitations under the License.
 #include <tuple>
 #include <vector>
 
-namespace SVGNative
-{
 #if (__cplusplus >= 201703L)
 #include <variant>
+namespace SVGNative
+{
 template<class... Types>
 using variant = std::variant<Types...>;
 using std::get;
 using std::holds_alternative;
+}
 #else
 #include <boost/variant.hpp>
+
+namespace SVGNative
+{
 template<class... Types>
 using variant = boost::variant<Types...>;
 using boost::get;
@@ -43,8 +47,8 @@ constexpr bool holds_alternative(const boost::variant<Types...>& v) noexcept
 {
     return v.type() == typeid(T);
 }
-#endif
 }
+#endif
 
 namespace SVGNative
 {
