@@ -250,9 +250,9 @@ void StringSVGRenderer::WriteGraphic(const GraphicStyle& graphicStyle)
 void StringSVGRenderer::WritePaint(const Paint& paint)
 {
     // FIXME: use static_visitor
-    if (paint.type() == typeid(Gradient))
+    if (SVGNative::holds_alternative<Gradient>(paint))
     {
-        auto gradient = boost::get<Gradient>(paint);
+        auto gradient = SVGNative::get<Gradient>(paint);
         mStringStream << " paint: {";
         WriteNewline();
         IncIndent();
@@ -308,9 +308,9 @@ void StringSVGRenderer::WritePaint(const Paint& paint)
         mStringStream << '}';
         DecIndent();
     }
-    else if (paint.type() == typeid(Color))
+    else if (SVGNative::holds_alternative<Color>(paint))
     {
-        auto color = boost::get<Color>(paint);
+        auto color = SVGNative::get<Color>(paint);
         mStringStream << " paint: rgba(" << color[0] << ',' << color[1] << ',' << color[2] << ',' << color[3] << ')';
     }
 }
