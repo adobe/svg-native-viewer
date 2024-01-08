@@ -24,17 +24,27 @@ governing permissions and limitations under the License.
 #include <tuple>
 #include <vector>
 
+namespace SVGNative
+{
 #if (__cplusplus >= 201703L)
 #include <variant>
-#define VARIANT(...) std::variant<__VA_ARGS__>
-#define VARIANT_GET std::get
-#define IS_VARIANT_TYPE(typeId, var) std::holds_alternative<typeId>(var)
+template<class... Types>
+using variant = std::variant<Types...>;
+using std::get;
+using std::holds_alternative;
 #else
 #include <boost/variant.hpp>
-#define VARIANT(...) boost::variant<__VA_ARGS__>
-#define VARIANT_GET boost::get
-#define IS_VARIANT_TYPE(typeId, var) (var.type() == typeid(typeId))
+template<class... Types>
+using variant = boost::variant<Types...>;
+using boost::get;
+
+template<class T, class... Types>
+constexpr bool holds_alternative(const boost::variant<Types...>& v) noexcept
+{
+    return v.type() == typeid(T);
+}
 #endif
+}
 
 namespace SVGNative
 {
@@ -111,7 +121,7 @@ class Transform;
 class Path;
 
 using Color = std::array<float, 4>;
-using Paint = VARIANT(Color, Gradient);
+using Paint = SVGNative::variant<Color, Gradient>;
 using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
 

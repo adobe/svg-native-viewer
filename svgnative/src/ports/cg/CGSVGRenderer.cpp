@@ -179,18 +179,18 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
     {
         CGContextBeginPath(mContext);
         CGContextAddPath(mContext, static_cast<const CGSVGPath&>(path).mPath);
-        if (IS_VARIANT_TYPE(Color, fillStyle.paint))
+        if (SVGNative::holds_alternative<Color>(fillStyle.paint))
         {
-            const auto& color = VARIANT_GET<Color>(fillStyle.paint);
+            const auto& color = SVGNative::get<Color>(fillStyle.paint);
             CGContextSetRGBFillColor(mContext, color[0], color[1], color[2], color[3] * fillStyle.fillOpacity);
             if (fillStyle.fillRule == WindingRule::kEvenOdd)
                 CGContextEOFillPath(mContext);
             else
                 CGContextFillPath(mContext);
         }
-        else if (IS_VARIANT_TYPE(Gradient, fillStyle.paint))
+        else if (SVGNative::holds_alternative<Gradient>(fillStyle.paint))
         {
-            const auto& gradient = VARIANT_GET<Gradient>(fillStyle.paint);
+            const auto& gradient = SVGNative::get<Gradient>(fillStyle.paint);
             CGContextSaveGState(mContext);
 
             if (gradient.transform)
@@ -236,15 +236,15 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
 
         CGContextBeginPath(mContext);
         CGContextAddPath(mContext, static_cast<const CGSVGPath&>(path).mPath);
-        if (IS_VARIANT_TYPE(Color, strokeStyle.paint))
+        if (SVGNative::holds_alternative<Color>(strokeStyle.paint))
         {
-            const auto& color = VARIANT_GET<Color>(strokeStyle.paint);
+            const auto& color = SVGNative::get<Color>(strokeStyle.paint);
             CGContextSetRGBStrokeColor(mContext, color[0], color[1], color[2], color[3] * strokeStyle.strokeOpacity);
             CGContextStrokePath(mContext);
         }
-        else if (IS_VARIANT_TYPE(Gradient, strokeStyle.paint))
+        else if (SVGNative::holds_alternative<Gradient>(strokeStyle.paint))
         {
-            const auto& gradient = VARIANT_GET<Gradient>(strokeStyle.paint);
+            const auto& gradient = SVGNative::get<Gradient>(strokeStyle.paint);
             CGContextSaveGState(mContext);
 
             CGContextReplacePathWithStrokedPath(mContext);

@@ -388,16 +388,16 @@ CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint)
 {
     SVG_ASSERT(mContext);
     CComPtr<ID2D1Brush> brush;
-    if (IS_VARIANT_TYPE(Color, paint))
+    if (SVGNative::holds_alternative<Color>(paint))
     {
-        const auto& color = VARIANT_GET<Color>(paint);
+        const auto& color = SVGNative::get<Color>(paint);
         CComPtr<ID2D1SolidColorBrush> solidColorBrush;
         mContext->CreateSolidColorBrush({color[0], color[1], color[2], color[3]}, &solidColorBrush);
         solidColorBrush->QueryInterface(&brush);
     }
-    else if (IS_VARIANT_TYPE(Gradient, paint))
+    else if (SVGNative::holds_alternative<Gradient>(paint))
     {
-        const auto& gradient = VARIANT_GET<Gradient>(paint);
+        const auto& gradient = SVGNative::get<Gradient>(paint);
         std::vector<D2D1_GRADIENT_STOP> colorsStops;
         for (const auto& stop : gradient.colorStops)
         {

@@ -208,15 +208,15 @@ void SkiaSVGRenderer::Restore()
 
 inline void CreateSkPaint(const Paint& paint, float opacity, SkPaint& skPaint)
 {
-    if (IS_VARIANT_TYPE(Color, paint))
+    if (SVGNative::holds_alternative<Color>(paint))
     {
-        const auto& color = VARIANT_GET<Color>(paint);
+        const auto& color = SVGNative::get<Color>(paint);
         skPaint.setColor(SkColorSetARGB(static_cast<uint8_t>(opacity * color[3] * 255), static_cast<uint8_t>(color[0] * 255),
             static_cast<uint8_t>(color[1] * 255), static_cast<uint8_t>(color[2] * 255)));
     }
-    if (IS_VARIANT_TYPE(Gradient, paint))
+    if (SVGNative::holds_alternative<Gradient>(paint))
     {
-        const auto& gradient = VARIANT_GET<Gradient>(paint);
+        const auto& gradient = SVGNative::get<Gradient>(paint);
         std::vector<SkColor> colors;
         std::vector<SkScalar> pos;
         for (const auto& stop : gradient.colorStops)

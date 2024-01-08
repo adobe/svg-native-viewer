@@ -347,17 +347,17 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
     std::unique_ptr<Gdiplus::Brush> brush;
     if (fillStyle.hasFill)
     {
-        if (IS_VARIANT_TYPE(Color, fillStyle.paint))
+        if (SVGNative::holds_alternative<Color>(fillStyle.paint))
         {
-            auto color = VARIANT_GET<Color>(fillStyle.paint);
+            auto color = SVGNative::get<Color>(fillStyle.paint);
             color[3] *= fillStyle.fillOpacity * mOpacityStack.top();
 
             Gdiplus::Color brushColor = ColorToGdiplusColor(color);
             brush = std::unique_ptr<Gdiplus::Brush>(new Gdiplus::SolidBrush(brushColor));
         }
-        else if (IS_VARIANT_TYPE(Gradient, fillStyle.paint))
+        else if (SVGNative::holds_alternative<Gradient>(fillStyle.paint))
         {
-            const auto& gradient = VARIANT_GET<Gradient>(fillStyle.paint);
+            const auto& gradient = SVGNative::get<Gradient>(fillStyle.paint);
             brush = CreateGradientBrush(gradient, fillStyle.fillOpacity);
         }
 
@@ -367,17 +367,17 @@ void GDIPlusSVGRenderer::DrawPath(const Path& renderPath, const GraphicStyle& gr
     if (strokeStyle.hasStroke)
     {
         std::unique_ptr<Gdiplus::Pen> pen;
-        if (IS_VARIANT_TYPE(Color, strokeStyle.paint))
+        if (SVGNative::holds_alternative<Color>(strokeStyle.paint))
         {
-            auto color = VARIANT_GET<Color>(strokeStyle.paint);
+            auto color = SVGNative::get<Color>(strokeStyle.paint);
             color[3] *= strokeStyle.strokeOpacity * mOpacityStack.top();
 
             Gdiplus::Color penColor = ColorToGdiplusColor(color);
             pen = std::unique_ptr<Gdiplus::Pen>(new Gdiplus::Pen(penColor, strokeStyle.lineWidth));
         }
-        else if (IS_VARIANT_TYPE(Gradient, strokeStyle.paint))
+        else if (SVGNative::holds_alternative<Gradient>(strokeStyle.paint))
         {
-            const auto& gradient = VARIANT_GET<Gradient>(fillStyle.paint);
+            const auto& gradient = SVGNative::get<Gradient>(fillStyle.paint);
             brush = CreateGradientBrush(gradient, fillStyle.fillOpacity * mOpacityStack.top());
             pen = std::unique_ptr<Gdiplus::Pen>(new Gdiplus::Pen(brush.get(), strokeStyle.lineWidth));
         }
