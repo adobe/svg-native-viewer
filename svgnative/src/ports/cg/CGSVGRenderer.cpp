@@ -179,18 +179,18 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
     {
         CGContextBeginPath(mContext);
         CGContextAddPath(mContext, static_cast<const CGSVGPath&>(path).mPath);
-        if (fillStyle.paint.type() == typeid(Color))
+        if (SVGNative::holds_alternative<Color>(fillStyle.paint))
         {
-            const auto& color = boost::get<Color>(fillStyle.paint);
+            const auto& color = SVGNative::get<Color>(fillStyle.paint);
             CGContextSetRGBFillColor(mContext, color[0], color[1], color[2], color[3] * fillStyle.fillOpacity);
             if (fillStyle.fillRule == WindingRule::kEvenOdd)
                 CGContextEOFillPath(mContext);
             else
                 CGContextFillPath(mContext);
         }
-        else if (fillStyle.paint.type() == typeid(Gradient))
+        else if (SVGNative::holds_alternative<Gradient>(fillStyle.paint))
         {
-            const auto& gradient = boost::get<Gradient>(fillStyle.paint);
+            const auto& gradient = SVGNative::get<Gradient>(fillStyle.paint);
             CGContextSaveGState(mContext);
 
             if (gradient.transform)
@@ -236,15 +236,15 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
 
         CGContextBeginPath(mContext);
         CGContextAddPath(mContext, static_cast<const CGSVGPath&>(path).mPath);
-        if (strokeStyle.paint.type() == typeid(Color))
+        if (SVGNative::holds_alternative<Color>(strokeStyle.paint))
         {
-            const auto& color = boost::get<Color>(strokeStyle.paint);
+            const auto& color = SVGNative::get<Color>(strokeStyle.paint);
             CGContextSetRGBStrokeColor(mContext, color[0], color[1], color[2], color[3] * strokeStyle.strokeOpacity);
             CGContextStrokePath(mContext);
         }
-        else if (strokeStyle.paint.type() == typeid(Gradient))
+        else if (SVGNative::holds_alternative<Gradient>(strokeStyle.paint))
         {
-            const auto& gradient = boost::get<Gradient>(strokeStyle.paint);
+            const auto& gradient = SVGNative::get<Gradient>(strokeStyle.paint);
             CGContextSaveGState(mContext);
 
             CGContextReplacePathWithStrokedPath(mContext);

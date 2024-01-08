@@ -207,6 +207,7 @@ options `ON` or `OFF`:
 * `GDIPLUS` adds the _GDI+_ port to the library. Default `OFF`.
 * `D2D` adds the _Direct2D_ port to the library. Default `OFF`.
 * `CAIRO` adds the _Cairo Graphics_ port to the library. Default `OFF`.
+* `TESTING` enables automated testing using Google Tests. Default `ON`.
 
 To enable the deprecated CSS styling support:
 * `STYLE` adds limited, deprecated support for `<style>` element and
