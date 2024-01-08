@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 #include "gtest/gtest-spi.h"
 
 #include <svgnative/SVGRenderer.h>
+#include "SVGDocumentImpl.h"
 #include "SVGStringParser.h"
 
 using namespace SVGNative;
