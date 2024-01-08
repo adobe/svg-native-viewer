@@ -42,10 +42,22 @@ enum class ColorKeys
     kCurrentColor
 };
 
+struct ColorMix;
+using ColorMixPtr = std::shared_ptr<ColorMix>;
+
 using Variable = std::pair<std::string, Color>;
-using ColorImpl = SVGNative::variant<Color, Variable, ColorKeys>;
-using PaintImpl = SVGNative::variant<Color, GradientImpl, Variable, ColorKeys>;
+using ColorImpl = SVGNative::variant<Color, Variable, ColorKeys, ColorMixPtr>;
+using PaintImpl = SVGNative::variant<Color, GradientImpl, Variable, ColorKeys, ColorMixPtr>;
 using ColorStopImpl = std::tuple<float, ColorImpl, float>;
+struct ColorMix
+{
+    ColorImpl color1;
+    ColorImpl color2;
+    float blendProgress{};
+
+    Color BlendedColor(const ColorMap& colorMap) const;
+};
+
 #ifdef STYLE_SUPPORT
 using PropertySet = StyleSheet::CssPropertySet;
 #else

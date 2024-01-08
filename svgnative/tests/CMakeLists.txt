@@ -1,23 +1,21 @@
 set (SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/../src/Interval.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../src/Interval.h
-)
-add_executable(intervalTests interval-tests.cpp ${SOURCE_FILES})
-target_include_directories(intervalTests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
-target_link_libraries(intervalTests SVGNativeViewerLib)
-target_link_libraries(intervalTests gtest_main)
-add_test(NAME interval_tests COMMAND intervalTests)
-
-set (SOURCE_FILES
-	${CMAKE_CURRENT_SOURCE_DIR}/../src/Interval.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/../src/Rect.cpp
 )
-add_executable(rectangleTests rectangle-tests.cpp ${SOURCE_FILES})
-target_include_directories(rectangleTests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
-target_link_libraries(rectangleTests SVGNativeViewerLib)
-target_link_libraries(rectangleTests gtest_main)
-add_test(NAME rectangle_tests COMMAND rectangleTests)
 
+set (TEST_FILES
+    interval-tests.cpp
+    rectangle-tests.cpp
+    parsing-tests.cpp
+)
+add_executable(unitTesting ${TEST_FILES} ${SOURCE_FILES})
+target_include_directories(unitTesting PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+target_link_libraries(unitTesting SVGNativeViewerLib)
+target_link_libraries(unitTesting gtest_main)
+add_test(NAME interval_tests COMMAND unitTesting)
+add_test(NAME rectangle_tests COMMAND unitTesting)
+add_test(NAME parsing_tests COMMAND unitTesting)
 
 # TODO: For now we just use the Skia port, but later on we should
 # extend this and generalize this so that all the ports are equally
