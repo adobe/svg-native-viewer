@@ -40,7 +40,7 @@ TEST_P(ParsingTestFixture, color_mix)
     EXPECT_EQ(wasParsingSuccessful, true);
     EXPECT_EQ(colorImpl.type() == typeid(ColorMixPtr), true);
 
-    auto blendedColor = boost::get<ColorMixPtr>(colorImpl)->BlendedColor(colorMap);
+    auto blendedColor = SVGNative::get<ColorMixPtr>(colorImpl)->BlendedColor(colorMap);
     auto& expectedColor = param.second;
     EXPECT_FLOAT_EQ(blendedColor[0], expectedColor[0]);
     EXPECT_FLOAT_EQ(blendedColor[1], expectedColor[1]);
