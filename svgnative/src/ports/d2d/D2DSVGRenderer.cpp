@@ -18,6 +18,7 @@ governing permissions and limitations under the License.
 #include "svgnative/ports/d2d/D2DSVGRenderer.h"
 #include "base64.h"
 #include <memory>
+#include <stdexcept>
 
 namespace
 {
