@@ -1111,14 +1111,14 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
                     return false;
             }
             pos++;
-            if (fallbackPaint.type() != typeid(Color))
+            if (!SVGNative::holds_alternative<Color>(fallbackPaint))
             {
                 // Fallback color was a variable. This is allowed according to
                 // CSS syntax but requires recursive C++ variables. Ignoring it
                 // and setting fallback color to black is a simpler approach for now.
                 fallbackPaint = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
             }
-            paint = Variable{customPropertyName, boost::get<Color>(fallbackPaint)};
+            paint = Variable{customPropertyName, SVGNative::get<Color>(fallbackPaint)};
             result = SVGDocumentImpl::Result::kSuccess;
             return true;
         }
@@ -1212,7 +1212,7 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
                 if (gradient.internalColorStops.empty())
                     return SVGDocumentImpl::Result::kDisabled;
                 else if (gradient.internalColorStops.size() == 1)
-                    paint = std::get<1>(gradient.internalColorStops.front());
+                    paint = SVGNative::get<Color>(std::get<1>(gradient.internalColorStops.front()));
                 else
                 {
                     // Percentage values that do neither correlate to horizontal nor vertical dimensions
@@ -1259,7 +1259,21 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
     if (!SkipOptWsp(pos, end))
     {
         if (urlResult == SVGDocumentImpl::Result::kInvalid && result != SVGDocumentImpl::Result::kInvalid)
-            paint = altPaint;
+        {
+			//Convert from ColorImpl to PaintImpl. Although PaintImpl supports a superset of types, std doesn't know how to deal with the conversion.
+			if (SVGNative::holds_alternative<Color>(altPaint))
+			{
+				paint = SVGNative::get<Color>(altPaint);
+			}
+			else if (SVGNative::holds_alternative<Variable>(altPaint))
+			{
+				paint = SVGNative::get<Variable>(altPaint);
+			}
+			else if (SVGNative::holds_alternative<ColorKeys>(altPaint))
+			{
+				paint = SVGNative::get<ColorKeys>(altPaint);
+			}
+        }
         return result;
     }
 

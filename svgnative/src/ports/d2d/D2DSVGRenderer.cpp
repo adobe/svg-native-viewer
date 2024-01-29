@@ -18,6 +18,7 @@ governing permissions and limitations under the License.
 #include "svgnative/ports/d2d/D2DSVGRenderer.h"
 #include "base64.h"
 #include <memory>
+#include <stdexcept>
 
 namespace
 {
@@ -387,16 +388,16 @@ CComPtr<ID2D1Brush> D2DSVGRenderer::CreateBrush(const Paint& paint)
 {
     SVG_ASSERT(mContext);
     CComPtr<ID2D1Brush> brush;
-    if (paint.type() == typeid(Color))
+    if (SVGNative::holds_alternative<Color>(paint))
     {
-        const auto& color = boost::get<Color>(paint);
+        const auto& color = SVGNative::get<Color>(paint);
         CComPtr<ID2D1SolidColorBrush> solidColorBrush;
         mContext->CreateSolidColorBrush({color[0], color[1], color[2], color[3]}, &solidColorBrush);
         solidColorBrush->QueryInterface(&brush);
     }
-    else if (paint.type() == typeid(Gradient))
+    else if (SVGNative::holds_alternative<Gradient>(paint))
     {
-        const auto& gradient = boost::get<Gradient>(paint);
+        const auto& gradient = SVGNative::get<Gradient>(paint);
         std::vector<D2D1_GRADIENT_STOP> colorsStops;
         for (const auto& stop : gradient.colorStops)
         {

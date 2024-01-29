@@ -17,7 +17,6 @@ governing permissions and limitations under the License.
 #include "Rect.h"
 
 #include <array>
-#include <boost/variant.hpp>
 #include <limits>
 #include <map>
 #include <memory>
@@ -25,6 +24,32 @@ governing permissions and limitations under the License.
 #include <tuple>
 #include <vector>
 #include <cstdint>
+
+#if (__cplusplus >= 201703L)
+#include <variant>
+namespace SVGNative
+{
+template<class... Types>
+using variant = std::variant<Types...>;
+using std::get;
+using std::holds_alternative;
+}
+#else
+#include <boost/variant.hpp>
+
+namespace SVGNative
+{
+template<class... Types>
+using variant = boost::variant<Types...>;
+using boost::get;
+
+template<class T, class... Types>
+constexpr bool holds_alternative(const boost::variant<Types...>& v) noexcept
+{
+    return v.type() == typeid(T);
+}
+}
+#endif
 
 namespace SVGNative
 {
@@ -101,7 +126,7 @@ class Transform;
 class Path;
 
 using Color = std::array<float, 4>;
-using Paint = boost::variant<Color, Gradient>;
+using Paint = SVGNative::variant<Color, Gradient>;
 using ColorStop = std::pair<float, Color>;
 using ColorMap = std::map<std::string, Color>;
 
@@ -246,7 +271,7 @@ public:
     virtual void DrawPath(
         const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) = 0;
     virtual void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) = 0;
-    virtual Rect GetBounds(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
+    virtual Rect GetBounds(const Path&, const GraphicStyle&, const FillStyle&, const StrokeStyle&)
     {
       throw "Bound calculation functionality not implemented in this port";
       return Rect{0, 0, 0, 0};
