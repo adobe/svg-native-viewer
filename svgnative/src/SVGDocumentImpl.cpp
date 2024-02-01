@@ -20,6 +20,7 @@ governing permissions and limitations under the License.
 
 #include <cmath>
 #include <limits>
+#include <cstring>
 
 using namespace SVGNative::xml;
 
