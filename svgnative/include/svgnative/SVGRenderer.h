@@ -23,6 +23,7 @@ governing permissions and limitations under the License.
 #include <string>
 #include <tuple>
 #include <vector>
+#include <cstdint>
 
 #if (__cplusplus >= 201703L)
 #include <variant>
