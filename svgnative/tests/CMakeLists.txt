@@ -25,7 +25,7 @@ add_test(NAME rectangle_tests COMMAND rectangleTests)
 # implementations for different ports and do the tests for all those
 # that are available
 if (USE_SKIA)
-    add_executable(boundsTests bounds-tests.cpp)
+    add_executable(boundsTests bounds-tests.cpp ${SOURCE_FILES} ../src/ports/skia/SkiaSVGRenderer.cpp ../../third_party/cpp-base64/base64.cpp)
     target_link_libraries(boundsTests SVGNativeViewerLib)
     target_link_libraries(boundsTests gtest_main)
     add_test(NAME bounds_tests COMMAND boundsTests)
