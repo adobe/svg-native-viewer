@@ -88,6 +88,7 @@ endif()
 # setting for Cairo
 ################################
 if(CAIRO)
+    set(CMAKE_CXX_STANDARD 17)
     # cmake wants to have full pathname of libcairo, instead of compiler flags.
     # thus FindCairo.cmake works better than pkg_check_modules(CAIRO cairo)
     include(FindCairo)
