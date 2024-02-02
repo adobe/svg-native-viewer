@@ -1,4 +1,4 @@
-add_executable(testSkia TestSkia.cpp)
+add_executable(testSkia TestSkia.cpp ../../src/Rect.cpp ../../src/Interval.cpp)
 
 target_include_directories(testSkia PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/stylesheet/include")
 target_include_directories(testSkia PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/skia/include/config")

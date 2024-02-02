@@ -77,7 +77,7 @@ find_package(PkgConfig)
 # setting for Skia
 ################################
 if(SKIA)
-    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD 17)
     include(FindSkia)
     if (NOT SKIA_AVAILABLE)
         message(FATAL_ERROR "Fatal error: Skia port is requested, but no usable Skia library was found.")
