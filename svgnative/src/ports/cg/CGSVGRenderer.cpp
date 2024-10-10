@@ -233,6 +233,14 @@ void CGSVGRenderer::DrawPath(const Path& path, const GraphicStyle& graphicStyle,
         }
         CGContextSetMiterLimit(mContext, strokeStyle.miterLimit);
         CGContextSetLineWidth(mContext, strokeStyle.lineWidth);
+        if (!strokeStyle.dashArray.empty())
+        {
+            std::vector<CGFloat> dashArray;
+            std::for_each(strokeStyle.dashArray.begin(), strokeStyle.dashArray.end(), [&dashArray](auto& item) {
+                dashArray.push_back(static_cast<CGFloat>(item));
+            });
+            CGContextSetLineDash(mContext, strokeStyle.dashOffset, dashArray.data(), dashArray.size());
+        }
 
         CGContextBeginPath(mContext);
         CGContextAddPath(mContext, static_cast<const CGSVGPath&>(path).mPath);

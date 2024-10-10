@@ -8,6 +8,7 @@
     0.2cm"/>
     <line x2="200" y1="35" y2="35" stroke="black" stroke-width="5" stroke-dasharray=".99e1.2e2.1e2.9.9"/>
     <line x2="200" y1="40" y2="40" stroke="black" stroke-width="5" stroke-dasharray="5% 10%"/>
+    <line x2="200" y1="45" y2="45" stroke="black" stroke-width="5" stroke-dasharray="20 10 "/>
 
     <!-- invalid values -->
     <line x2="200" y1="100" y2="100" stroke="black" stroke-width="5" stroke-dasharray="20, 10, 20,"/>

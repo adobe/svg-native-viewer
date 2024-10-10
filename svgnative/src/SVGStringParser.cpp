@@ -462,7 +462,7 @@ bool ParseListOfLengthOrPercentage(const std::string& lengthOrPercentageListStri
     {
         temp = pos;
         if (!SkipOptWspOrDelimiter(temp, end, isAllOptional))
-            return false;
+            return true;
 
         if (!ParseLengthOrPercentage(temp, end, relDimensionLength, number, isAllOptional))
             return false;

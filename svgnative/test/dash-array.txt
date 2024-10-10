@@ -25,6 +25,9 @@
             [path M0,40 L200,40
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
                 stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 14.1 28.3 dashOffset: 0 paint: rgba(0,0,0,1)}]
+            [path M0,45 L200,45
+                fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
+                stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dash: 20 10 dashOffset: 0 paint: rgba(0,0,0,1)}]
             [path M0,100 L200,100
                 fill: {hasFill: true winding: nonzero paint: rgba(0,0,0,1)}
                 stroke: {hasStroke: true width: 5 cap: butt join: miter miter: 4 dashOffset: 0 paint: rgba(0,0,0,1)}]
