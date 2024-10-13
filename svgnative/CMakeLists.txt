@@ -221,6 +221,7 @@ file(GLOB gl_public
     include/SVGNativeCWrapper.h
     include/SVGRenderer.h
     include/Rect.h
+    include/xml/XMLParser.h
 )
 file(GLOB gl_source
     src/Constants.h
@@ -337,7 +338,6 @@ endif(EXPAT_FOUND)
 endif(USE_PLATFORM_XML)
 
 file(GLOB xml_parser
-    src/xml/XMLParser.h
     ${XML_PARSER_SOURCE}
 )
 

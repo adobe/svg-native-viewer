@@ -16,7 +16,7 @@ governing permissions and limitations under the License.
 #include "svgnative/SVGDocument.h"
 #include "svgnative/SVGRenderer.h"
 #include "SVGStringParser.h"
-#include "xml/XMLParser.h"
+#include "svgnative/xml/XMLParser.h"
 
 #include <cmath>
 #include <limits>
@@ -69,7 +69,7 @@ SVGDocumentImpl::SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer)
     mGroupStack.push(mGroup);
 }
 
-void SVGDocumentImpl::TraverseSVGTree(XMLNode* rootNode)
+void SVGDocumentImpl::TraverseSVGTree(std::shared_ptr<XMLNode> rootNode)
 {
     if (!rootNode || strcmp(rootNode->GetName(), kSvgElem))
         return;
@@ -124,7 +124,7 @@ float SVGDocumentImpl::RelativeLength(LengthType lengthType) const
     return relLength;
 }
 
-float SVGDocumentImpl::ParseLengthFromAttr(const XMLNode* node, const char* attrName, LengthType lengthType, float fallback)
+float SVGDocumentImpl::ParseLengthFromAttr(const std::shared_ptr<XMLNode> node, const char* attrName, LengthType lengthType, float fallback)
 {
     if (!node)
         return fallback;
@@ -137,17 +137,17 @@ float SVGDocumentImpl::ParseLengthFromAttr(const XMLNode* node, const char* attr
     return number;
 }
 
-void SVGDocumentImpl::ParseChildren(XMLNode* node)
+void SVGDocumentImpl::ParseChildren(std::shared_ptr<XMLNode> node)
 {
     SVG_ASSERT(node != nullptr);
 
     for (auto child = node->GetFirstNode(); child != nullptr; child = child->GetNextSibling())
     {
-        ParseChild(child.get());
+        ParseChild(child);
     }
 }
 
-void SVGDocumentImpl::ParseChild(XMLNode* child)
+void SVGDocumentImpl::ParseChild(std::shared_ptr<XMLNode> child)
 {
     SVG_ASSERT(child != nullptr);
 
@@ -165,7 +165,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     // or path first.
     if (auto path = ParseShape(child))
     {
-        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))), std::move(idString));
+        AddChildToCurrentGroup(std::unique_ptr<Graphic>(new Graphic(graphicStyle, classNames, fillStyle, strokeStyle, std::move(path))), std::move(idString), child);
         return;
     }
 
@@ -177,7 +177,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         mStrokeStyleStack.push(strokeStyle);
 
         auto group = std::make_shared<Group>(graphicStyle, classNames);
-        AddChildToCurrentGroup(group, std::move(idString));
+        AddChildToCurrentGroup(group, std::move(idString), child);
         mGroupStack.push(group);
 
         ParseChildren(child);
@@ -312,7 +312,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
             if (imageWidth && imageHeight && clipArea.width && clipArea.height && fillArea.width && fillArea.height)
             {
                 auto image = std::unique_ptr<Image>(new Image(graphicStyle, classNames, std::move(imageData), clipArea, fillArea));
-                AddChildToCurrentGroup(std::move(image), std::move(idString));
+                AddChildToCurrentGroup(std::move(image), std::move(idString), child);
             }
         }
     }
@@ -332,7 +332,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         }
 
         std::string href{(hrefAttr.value + 1)};
-        AddChildToCurrentGroup(std::make_shared<Reference>(graphicStyle, classNames, fillStyle, strokeStyle, std::move(href)), std::move(idString));
+        AddChildToCurrentGroup(std::make_shared<Reference>(graphicStyle, classNames, fillStyle, strokeStyle, std::move(href)), std::move(idString), child);
     }
     else if (!strcmp(elementName, kSymbolElem))
     {
@@ -347,7 +347,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         }
 
         auto group = std::make_shared<Group>(graphicStyle, classNames);
-        AddChildToCurrentGroup(group, std::move(idString));
+        AddChildToCurrentGroup(group, std::move(idString), child);
         mGroupStack.push(group);
 
         ParseChildren(child);
@@ -383,7 +383,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
         for (auto clipPathChild = child->GetFirstNode(); clipPathChild != nullptr; clipPathChild = clipPathChild->GetNextSibling())
         {
             // WebKit and Blink allow the clipping path if there is at least one valid basic shape child.
-            if (auto path = ParseShape(clipPathChild.get()))
+            if (auto path = ParseShape(clipPathChild))
             {
                 std::unique_ptr<Transform> transform;
                 auto attr = clipPathChild->GetAttribute(kTransformAttr);
@@ -410,7 +410,7 @@ void SVGDocumentImpl::ParseChild(XMLNode* child)
     }
 }
 
-std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
+std::unique_ptr<Path> SVGDocumentImpl::ParseShape(std::shared_ptr<XMLNode> child)
 {
     SVG_ASSERT(child != nullptr);
 
@@ -547,7 +547,7 @@ std::unique_ptr<Path> SVGDocumentImpl::ParseShape(XMLNode* child)
 }
 
 GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
-    const XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames)
+    const std::shared_ptr<XMLNode> node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -575,14 +575,14 @@ GraphicStyleImpl SVGDocumentImpl::ParseGraphic(
     return graphicStyle;
 }
 
-static inline void AddDetectedProperty(const XMLNode* node, PropertySet& propertySet, const char* propertyName)
+static inline void AddDetectedProperty(const std::shared_ptr<XMLNode> node, PropertySet& propertySet, const char* propertyName)
 {
     auto attr = node->GetAttribute(propertyName);
     if (attr.found)
         propertySet.insert({propertyName, attr.value});
 }
 
-PropertySet SVGDocumentImpl::ParsePresentationAttributes(const XMLNode* node)
+PropertySet SVGDocumentImpl::ParsePresentationAttributes(const std::shared_ptr<XMLNode> node)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -797,7 +797,7 @@ void SVGDocumentImpl::ParseGraphicsProperties(GraphicStyleImpl& graphicStyle, co
     }
 }
 
-float SVGDocumentImpl::ParseColorStop(const XMLNode* node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
+float SVGDocumentImpl::ParseColorStop(const std::shared_ptr<XMLNode> node, std::vector<ColorStopImpl>& colorStops, float lastOffset)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -827,7 +827,7 @@ float SVGDocumentImpl::ParseColorStop(const XMLNode* node, std::vector<ColorStop
     return offset;
 }
 
-void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
+void SVGDocumentImpl::ParseColorStops(std::shared_ptr<XMLNode> node, GradientImpl& gradient)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -836,7 +836,7 @@ void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
     for (auto child = node->GetFirstNode(); child != nullptr; child = child->GetNextSibling())
     {
         if (!strcmp(child->GetName(), kStopElem))
-            lastOffset = ParseColorStop(child.get(), colorStops, lastOffset);
+            lastOffset = ParseColorStop(child, colorStops, lastOffset);
     }
     // Make sure we always have stops in the range 0% and 100%.
     if (colorStops.size() > 1)
@@ -854,7 +854,7 @@ void SVGDocumentImpl::ParseColorStops(XMLNode* node, GradientImpl& gradient)
         gradient.internalColorStops = colorStops;
 }
 
-void SVGDocumentImpl::ParseGradient(XMLNode* node)
+void SVGDocumentImpl::ParseGradient(std::shared_ptr<XMLNode> node)
 {
     SVG_ASSERT(node != nullptr);
 
@@ -967,7 +967,7 @@ void SVGDocumentImpl::RenderElement(const Element& element, const ColorMap& colo
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
     graphicStyle.transform->Scale(scale, scale);
 
-    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle, nullptr};
 
     TraverseTree(colorMap, element);
     SVG_ASSERT(mVisitedElements.empty());
@@ -982,7 +982,7 @@ bool SVGDocumentImpl::GetBoundingBox(Rect& bound)
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
-    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle, nullptr};
     ExtractBounds(*mGroup);
     SVG_ASSERT(mVisitedElements.empty());
 
@@ -1008,7 +1008,7 @@ bool SVGDocumentImpl::GetBoundingBox(const char* id, Rect& bound)
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
-    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle, nullptr};
     const auto elementIter = mIdToElementMap.find(id);
     SVG_ASSERT(elementIter != mIdToElementMap.end());
     ExtractBounds(*elementIter->second);
@@ -1034,7 +1034,7 @@ bool GetSubBoundingBoxes(std::vector<Rect>& bounds);
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
-    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStle, nullptr};
     ExtractBounds(*mGroup);
     SVG_ASSERT(mVisitedElements.empty());
     bounds = mBounds;
@@ -1049,7 +1049,7 @@ bool GetSubBoundingBoxes(const char* id, std::vector<Rect>& bounds);
     GraphicStyleImpl graphicStyle{};
     graphicStyle.transform = mRenderer->CreateTransform();
     graphicStyle.transform->Translate(-1 * mViewBox[0], -1 * mViewBox[1]);
-    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle};
+    auto saveRestore = SaveRestoreHelper{mRenderer, graphicStyle, nullptr};
     const auto elementIter = mIdToElementMap.find(id);
     SVG_ASSERT(elementIter != mIdToElementMap.end());
     ExtractBounds(*elementIter->second);
@@ -1086,7 +1086,7 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
                 if (refIt != mIdToElementMap.end())
                 {
                     ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
-                    auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
+                    auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle, element.node};
                     ExtractBounds(*(refIt->second));
                 }
 
@@ -1135,7 +1135,7 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
             {
                 const auto& group = static_cast<const Group&>(element);
                 ApplyCSSStyle(group.classNames, graphicStyle, fillStyle, strokeStyle);
-                auto saveRestore = SaveRestoreHelper{mRenderer, group.graphicStyle};
+                auto saveRestore = SaveRestoreHelper{mRenderer, group.graphicStyle, element.node};
                 for (const auto& child : group.children)
                     ExtractBounds(*child);
                 break;
@@ -1145,12 +1145,13 @@ void SVGDocumentImpl::ExtractBounds(const Element& element)
     }
 }
 
-void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString)
+void SVGDocumentImpl::AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString, std::shared_ptr<XMLNode> node)
 {
     SVG_ASSERT(!mGroupStack.empty());
     if (mGroupStack.empty())
         return;
 
+    element->node = node;
     mGroupStack.top()->children.push_back(element);
 
     if (!idString.empty() && mIdToElementMap.find(idString) == mIdToElementMap.end())
@@ -1241,7 +1242,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         if (refIt != mIdToElementMap.end())
         {
             ApplyCSSStyle(reference.classNames, graphicStyle, fillStyle, strokeStyle);
-            auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle};
+            auto saveRestore = SaveRestoreHelper{mRenderer, reference.graphicStyle, element.node};
             TraverseTree(colorMap, *(refIt->second));
         }
 
@@ -1263,7 +1264,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
         ResolveColorImpl(colorMap, fillStyle.color, color);
         ResolvePaintImpl(colorMap, fillStyle.internalPaint, color, fillStyle.paint);
         ResolvePaintImpl(colorMap, strokeStyle.internalPaint, color, strokeStyle.paint);
-        mRenderer->DrawPath(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle);
+        mRenderer->DrawPath(*(graphic.path.get()), graphicStyle, fillStyle, strokeStyle, element.node);
         break;
     }
     case ElementType::kImage:
@@ -1277,7 +1278,7 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
     {
         const auto& group = static_cast<const Group&>(element);
         ApplyCSSStyle(group.classNames, graphicStyle, fillStyle, strokeStyle);
-        auto saveRestore = SaveRestoreHelper{mRenderer, group.graphicStyle};
+        auto saveRestore = SaveRestoreHelper{mRenderer, group.graphicStyle, element.node};
         for (const auto& child : group.children)
             TraverseTree(colorMap, *child);
         break;
@@ -1291,8 +1292,8 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
 // Deprecated style support
 void SVGDocumentImpl::ApplyCSSStyle(
     const std::set<std::string>&, GraphicStyleImpl&, FillStyleImpl&, StrokeStyleImpl&) {}
-void SVGDocumentImpl::ParseStyleAttr(const XMLNode*, std::vector<PropertySet>&, std::set<std::string>&) {}
-void SVGDocumentImpl::ParseStyle(const XMLNode*) {}
+void SVGDocumentImpl::ParseStyleAttr(const std::shared_ptr<XMLNode>, std::vector<PropertySet>&, std::set<std::string>&) {}
+void SVGDocumentImpl::ParseStyle(const std::shared_ptr<XMLNode>) {}
 #endif
 
 } // namespace SVGNative

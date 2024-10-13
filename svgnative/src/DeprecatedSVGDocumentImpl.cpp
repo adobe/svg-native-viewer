@@ -13,7 +13,7 @@ governing permissions and limitations under the License.
 #ifdef STYLE_SUPPORT
 #include "SVGDocumentImpl.h"
 #include "svgnative/SVGDocument.h"
-#include "xml/XMLParser.h"
+#include "svgnative/xml/XMLParser.h"
 
 using namespace SVGNative::xml;
 

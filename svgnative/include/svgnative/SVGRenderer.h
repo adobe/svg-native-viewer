@@ -15,6 +15,7 @@ governing permissions and limitations under the License.
 
 #include "Config.h"
 #include "Rect.h"
+#include "svgnative/xml/XMLParser.h"
 
 #include <array>
 #include <limits>
@@ -264,12 +265,13 @@ public:
     virtual std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) = 0;
 
-    virtual void Save(const GraphicStyle& graphicStyle) = 0;
+    virtual void Save(const GraphicStyle& graphicStyle, std::shared_ptr<xml::XMLNode> element) = 0;
     virtual void Restore() = 0;
 
     virtual void DrawPath(
-        const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) = 0;
+        const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle, std::shared_ptr<xml::XMLNode> element) = 0;
     virtual void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) = 0;
+
     virtual Rect GetBounds(const Path&, const GraphicStyle&, const FillStyle&, const StrokeStyle&)
     {
       throw "Bound calculation functionality not implemented in this port";
@@ -280,11 +282,11 @@ public:
 class SaveRestoreHelper
 {
 public:
-    SaveRestoreHelper(std::weak_ptr<SVGRenderer> renderer, const GraphicStyle& graphicStyle)
+    SaveRestoreHelper(std::weak_ptr<SVGRenderer> renderer, const GraphicStyle& graphicStyle, std::shared_ptr<xml::XMLNode> element)
         : mRenderer{renderer}
     {
         if (auto renderer = mRenderer.lock())
-            renderer->Save(graphicStyle);
+            renderer->Save(graphicStyle, element);
     }
 
     ~SaveRestoreHelper()

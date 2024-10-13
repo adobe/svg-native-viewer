@@ -114,10 +114,10 @@ public:
     std::unique_ptr<Transform> CreateTransform(
         float a = 1.0, float b = 0.0, float c = 0.0, float d = 1.0, float tx = 0.0, float ty = 0.0) override;
 
-    void Save(const GraphicStyle& graphicStyle) override;
+    void Save(const GraphicStyle& graphicStyle, std::shared_ptr<xml::XMLNode> element) override;
     void Restore() override;
 
-    void DrawPath(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) override;
+    void DrawPath(const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle, std::shared_ptr<xml::XMLNode> element) override;
     void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) override;
 
     std::string String() const;

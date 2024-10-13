@@ -123,7 +123,7 @@ std::unique_ptr<Transform> StringSVGRenderer::CreateTransform(
     return std::unique_ptr<StringSVGTransform>(new StringSVGTransform(a, b, c, d, tx, ty));
 }
 
-void StringSVGRenderer::Save(const GraphicStyle& graphicStyle)
+void StringSVGRenderer::Save(const GraphicStyle& graphicStyle, std::shared_ptr<xml::XMLNode> element)
 {
     WriteIndent();
     mStringStream << "[group";
@@ -141,7 +141,7 @@ void StringSVGRenderer::Restore()
 }
 
 void StringSVGRenderer::DrawPath(
-    const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle)
+    const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle, std::shared_ptr<xml::XMLNode> element)
 {
     WriteIndent();
     mStringStream << "[path" << static_cast<const StringSVGPath&>(path).String();

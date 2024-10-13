@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-#include "xml/XMLParser.h"
+#include "svgnative/xml/XMLParser.h"
 
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
 
@@ -38,48 +38,82 @@ namespace xml
             return mNode->value();
         }
 
-        std::unique_ptr<XMLNode> GetFirstNode() override
+        std::shared_ptr<XMLNode> GetFirstNode() override
         {
             if (!mNode)
                 return nullptr;
             if (const auto firstChild = mNode->first_node())
             {
                 auto newNode = new RapidXMLNode{firstChild};
-                return std::unique_ptr<XMLNode>(newNode);
+                return std::shared_ptr<XMLNode>(static_cast<XMLNode*>(newNode));
             }
             return nullptr;
         }
-        std::unique_ptr<XMLNode> GetNextSibling() override
+
+        std::shared_ptr<XMLNode> GetNextSibling() override
         {
             if (!mNode)
                 return nullptr;
             if (const auto nextSibling = mNode->next_sibling())
             {
                 auto newNode = new RapidXMLNode{nextSibling};
-                return std::unique_ptr<XMLNode>(newNode);
+                return std::shared_ptr<XMLNode>(static_cast<XMLNode*>(newNode));
             }
             return nullptr;
+        }
+
+        Attribute GetFirstAttribute() override
+        {
+            if (!mNode)
+                return { };
+            mCurrentAttribute = mNode->first_attribute();
+            if (mCurrentAttribute)
+            {
+                return {
+                    true,
+                    mCurrentAttribute->name(),
+                    mCurrentAttribute->value()
+                };
+            }
+            return { };
+        }
+
+        Attribute GetNextAttribute() override
+        {
+            if (!mNode || !mCurrentAttribute)
+                return { };
+            mCurrentAttribute = mCurrentAttribute->next_attribute();
+            if (mCurrentAttribute)
+            {
+                return {
+                    true,
+                    mCurrentAttribute->name(),
+                    mCurrentAttribute->value()
+                };
+            }
+            return { };
         }
 
         Attribute GetAttribute(const char* attrName, const char* nsPrefix) const override
         {
             if (!mNode)
-                return {false, nullptr};
+                return { };
 
             if (const auto attr = mNode->first_attribute(attrName))
-                return {true, attr->value()};
+                return {true, attrName, attr->value()};
             if (nsPrefix)
             {
                 std::string newAttrName = nsPrefix;
                 newAttrName.append(":");
                 newAttrName.append(attrName);
                 if (const auto attr = mNode->first_attribute(newAttrName.c_str()))
-                    return {true, attr->value()};
+                    return {true, attrName, attr->value()};
             }
-            return {false, nullptr};
+            return { };
         }
     private:
         const boost::property_tree::detail::rapidxml::xml_node<>* mNode;
+        boost::property_tree::detail::rapidxml::xml_attribute<>* mCurrentAttribute{};
     };
 
     class RapidXMLDocument final : public XMLDocument {
@@ -100,12 +134,12 @@ namespace xml
             mDocument.clear();
         }
 
-        std::unique_ptr<XMLNode> GetFirstNode() override
+        std::shared_ptr<XMLNode> GetFirstNode() override
         {
             if (const auto firstNode = mDocument.first_node())
             {
                 auto newNode = new RapidXMLNode{firstNode};
-                return std::unique_ptr<XMLNode>(newNode);
+                return std::shared_ptr<XMLNode>(newNode);
             }
             return nullptr;
         }

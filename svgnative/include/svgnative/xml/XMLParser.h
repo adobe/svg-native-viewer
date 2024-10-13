@@ -20,11 +20,14 @@ namespace xml
 {
     struct Attribute
     {
-        Attribute(bool aFound, const char* aValue)
+        Attribute() { }
+        Attribute(bool aFound, const char* aName, const char* aValue)
             : found{aFound}
+            , name{aName}
             , value{aValue}
         {}
         bool found{false};
+        const char* name{};
         const char* value{};
     };
 
@@ -37,9 +40,11 @@ namespace xml
         // Both functions will never get called more than once per XMLNode!
         // Deriving parsers may optimize for this scenario in the implementation.
         // Hence those functions are not const.
-        virtual std::unique_ptr<XMLNode> GetFirstNode() = 0;
-        virtual std::unique_ptr<XMLNode> GetNextSibling() = 0;
+        virtual std::shared_ptr<XMLNode> GetFirstNode() = 0;
+        virtual std::shared_ptr<XMLNode> GetNextSibling() = 0;
 
+        virtual Attribute GetFirstAttribute() = 0;
+        virtual Attribute GetNextAttribute() = 0;
         virtual Attribute GetAttribute(const char*, const char* nsPrefix = nullptr) const = 0;
 
         virtual ~XMLNode() {}
@@ -48,7 +53,7 @@ namespace xml
     class XMLDocument {
     public:
         static std::unique_ptr<XMLDocument> CreateXMLDocument(const char* documentString);
-        virtual std::unique_ptr<XMLNode> GetFirstNode() = 0;
+        virtual std::shared_ptr<XMLNode> GetFirstNode() = 0;
 
         virtual ~XMLDocument() {}
     };

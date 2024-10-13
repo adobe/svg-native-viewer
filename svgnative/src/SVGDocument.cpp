@@ -18,7 +18,7 @@ governing permissions and limitations under the License.
 #include "StyleSheet/Parser.h"
 #endif
 
-#include "xml/XMLParser.h"
+#include "svgnative/xml/XMLParser.h"
 
 #include <stdexcept>
 #include <stdlib.h>
@@ -41,7 +41,7 @@ std::unique_ptr<SVGDocument> SVGDocument::CreateSVGDocument(const char* s, std::
         auto realSVGDoc = std::unique_ptr<SVGDocumentImpl>(new SVGDocumentImpl(renderer));
         if (!realSVGDoc)
             return nullptr;
-        realSVGDoc->TraverseSVGTree(rootNode.get());
+        realSVGDoc->TraverseSVGTree(rootNode);
 
         auto retval = new SVGDocument();
         retval->mDocument = std::move(realSVGDoc);

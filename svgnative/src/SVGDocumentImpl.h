@@ -103,6 +103,7 @@ public:
 
         GraphicStyleImpl graphicStyle;
         std::set<std::string> classNames;
+        std::shared_ptr<xml::XMLNode> node;
         virtual ElementType Type() const = 0;
     };
 
@@ -173,7 +174,7 @@ public:
     SVGDocumentImpl(std::shared_ptr<SVGRenderer> renderer);
     ~SVGDocumentImpl() {}
 
-    void TraverseSVGTree(xml::XMLNode* rootNode);
+    void TraverseSVGTree(std::shared_ptr<xml::XMLNode> rootNode);
 
     enum class Result
     {
@@ -207,24 +208,24 @@ public:
     std::shared_ptr<SVGRenderer> mRenderer;
 
 private:
-    float ParseLengthFromAttr(const xml::XMLNode* child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);
+    float ParseLengthFromAttr(const std::shared_ptr<xml::XMLNode> child, const char* attrName, LengthType lengthType = LengthType::kHorizontal, float fallback = 0);
     float RelativeLength(LengthType lengthType) const;
 
-    float ParseColorStop(const xml::XMLNode* node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
-    void ParseColorStops(xml::XMLNode* node, SVGNative::GradientImpl& gradient);
-    void ParseGradient(xml::XMLNode* gradient);
+    float ParseColorStop(const std::shared_ptr<xml::XMLNode> node, std::vector<SVGNative::ColorStopImpl>& colorStops, float lastOffset);
+    void ParseColorStops(std::shared_ptr<xml::XMLNode> node, SVGNative::GradientImpl& gradient);
+    void ParseGradient(std::shared_ptr<xml::XMLNode> gradient);
 
-    void ParseChildren(xml::XMLNode* node);
-    void ParseChild(xml::XMLNode* node);
+    void ParseChildren(std::shared_ptr<xml::XMLNode> node);
+    void ParseChild(std::shared_ptr<xml::XMLNode> node);
 
-    std::unique_ptr<Path> ParseShape(xml::XMLNode* node);
+    std::unique_ptr<Path> ParseShape(std::shared_ptr<xml::XMLNode> node);
 
-    GraphicStyleImpl ParseGraphic(const xml::XMLNode* node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
+    GraphicStyleImpl ParseGraphic(const std::shared_ptr<xml::XMLNode> node, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle, std::set<std::string>& classNames);
     void ParseFillProperties(FillStyleImpl& fillStyle, const PropertySet& propertySet);
     void ParseStrokeProperties(StrokeStyleImpl& strokeStyle, const PropertySet& propertySet);
     void ParseGraphicsProperties(GraphicStyleImpl& graphicsStyle, const PropertySet& propertySet);
 
-    PropertySet ParsePresentationAttributes(const xml::XMLNode* node);
+    PropertySet ParsePresentationAttributes(const std::shared_ptr<xml::XMLNode> node);
 
     void RenderElement(const Element& element, const ColorMap& colorMap, float width, float height);
     void ExtractBounds(const Element& element);
@@ -233,13 +234,13 @@ private:
 
     void ApplyCSSStyle(
         const std::set<std::string>& classNames, GraphicStyleImpl& graphicStyle, FillStyleImpl& fillStyle, StrokeStyleImpl& strokeStyle);
-    void ParseStyleAttr(const xml::XMLNode* node, std::vector<PropertySet>& propertySets, std::set<std::string>& classNames);
-    void ParseStyle(const xml::XMLNode* child);
+    void ParseStyleAttr(const std::shared_ptr<xml::XMLNode> node, std::vector<PropertySet>& propertySets, std::set<std::string>& classNames);
+    void ParseStyle(const std::shared_ptr<xml::XMLNode> child);
 
-    void AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString);
+    void AddChildToCurrentGroup(std::shared_ptr<Element> element, std::string idString, std::shared_ptr<xml::XMLNode>);
 
 private:
-    const xml::XMLNode* mRootNode{};
+    std::shared_ptr<xml::XMLNode> mRootNode{};
 
     // All stroke and fill CSS properties are so called
     // inherited CSS properties. Ancestors can define the
