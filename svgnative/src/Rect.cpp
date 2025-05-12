@@ -13,9 +13,9 @@ governing permissions and limitations under the License.
 #include "svgnative/Rect.h"
 #include "Interval.h"
 
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
-#include <tuple>
 
 namespace SVGNative
 {
