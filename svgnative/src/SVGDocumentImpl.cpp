@@ -1300,9 +1300,9 @@ void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& elem
 SVGDocumentImpl::Graphic& SVGDocumentImpl::Graphic::operator=(const Reference& refObj)
 {
     PaintImpl internalPaint = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-    if (refObj.fillStyle.internalPaint.type() == typeid(Color))
+    if (SVGNative::holds_alternative<Color>(refObj.fillStyle.internalPaint))
     {
-        if (boost::get<Color>(internalPaint) != boost::get<Color>(refObj.fillStyle.internalPaint))
+        if (SVGNative::get<Color>(internalPaint) != SVGNative::get<Color>(refObj.fillStyle.internalPaint))
         {
             // default value of hasFill is true
             this->fillStyle.hasFill = refObj.fillStyle.hasFill;
@@ -1321,9 +1321,9 @@ SVGDocumentImpl::Graphic& SVGDocumentImpl::Graphic::operator=(const Reference& r
         this->fillStyle.fillOpacity = refObj.fillStyle.fillOpacity;
 
     Paint paint = Color{{0, 0, 0, 1.0}};
-    if (refObj.fillStyle.paint.type() == typeid(Color))
+    if (SVGNative::holds_alternative<Color>(refObj.fillStyle.paint))
     {
-        if (boost::get<Color>(paint) != boost::get<Color>(refObj.fillStyle.paint))
+        if (SVGNative::get<Color>(paint) != SVGNative::get<Color>(refObj.fillStyle.paint))
             this->fillStyle.paint = refObj.fillStyle.paint;
     }
     else
@@ -1333,9 +1333,9 @@ SVGDocumentImpl::Graphic& SVGDocumentImpl::Graphic::operator=(const Reference& r
         this->fillStyle.visibility = refObj.fillStyle.visibility;
 
     ColorImpl color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-    if (refObj.fillStyle.color.type() == typeid(Color))
+    if (SVGNative::holds_alternative<Color>(refObj.fillStyle.color))
     {
-        if (boost::get<Color>(color) != boost::get<Color>(refObj.fillStyle.color))
+        if (SVGNative::get<Color>(color) != SVGNative::get<Color>(refObj.fillStyle.color))
             this->fillStyle.color = refObj.fillStyle.color;
     }
     else
@@ -1371,9 +1371,9 @@ SVGDocumentImpl::Graphic& SVGDocumentImpl::Graphic::operator=(const Reference& r
     if (refObj.strokeStyle.dashOffset != 4.0f)
         this->strokeStyle.dashOffset = refObj.strokeStyle.dashOffset;
 
-    if (refObj.strokeStyle.paint.type() == typeid(Color))
+    if (SVGNative::holds_alternative<Color>(refObj.strokeStyle.paint))
     {
-        if (boost::get<Color>(paint) != boost::get<Color>(refObj.strokeStyle.paint))
+        if (SVGNative::get<Color>(paint) != SVGNative::get<Color>(refObj.strokeStyle.paint))
           this->strokeStyle.paint = refObj.strokeStyle.paint;
     }
     else
