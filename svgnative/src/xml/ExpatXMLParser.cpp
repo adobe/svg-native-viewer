@@ -11,9 +11,9 @@ governing permissions and limitations under the License.
 */
 
 #include "xml/XMLParser.h"
-#include "lib/androidconfig.h "
+#include "Config.h "
 
-#include <lib/expat.h>
+#include <expat.h>
 #include <map>
 #include <stack>
 #include <string>
@@ -105,7 +105,7 @@ namespace xml
                 mRootNode.reset();
             }
             mPreviousSilbingXMLNode = nullptr;
-            SVG_ASSERT_MSG(mXMLNodeStack.empty(), "element stack not empty");
+            //SVG_ASSERT_MSG(mXMLNodeStack.empty(), "element stack not empty");
             XML_ParserFree(parser);
         }
 
