@@ -322,19 +322,19 @@ endif()
 # XML parser
 ##############################
 
-set(XML_PARSER_SOURCE "src/xml/RapidXMLParser.cpp")
-if (USE_PLATFORM_XML)
-include(FindEXPAT)
-find_package(EXPAT)
-if (EXPAT_FOUND)
-    set(XML_PARSER_SOURCE "src/xml/ExpatXMLParser.cpp")
-else()
-find_package(LibXml2)
-if (LIBXML2_FOUND)
-    set(XML_PARSER_SOURCE "src/xml/LibXMLParser.cpp")
-endif(LIBXML2_FOUND)
-endif(EXPAT_FOUND)
-endif(USE_PLATFORM_XML)
+set(XML_PARSER_SOURCE "src/xml/ExpatXMLParser.cpp")
+#if (USE_PLATFORM_XML)
+#include(FindEXPAT)
+#find_package(EXPAT)
+#if (EXPAT_FOUND)
+#    set(XML_PARSER_SOURCE "src/xml/ExpatXMLParser.cpp")
+#else()
+#find_package(LibXml2)
+#if (LIBXML2_FOUND)
+#    set(XML_PARSER_SOURCE "src/xml/LibXMLParser.cpp")
+#endif(LIBXML2_FOUND)
+#endif(EXPAT_FOUND)
+#endif(USE_PLATFORM_XML)
 
 file(GLOB xml_parser
     src/xml/XMLParser.h
