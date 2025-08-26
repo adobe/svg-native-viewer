@@ -12,7 +12,14 @@ governing permissions and limitations under the License.
 
 #include "xml/XMLParser.h"
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable: 4103) // alignment changed after including header, may be due to missing #pragma pack(pop)
+#endif
 #include <boost/property_tree/detail/xml_parser_read_rapidxml.hpp>
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 namespace SVGNative
 {

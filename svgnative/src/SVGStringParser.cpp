@@ -29,54 +29,139 @@ void ArcToCurve(Path& path, float startX, float startY, float radiusX, float rad
 
 namespace SVGStringParser
 {
-using CharIt = std::string::const_iterator;
+class CharPos final {
+public:
+    explicit CharPos(const std::string& str) : _pos{str.begin()}, _end{str.end()} {
+        if (_pos != _end) {
+            _c = *_pos;
+        }
+    }
 
-inline bool isDigit(char c)
+    template <typename T>
+    auto operator+(T) = delete;
+
+    template <typename T>
+    auto operator-(T) = delete;
+
+    [[nodiscard]] explicit operator bool() const
+    {
+        return !AtEnd();
+    }
+
+    [[nodiscard]] char operator*() const
+    {
+        return _c;
+    }
+
+    CharPos& operator++()
+    {
+        Step();
+        return *this;
+    }
+
+    CharPos operator++(int)
+    {
+        CharPos prev{*this};
+        Step();
+        return prev;
+    }
+
+    CharPos& operator+=(std::size_t offset)
+    {
+        Step(offset);
+        return *this;
+    }
+
+    void Step(std::size_t count = 1)
+    {
+        _c = '\0';
+        while (count > 0 && !AtEnd())
+        {
+            --count;
+            ++_pos;
+            if (!AtEnd())
+            {
+                _c = *_pos;
+            }
+        }
+    }
+
+    [[nodiscard]] std::size_t Remaining() const
+    {
+        return std::distance(_pos, _end);
+    }
+
+    [[nodiscard]] auto Extract(std::size_t length) const
+    {
+        std::string str;
+        auto pos{_pos};
+        while (length > 0 && pos != _end)
+        {
+            str += *pos;
+            --length;
+            ++pos;
+        }
+        return str;
+    }
+
+    [[nodiscard]] bool IsDigit() const
+    {
+        return _c >= '0' && _c <= '9';
+    }
+
+    [[nodiscard]] bool IsHex() const
+    {
+        return IsDigit() || (_c >= 'a' && _c <= 'f') || (_c >= 'A' && _c <= 'F');
+    }
+
+    [[nodiscard]] bool IsWsp() const
+    {
+        return _c == ' ' || _c == '\t' || _c == '\n' || _c == '\r';
+    }
+
+    void SkipWsp()
+    {
+        while (IsWsp())
+            Step(1);
+    }
+
+private:
+    [[nodiscard]] bool AtEnd() const { return _pos == _end; }
+
+    std::string::const_iterator _pos;
+    std::string::const_iterator _end;
+    char _c{0};
+};
+
+inline bool SkipOptWspOrDelimiter(CharPos& pos, bool isAllOptional = true, char delimiter = ',')
 {
-    return c >= '0' && c <= '9';
-}
-
-inline bool isHex(char c)
-{
-    return isDigit(c) || (c >= 'a' && c <= 'f') ||  (c >= 'A' && c <= 'F');
-}
-
-inline bool isWsp(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
-
-inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOptional = true, char delimiter = ',')
-{
-    if (!isAllOptional && !isWsp(*pos) && *pos != delimiter)
+    if (!isAllOptional && !pos.IsWsp() && *pos != delimiter)
         return false;
 
-    while (pos < end && isWsp(*pos))
-        pos++;
+    pos.SkipWsp();
     if (*pos == delimiter)
         pos++;
-    while (pos < end && isWsp(*pos))
-        pos++;
-    return pos != end;
+    pos.SkipWsp();
+    return !!pos;
 }
 
-inline bool SkipOptWspDelimiterOptWsp(CharIt& pos, const CharIt& end, char delimiter = ',')
+inline bool SkipOptWspDelimiterOptWsp(CharPos& pos, char delimiter = ',')
 {
     bool hasDelimiter{};
-    while (pos < end && isWsp(*pos))
-        pos++;
+    pos.SkipWsp();
     if (*pos == delimiter)
     {
         hasDelimiter = true;
         pos++;
     }
-    while (pos < end && isWsp(*pos))
-        pos++;
-    return pos != end && hasDelimiter;
+    pos.SkipWsp();
+    return pos && hasDelimiter;
 }
 
-inline bool SkipOptWspOptPercentageDelimiterOptWsp(CharIt& pos, const CharIt& end, char delimiter, bool& hasPercentage)
+inline bool SkipOptWspOptPercentageDelimiterOptWsp(CharPos& pos, char delimiter, bool& hasPercentage)
 {
     bool hasDelimiter{};
-    while (pos < end && isWsp(*pos))
-        pos++;
+    pos.SkipWsp();
     if (*pos == '%')
     {
         hasPercentage = true;
@@ -87,22 +172,19 @@ inline bool SkipOptWspOptPercentageDelimiterOptWsp(CharIt& pos, const CharIt& en
         hasDelimiter = true;
         pos++;
     }
-    while (pos < end && isWsp(*pos))
-        pos++;
-    return pos != end && hasDelimiter;
+    pos.SkipWsp();
+    return pos && hasDelimiter;
 }
 
-inline bool SkipOptWsp(CharIt& pos, const CharIt& end)
+inline bool SkipOptWsp(CharPos& pos)
 {
-    while (pos < end && isWsp(*pos))
-        ++pos;
-    return pos != end;
+    pos.SkipWsp();
+    return !!pos;
 }
 
-inline bool SkipOptWspOptPercentOptWsp(CharIt& pos, const CharIt& end, bool &hasPercentage)
+inline bool SkipOptWspOptPercentOptWsp(CharPos& pos, bool &hasPercentage)
 {
-    while (pos < end && isWsp(*pos))
-        ++pos;
+    pos.SkipWsp();
     if (*pos == '%')
     {
         hasPercentage = true;
@@ -110,27 +192,28 @@ inline bool SkipOptWspOptPercentOptWsp(CharIt& pos, const CharIt& end, bool &has
     }
     else
         hasPercentage = false;
-    while (pos < end && isWsp(*pos))
-        ++pos;
-    return pos != end;
+    pos.SkipWsp();
+    return !!pos;
 }
 
-inline bool ParseDigit(CharIt& pos, const CharIt& end, std::int32_t& digit)
+#if 0
+inline bool ParseDigit(CharPos& pos, std::int32_t& digit)
 {
-    if (pos == end || !isDigit(*pos))
+    if (!pos || !pos.IsDigit())
         return false;
-    while (pos < end && isDigit(*pos))
+    while (pos && pos.IsDigit())
     {
         digit *= 10;
         digit += static_cast<std::int32_t>(*pos++ - '0');
     }
     return true;
 }
+#endif
 
-static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
+static bool ParseFloatingPoint(CharPos& pos, float& number)
 {
     // if there is not a single character to process, just return false
-    if (pos == end)
+    if (!pos)
         return false;
 
     number = 0;
@@ -144,7 +227,7 @@ static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
         if (*pos == '-')
             sign = -1;
         pos++;
-        if (pos == end)
+        if (!pos)
             return false;
     }
 
@@ -153,13 +236,13 @@ static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
 
     // parse the number and if we don't have anything else
     // remaining, just return the number with correct sign
-    while (pos < end && isDigit(*pos))
+    while (pos && pos.IsDigit())
     {
         hasNumber = true;
         number *= 10;
         number += static_cast<float>(*pos++ - '0');
     }
-    if (pos == end)
+    if (!pos)
     {
         number *= sign;
         return std::isfinite(number);
@@ -170,12 +253,12 @@ static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
     {
         // skip the decimal, if no digits remain, just return
         pos++;
-        if (pos == end || !isDigit(*pos))
+        if (!pos || !pos.IsDigit())
             return false;
 
         // read the numbers after decimal while correctly shifting digits
         float division = 10;
-        while (pos < end && isDigit(*pos))
+        while (pos && pos.IsDigit())
         {
             hasFraction = true;
             number += static_cast<float>(*pos++ - '0') / division;
@@ -190,9 +273,9 @@ static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
     return std::isfinite(number);
 }
 
-static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
+static bool ParseScientificNumber(CharPos& pos, float& number)
 {
-    if (pos == end)
+    if (!pos)
         return false;
 
     number = 0;
@@ -206,19 +289,19 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
         if (*pos == '-')
             sign = -1;
         pos++;
-        if (pos == end)
+        if (!pos)
             return false;
     }
 
     bool hasNumber{};
     bool hasFraction{};
-    while (pos < end && isDigit(*pos))
+    while (pos && pos.IsDigit())
     {
         hasNumber = true;
         number *= 10;
         number += static_cast<float>(*pos++ - '0');
     }
-    if (pos == end)
+    if (!pos)
     {
         number *= sign;
         return std::isfinite(number);
@@ -227,11 +310,11 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     if (*pos == '.')
     {
         pos++;
-        if (pos == end || !isDigit(*pos))
+        if (!pos || !pos.IsDigit())
             return false;
 
         float division = 10;
-        while (pos < end && isDigit(*pos))
+        while (pos && pos.IsDigit())
         {
             hasFraction = true;
             number += static_cast<float>(*pos++ - '0') / division;
@@ -241,14 +324,14 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     if (!hasFraction && !hasNumber)
         return false;
 
-    if (pos == end || (*pos != 'e' && *pos != 'E'))
+    if (!pos || (*pos != 'e' && *pos != 'E'))
     {
         number *= sign;
         return std::isfinite(number);
     }
 
     pos++;
-    if (pos == end)
+    if (!pos)
         return false;
 
     if (*pos == '-' || *pos == '+')
@@ -256,13 +339,13 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
         if (*pos == '-')
             exponentSign = -1;
         pos++;
-        if (pos == end)
+        if (!pos)
             return false;
     }
-    if (!isDigit(*pos))
+    if (!pos.IsDigit())
         return false;
 
-    while (pos < end && isDigit(*pos))
+    while (pos && pos.IsDigit())
     {
         exponent *= 10.0f;
         exponent += static_cast<float>(*pos++ - '0');
@@ -274,35 +357,35 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     return std::isfinite(number);
 }
 
-static bool ParseCoordinate(CharIt& pos, const CharIt& end, float& coord)
+static bool ParseCoordinate(CharPos& pos, float& coord)
 {
     // FIXME: Remove initial SkipOptWspOrDelimiter call. Keep it here to keep
     // behavior consistent to previous implementation.
-    if (!SkipOptWspOrDelimiter(pos, end))
+    if (!SkipOptWspOrDelimiter(pos))
         return false;
-    if (!ParseScientificNumber(pos, end, coord))
+    if (!ParseScientificNumber(pos, coord))
         return false;
     return true;
 }
 
-static bool ParseCoordinatePair(CharIt& pos, const CharIt& end, float& x, float& y)
+static bool ParseCoordinatePair(CharPos& pos, float& x, float& y)
 {
     // FIXME: Remove initial SkipOptWspOrDelimiter call. Keep it here to keep
     // behavior consistent to previous implementation.
-    if (!SkipOptWspOrDelimiter(pos, end))
+    if (!SkipOptWspOrDelimiter(pos))
         return false;
-    if (!ParseScientificNumber(pos, end, x))
+    if (!ParseScientificNumber(pos, x))
         return false;
-    if (!SkipOptWspOrDelimiter(pos, end))
+    if (!SkipOptWspOrDelimiter(pos))
         return false;
-    if (!ParseScientificNumber(pos, end, y))
+    if (!ParseScientificNumber(pos, y))
         return false;
     return true;
 }
 
-static bool ParseBool(CharIt& pos, const CharIt& end, bool& boolVal)
+static bool ParseBool(CharPos& pos, bool& boolVal)
 {
-    if (!SkipOptWspOrDelimiter(pos, end))
+    if (!SkipOptWspOrDelimiter(pos))
         return false;
     if (*pos == '0')
         boolVal = false;
@@ -315,12 +398,12 @@ static bool ParseBool(CharIt& pos, const CharIt& end, bool& boolVal)
 }
 
 static bool ParseLengthOrPercentage(
-    CharIt& pos, const CharIt& end, float relDimensionLength, float& absLengthInUnits, bool useQuirks = false)
+    CharPos& pos, float relDimensionLength, float& absLengthInUnits, bool useQuirks = false)
 {
-    if (!ParseScientificNumber(pos, end, absLengthInUnits))
+    if (!ParseScientificNumber(pos, absLengthInUnits))
         return false;
 
-    if (pos == end)
+    if (!pos)
     {
         if (useQuirks)
             return std::isfinite(absLengthInUnits);
@@ -338,11 +421,11 @@ static bool ParseLengthOrPercentage(
         return true;
     }
 
-    if (pos == end)
+    if (!pos)
         return false;
 
     // https://www.w3.org/TR/css-values-3/#absolute-lengths
-    auto unit = std::string(start, start + 2);
+    std::string unit{start.Extract(2)};
     std::transform(unit.begin(), unit.end(), unit.begin(), ::tolower);
     if (unit.compare("cm") == 0)
         absLengthInUnits *= (96.0f / 2.54f);
@@ -363,25 +446,25 @@ static bool ParseLengthOrPercentage(
     return true;
 }
 
-static void ParseListOfNumbers(CharIt& pos, const CharIt& end, std::vector<float>& numberList, bool isAllOptional = true)
+static void ParseListOfNumbers(CharPos& pos, std::vector<float>& numberList, bool isAllOptional = true)
 {
     numberList.clear();
 
     float number{};
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return;
     auto temp = pos;
-    if (!ParseScientificNumber(temp, end, number))
+    if (!ParseScientificNumber(temp, number))
         return;
     pos = temp;
     numberList.push_back(number);
-    while (pos < end)
+    while (pos)
     {
         temp = pos;
-        if (!SkipOptWspOrDelimiter(temp, end, isAllOptional))
+        if (!SkipOptWspOrDelimiter(temp, isAllOptional))
             return;
 
-        if (!ParseScientificNumber(temp, end, number))
+        if (!ParseScientificNumber(temp, number))
             return;
 
         numberList.push_back(number);
@@ -391,102 +474,96 @@ static void ParseListOfNumbers(CharIt& pos, const CharIt& end, std::vector<float
 
 bool ParseLengthOrPercentage(const std::string& lengthString, float relDimensionLength, float& absLengthInUnits, bool useQuirks /*= false*/)
 {
-    auto pos = lengthString.begin();
-    auto end = lengthString.end();
-    SkipOptWsp(pos, end);
-    if (!ParseLengthOrPercentage(pos, end, relDimensionLength, absLengthInUnits, useQuirks))
+    CharPos pos(lengthString);
+    SkipOptWsp(pos);
+    if (!ParseLengthOrPercentage(pos, relDimensionLength, absLengthInUnits, useQuirks))
         return false;
 
-    return !SkipOptWsp(pos, end);
+    return !SkipOptWsp(pos);
 }
 
 bool ParseNumber(const std::string& numberString, float& number)
 {
-    auto pos = numberString.begin();
-    auto end = numberString.end();
+    CharPos pos(numberString);
 
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return false;
-    if (!ParseScientificNumber(pos, end, number))
+    if (!ParseScientificNumber(pos, number))
         return false;
-    return !SkipOptWsp(pos, end);
+    return !SkipOptWsp(pos);
 }
 
 bool ParseAlphaValue(const std::string& numberString, float& number)
 {
-    auto pos = numberString.begin();
-    auto end = numberString.end();
+    CharPos pos(numberString);
 
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return false;
-    if (!ParseScientificNumber(pos, end, number))
+    if (!ParseScientificNumber(pos, number))
         return false;
-    if (pos < end && *pos == '%')
+    if (pos && *pos == '%')
     {
         number = number/100.0f;
         pos++;
     }
-    return !SkipOptWsp(pos, end);
+    return !SkipOptWsp(pos);
 }
 
 bool ParseListOfNumbers(const std::string& numberListString, std::vector<float>& numberList, bool isAllOptional /*= true*/)
 {
-    auto pos = numberListString.begin();
-    auto end = numberListString.end();
+    CharPos pos(numberListString);
 
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return true;
 
-    ParseListOfNumbers(pos, end, numberList, isAllOptional);
+    ParseListOfNumbers(pos, numberList, isAllOptional);
 
-    return !SkipOptWsp(pos, end);
+    return !SkipOptWsp(pos);
 }
 
 bool ParseListOfLengthOrPercentage(const std::string& lengthOrPercentageListString, float relDimensionLength,
     std::vector<float>& numberList, bool isAllOptional /*= true*/)
 {
-    auto pos = lengthOrPercentageListString.begin();
-    auto end = lengthOrPercentageListString.end();
+    CharPos pos(lengthOrPercentageListString);
 
     numberList.clear();
 
     float number{};
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return false;
     auto temp = pos;
-    if (!ParseLengthOrPercentage(temp, end, relDimensionLength, number, isAllOptional))
+    if (!ParseLengthOrPercentage(temp, relDimensionLength, number, isAllOptional))
         return false;
     pos = temp;
     numberList.push_back(number);
-    while (pos < end)
+    while (pos)
     {
         temp = pos;
-        if (!SkipOptWspOrDelimiter(temp, end, isAllOptional))
+        if (!SkipOptWspOrDelimiter(temp, isAllOptional))
             return false;
 
-        if (!ParseLengthOrPercentage(temp, end, relDimensionLength, number, isAllOptional))
+        if (!ParseLengthOrPercentage(temp, relDimensionLength, number, isAllOptional))
             return false;
 
         numberList.push_back(number);
         pos = temp;
     }
-    return !SkipOptWsp(pos, end);
+    return !SkipOptWsp(pos);
 }
 
 bool ParseListOfStrings(const std::string& stringListString, std::vector<std::string>& stringList)
 {
-    auto pos = stringListString.begin();
-    auto end = stringListString.end();
+    CharPos pos(stringListString);
 
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return false;
-    while (pos < end)
+    while (pos)
     {
         auto start = pos;
-        while (pos < end && !isWsp(*pos))
+        while (pos && !pos.IsWsp())
             pos++;
-        stringList.push_back({start, pos});
-        SkipOptWsp(pos, end);
+        stringList.push_back(start.Extract(start.Remaining() - pos.Remaining()));
+        SkipOptWsp(pos);
     }
     return true;
 }
@@ -503,9 +580,8 @@ bool IsCloseCmd(char cmd)
 
 void ParsePathString(const std::string& pathString, Path& p)
 {
-    auto pos = pathString.begin();
-    auto end = pathString.end();
-    if (!SkipOptWsp(pos, end))
+    CharPos pos(pathString);
+    if (!SkipOptWsp(pos))
         return;
 
     float startX{};
@@ -519,14 +595,14 @@ void ParsePathString(const std::string& pathString, Path& p)
     char lastCommand = 'm';
     char prev = 'm';
     // First segment must be a moveTo
-    if (!SkipOptWsp(pos, end) || !IsMoveCmd(*pos))
+    if (!SkipOptWsp(pos) || !IsMoveCmd(*pos))
         return;
 
-    while (pos < end)
+    while (pos)
     {
-        if (!SkipOptWsp(pos, end))
+        if (!SkipOptWsp(pos))
             return;
-        if (!isDigit(*pos) && *pos != ',' && *pos != '-' && *pos != '.')
+        if (!pos.IsDigit() && *pos != ',' && *pos != '-' && *pos != '.')
             prev = *pos++;
         else if (IsCloseCmd(prev))
             break;
@@ -539,7 +615,7 @@ void ParsePathString(const std::string& pathString, Path& p)
         switch (prev)
         {
         case 'M':
-            if (!ParseCoordinatePair(pos, end, currentX, currentY))
+            if (!ParseCoordinatePair(pos, currentX, currentY))
                 return;
             p.MoveTo(currentX, currentY);
             prevControlX = currentX;
@@ -553,7 +629,7 @@ void ParsePathString(const std::string& pathString, Path& p)
         {
             float newX{};
             float newY{};
-            if (!ParseCoordinatePair(pos, end, newX, newY))
+            if (!ParseCoordinatePair(pos, newX, newY))
                 return;
             currentX += newX;
             currentY += newY;
@@ -574,7 +650,7 @@ void ParsePathString(const std::string& pathString, Path& p)
             currentY = startY;
             break;
         case 'L':
-            if (!ParseCoordinatePair(pos, end, currentX, currentY))
+            if (!ParseCoordinatePair(pos, currentX, currentY))
                 return;
             p.LineTo(currentX, currentY);
             prevControlX = currentX;
@@ -584,7 +660,7 @@ void ParsePathString(const std::string& pathString, Path& p)
         {
             float newX{};
             float newY{};
-            if (!ParseCoordinatePair(pos, end, newX, newY))
+            if (!ParseCoordinatePair(pos, newX, newY))
                 return;
             currentX += newX;
             currentY += newY;
@@ -594,7 +670,7 @@ void ParsePathString(const std::string& pathString, Path& p)
             break;
         }
         case 'V':
-            if (!ParseCoordinate(pos, end, currentY))
+            if (!ParseCoordinate(pos, currentY))
                 return;
             p.LineTo(currentX, currentY);
             prevControlX = currentX;
@@ -603,7 +679,7 @@ void ParsePathString(const std::string& pathString, Path& p)
         case 'v':
         {
             float newY{};
-            if (!ParseCoordinate(pos, end, newY))
+            if (!ParseCoordinate(pos, newY))
                 return;
             currentY += newY;
             p.LineTo(currentX, currentY);
@@ -612,7 +688,7 @@ void ParsePathString(const std::string& pathString, Path& p)
             break;
         }
         case 'H':
-            if (!ParseCoordinate(pos, end, currentX))
+            if (!ParseCoordinate(pos, currentX))
                 return;
             p.LineTo(currentX, currentY);
             prevControlX = currentX;
@@ -621,7 +697,7 @@ void ParsePathString(const std::string& pathString, Path& p)
         case 'h':
         {
             float newX{};
-            if (!ParseCoordinate(pos, end, newX))
+            if (!ParseCoordinate(pos, newX))
                 return;
             currentX += newX;
             p.LineTo(currentX, currentY);
@@ -633,11 +709,11 @@ void ParsePathString(const std::string& pathString, Path& p)
         {
             float fx1{};
             float fy1{};
-            if (!ParseCoordinatePair(pos, end, fx1, fy1))
+            if (!ParseCoordinatePair(pos, fx1, fy1))
                 return;
-            if (!ParseCoordinatePair(pos, end, prevControlX, prevControlY))
+            if (!ParseCoordinatePair(pos, prevControlX, prevControlY))
                 return;
-            if (!ParseCoordinatePair(pos, end, currentX, currentY))
+            if (!ParseCoordinatePair(pos, currentX, currentY))
                 return;
             p.CurveTo(fx1, fy1, prevControlX, prevControlY, currentX, currentY);
             break;
@@ -646,17 +722,17 @@ void ParsePathString(const std::string& pathString, Path& p)
         {
             float fx1{};
             float fy1{};
-            if (!ParseCoordinatePair(pos, end, fx1, fy1))
+            if (!ParseCoordinatePair(pos, fx1, fy1))
                 return;
             fx1 += currentX;
             fy1 += currentY;
-            if (!ParseCoordinatePair(pos, end, prevControlX, prevControlY))
+            if (!ParseCoordinatePair(pos, prevControlX, prevControlY))
                 return;
             prevControlX += currentX;
             prevControlY += currentY;
             float newX{};
             float newY{};
-            if (!ParseCoordinatePair(pos, end, newX, newY))
+            if (!ParseCoordinatePair(pos, newX, newY))
                 return;
             currentX += newX;
             currentY += newY;
@@ -670,9 +746,9 @@ void ParsePathString(const std::string& pathString, Path& p)
             prevControlY = 2 * currentY - prevControlY;
             float tempX{};
             float tempY{};
-            if (!ParseCoordinatePair(pos, end, tempX, tempY))
+            if (!ParseCoordinatePair(pos, tempX, tempY))
                 return;
-            if (!ParseCoordinatePair(pos, end, currentX, currentY))
+            if (!ParseCoordinatePair(pos, currentX, currentY))
                 return;
             p.CurveTo(prevControlX, prevControlY, tempX, tempY, currentX, currentY);
             prevControlX = tempX;
@@ -683,13 +759,13 @@ void ParsePathString(const std::string& pathString, Path& p)
         {
             float fx1 = 2 * currentX - prevControlX;
             float fx2 = 2 * currentY - prevControlY;
-            if (!ParseCoordinatePair(pos, end, prevControlX, prevControlY))
+            if (!ParseCoordinatePair(pos, prevControlX, prevControlY))
                 return;
             prevControlX += currentX;
             prevControlY += currentY;
             float newX{};
             float newY{};
-            if (!ParseCoordinatePair(pos, end, newX, newY))
+            if (!ParseCoordinatePair(pos, newX, newY))
                 return;
             currentX += newX;
             currentY += newY;
@@ -703,9 +779,9 @@ void ParsePathString(const std::string& pathString, Path& p)
 
             float fx{};
             float fy{};
-            if (!ParseCoordinatePair(pos, end, fx, fy))
+            if (!ParseCoordinatePair(pos, fx, fy))
                 return;
-            if (!ParseCoordinatePair(pos, end, currentX, currentY))
+            if (!ParseCoordinatePair(pos, currentX, currentY))
                 return;
             p.CurveToV(fx, fy, currentX, currentY);
 
@@ -720,13 +796,13 @@ void ParsePathString(const std::string& pathString, Path& p)
 
             float fx{};
             float fy{};
-            if (!ParseCoordinatePair(pos, end, fx, fy))
+            if (!ParseCoordinatePair(pos, fx, fy))
                 return;
             fx += currentX;
             fy += currentY;
             float newX{};
             float newY{};
-            if (!ParseCoordinatePair(pos, end, newX, newY))
+            if (!ParseCoordinatePair(pos, newX, newY))
                 return;
             currentX += newX;
             currentY += newY;
@@ -743,7 +819,7 @@ void ParsePathString(const std::string& pathString, Path& p)
 
             float nextX{};
             float nextY{};
-            if (!ParseCoordinatePair(pos, end, nextX, nextY))
+            if (!ParseCoordinatePair(pos, nextX, nextY))
                 return;
 
             if (lastCommand != 'T' && lastCommand != 't' && lastCommand != 'Q' && lastCommand != 'q') {
@@ -768,7 +844,7 @@ void ParsePathString(const std::string& pathString, Path& p)
 
             float nextX{};
             float nextY{};
-            if (!ParseCoordinatePair(pos, end, nextX, nextY))
+            if (!ParseCoordinatePair(pos, nextX, nextY))
                 return;
             nextX += currentX;
             nextY += currentY;
@@ -794,18 +870,18 @@ void ParsePathString(const std::string& pathString, Path& p)
         {
             float rx{};
             float ry{};
-            if (!ParseCoordinatePair(pos, end, rx, ry))
+            if (!ParseCoordinatePair(pos, rx, ry))
                 return;
 
             float angle{};
-            if (!ParseCoordinate(pos, end, angle))
+            if (!ParseCoordinate(pos, angle))
                 return;
 
             bool flagLarge{};
             bool flagSweep{};
-            if (!ParseBool(pos, end, flagLarge))
+            if (!ParseBool(pos, flagLarge))
                 return;
-            if (!ParseBool(pos, end, flagSweep))
+            if (!ParseBool(pos, flagSweep))
                 return;
 
             float startX = currentX;
@@ -814,7 +890,7 @@ void ParsePathString(const std::string& pathString, Path& p)
             if (prev == 'A')
             {
                 // absolute
-                if (!ParseCoordinatePair(pos, end, currentX, currentY))
+                if (!ParseCoordinatePair(pos, currentX, currentY))
                     return;
             }
             else
@@ -822,7 +898,7 @@ void ParsePathString(const std::string& pathString, Path& p)
                 // relative
                 float newX{};
                 float newY{};
-                if (!ParseCoordinatePair(pos, end, newX, newY))
+                if (!ParseCoordinatePair(pos, newX, newY))
                     return;
                 currentX += newX;
                 currentY += newY;
@@ -853,80 +929,79 @@ void ParsePathString(const std::string& pathString, Path& p)
 bool ParseTransform(const std::string& transformString, Transform& matrix)
 {
     // https://www.w3.org/TR/css-transforms-1/#svg-syntax
-    auto pos = transformString.begin();
-    auto end = transformString.end();
-    if (!SkipOptWsp(pos, end))
+    CharPos pos(transformString);
+    if (!SkipOptWsp(pos))
         return false;
 
     bool isFirstTransform{true};
-    while (pos < end)
+    while (pos)
     {
-        if (!SkipOptWsp(pos, end))
+        if (!SkipOptWsp(pos))
             return true;
         if (!isFirstTransform && *pos == ',')
         {
-            if (!SkipOptWspOrDelimiter(pos, end, false))
+            if (!SkipOptWspOrDelimiter(pos, false))
                 return false;
         }
-        auto length = std::distance(pos, end);
-        if (length >= 6 && std::string(pos, pos + 6).compare("matrix") == 0)
+        auto length = pos.Remaining();
+        if (length >= 6 && pos.Extract(6).compare("matrix") == 0)
         {
             pos += 6;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != '(')
                 return false;
             std::vector<float> numberList;
-            ParseListOfNumbers(pos, end, numberList);
-            if (numberList.size() != 6 || !SkipOptWsp(pos, end))
+            ParseListOfNumbers(pos, numberList);
+            if (numberList.size() != 6 || !SkipOptWsp(pos))
                 return false;
             if (*pos++ != ')')
                 return false;
             matrix.Concat(numberList[0], numberList[1], numberList[2], numberList[3], numberList[4], numberList[5]);
         }
-        else if (length >= 9 && std::string(pos, pos + 9).compare("translate") == 0)
+        else if (length >= 9 && pos.Extract(9).compare("translate") == 0)
         {
             pos += 9;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != '(')
                 return false;
             std::vector<float> numberList;
-            ParseListOfNumbers(pos, end, numberList);
+            ParseListOfNumbers(pos, numberList);
             auto size = numberList.size();
-            if ((size != 1 && size != 2) || !SkipOptWsp(pos, end))
+            if ((size != 1 && size != 2) || !SkipOptWsp(pos))
                 return false;
             if (*pos++ != ')')
                 return false;
             matrix.Translate(numberList[0], (size == 1 ? 0 : numberList[1]));
         }
-        else if (length >= 5 && std::string(pos, pos + 5).compare("scale") == 0)
+        else if (length >= 5 && pos.Extract(5).compare("scale") == 0)
         {
             pos += 5;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != '(')
                 return false;
             std::vector<float> numberList;
-            ParseListOfNumbers(pos, end, numberList);
+            ParseListOfNumbers(pos, numberList);
             auto size = numberList.size();
-            if ((size != 1 && size != 2) || !SkipOptWsp(pos, end))
+            if ((size != 1 && size != 2) || !SkipOptWsp(pos))
                 return false;
             if (*pos++ != ')')
                 return false;
             matrix.Scale(numberList[0], (size == 1 ? numberList[0] : numberList[1]));
         }
-        else if (length >= 6 && std::string(pos, pos + 6).compare("rotate") == 0)
+        else if (length >= 6 && pos.Extract(6).compare("rotate") == 0)
         {
             pos += 6;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != '(')
                 return false;
             std::vector<float> numberList;
-            ParseListOfNumbers(pos, end, numberList);
+            ParseListOfNumbers(pos, numberList);
             auto size = numberList.size();
-            if ((size != 1 && size != 3) || !SkipOptWsp(pos, end))
+            if ((size != 1 && size != 3) || !SkipOptWsp(pos))
                 return false;
             if (*pos++ != ')')
                 return false;
@@ -939,38 +1014,38 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
             else
                 matrix.Rotate(numberList[0]);
         }
-        else if (length >= 5 && std::string(pos, pos + 5).compare("skewX") == 0)
+        else if (length >= 5 && pos.Extract(5).compare("skewX") == 0)
         {
             pos += 5;
             float number{};
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != '(')
                 return false;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
-            if (!ParseScientificNumber(pos, end, number))
+            if (!ParseScientificNumber(pos, number))
                 return false;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != ')')
                 return false;
             number *= M_PI / 180.0f;
             matrix.Concat(1.0f, 0.0f, tan(number), 1.0f, 0.0f, 0.0f);
         }
-        else if (length >= 5 && std::string(pos, pos + 5).compare("skewY") == 0)
+        else if (length >= 5 && pos.Extract(5).compare("skewY") == 0)
         {
             pos += 5;
             float number{};
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != '(')
                 return false;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
-            if (!ParseScientificNumber(pos, end, number))
+            if (!ParseScientificNumber(pos, number))
                 return false;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos++ != ')')
                 return false;
@@ -984,37 +1059,37 @@ bool ParseTransform(const std::string& transformString, Transform& matrix)
     return true;
 }
 
-static bool ParseCustomPropertyName(CharIt& pos, const CharIt& end, std::string& customPropertyName)
+static bool ParseCustomPropertyName(CharPos& pos, std::string& customPropertyName)
 {
-    if (pos == end || *pos++ != '-')
+    if (!pos || *pos++ != '-')
         return false;
-    if (pos == end || *pos++ != '-')
+    if (!pos || *pos++ != '-')
         return false;
-    if (pos == end)
+    if (!pos)
         return false;
-    auto startPos = pos;
+    auto start = pos;
     // TODO: Relax requirements and allow non-ASCII and escaped characters as well. Requires UTF8 support.
-    while (isDigit(*pos) || (*pos >= 'A' && *pos <= 'Z') || (*pos >= 'a' && *pos <= 'z') || *pos == '_' || *pos == '-')
+    while (pos.IsDigit() || (*pos >= 'A' && *pos <= 'Z') || (*pos >= 'a' && *pos <= 'z') || *pos == '_' || *pos == '-')
     {
-        if (++pos == end)
+        if (!++pos)
             return false;
     }
-    customPropertyName = std::string(startPos, pos);
+    customPropertyName = start.Extract(start.Remaining() - pos.Remaining());
     return !customPropertyName.empty();
 }
 
-static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool supportsCurrentColor, SVGDocumentImpl::Result& result)
+static bool ParseColor(CharPos& pos, ColorImpl& paint, bool supportsCurrentColor, SVGDocumentImpl::Result& result)
 {
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return false;
 
     Color color{{0.0f, 0.0f, 0.0f, 1.0f}};
     if (*pos == '#')
     {
         auto start = ++pos;
-        while (pos < end && isHex(*pos))
+        while (pos && pos.IsHex())
             pos++;
-        std::string hexString(start, pos);
+        std::string hexString{start.Extract(start.Remaining() - pos.Remaining())};
         auto num = stoi(hexString, nullptr, 16);
         if (hexString.size() == 3)
         {
@@ -1040,10 +1115,10 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
         return true;
     }
 
-    auto length = std::distance(pos, end);
+    auto length = pos.Remaining();
     if (length >= 4)
     {
-        std::string char4string(pos, pos + 4);
+        std::string char4string{pos.Extract(4)};
         std::transform(char4string.begin(), char4string.end(), char4string.begin(), ::tolower);
         if (char4string.compare("rgb(") == 0)
         {
@@ -1055,19 +1130,19 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
             bool hasRPercentage = false;
             bool hasGPercentage = false;
             bool hasBPercentage = false;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
-            if (!ParseFloatingPoint(pos, end, r))
+            if (!ParseFloatingPoint(pos, r))
                 return false;
-            if (!SkipOptWspOptPercentageDelimiterOptWsp(pos, end, ',', hasRPercentage))
+            if (!SkipOptWspOptPercentageDelimiterOptWsp(pos, ',', hasRPercentage))
                 return false;
-            if (!ParseFloatingPoint(pos, end, g))
+            if (!ParseFloatingPoint(pos, g))
                 return false;
-            if (!SkipOptWspOptPercentageDelimiterOptWsp(pos, end, ',', hasGPercentage))
+            if (!SkipOptWspOptPercentageDelimiterOptWsp(pos, ',', hasGPercentage))
                 return false;
-            if (!ParseFloatingPoint(pos, end, b))
+            if (!ParseFloatingPoint(pos, b))
                 return false;
-            if (!SkipOptWspOptPercentOptWsp(pos, end, hasBPercentage))
+            if (!SkipOptWspOptPercentOptWsp(pos, hasBPercentage))
                 return false;
             if (*pos++ != ')')
                 return false;
@@ -1091,21 +1166,21 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
         {
             result = SVGDocumentImpl::Result::kInvalid;
             pos += 4;
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             std::string customPropertyName;
-            if (!ParseCustomPropertyName(pos, end, customPropertyName))
+            if (!ParseCustomPropertyName(pos, customPropertyName))
                 return false;
             ColorImpl fallbackPaint = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
-            if (!SkipOptWsp(pos, end))
+            if (!SkipOptWsp(pos))
                 return false;
             if (*pos != ')')
             {
-                if (!SkipOptWspDelimiterOptWsp(pos, end))
+                if (!SkipOptWspDelimiterOptWsp(pos))
                     return false;
-                if (!ParseColor(pos, end, fallbackPaint, true, result) || result != SVGDocumentImpl::Result::kSuccess)
+                if (!ParseColor(pos, fallbackPaint, true, result) || result != SVGDocumentImpl::Result::kSuccess)
                     return false;
-                if (!SkipOptWsp(pos, end))
+                if (!SkipOptWsp(pos))
                     return false;
                 if (*pos != ')')
                     return false;
@@ -1128,9 +1203,9 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
     for (const auto& namedColor : gCSSNamedColors)
     {
         auto namedColorSize = namedColor.length;
-        if (std::distance(pos, end) < static_cast<const long>(namedColorSize))
+        if (pos.Remaining() < namedColorSize)
             continue;
-        std::string nameString(pos, pos + namedColorSize);
+        std::string nameString{pos.Extract(namedColorSize)};
         std::transform(nameString.begin(), nameString.end(), nameString.begin(), ::tolower);
         if (std::string(nameString).compare(namedColor.colorName) == 0)
         {
@@ -1144,7 +1219,7 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
 
     if (length >= 12 && supportsCurrentColor)
     {
-        std::string currentColorString(pos, pos + 12);
+        std::string currentColorString{pos.Extract(12)};
         std::transform(currentColorString.begin(), currentColorString.end(), currentColorString.begin(), ::tolower);
         if (currentColorString.compare("currentcolor") == 0)
         {
@@ -1161,10 +1236,9 @@ static bool ParseColor(CharIt& pos, const CharIt& end, ColorImpl& paint, bool su
 
 SVGDocumentImpl::Result ParseColor(const std::string& colorString, ColorImpl& paint, bool supportsCurrentColor /*= true*/)
 {
-    auto pos = colorString.begin();
-    auto end = colorString.end();
+    CharPos pos(colorString);
     SVGDocumentImpl::Result result{SVGDocumentImpl::Result::kInvalid};
-    if (ParseColor(pos, end, paint, supportsCurrentColor, result))
+    if (ParseColor(pos, paint, supportsCurrentColor, result))
         return result;
     return SVGDocumentImpl::Result::kInvalid;
 }
@@ -1176,31 +1250,31 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
     if (!colorString.size())
         return SVGDocumentImpl::Result::kInvalid;
 
-    auto pos = colorString.begin();
-    auto end = colorString.end();
-    if (!SkipOptWsp(pos, end))
+    CharPos pos(colorString);
+    if (!SkipOptWsp(pos))
         return SVGDocumentImpl::Result::kInvalid;
 
     SVGDocumentImpl::Result urlResult{SVGDocumentImpl::Result::kInvalid};
-    if (std::distance(pos, end) >= 5)
+    if (pos.Remaining() >= 5)
     {
-        std::string urlString(pos, pos + 5);
+        std::string urlString{pos.Extract(5)};
         if (urlString.find("url(#") == 0)
         {
             pos += urlString.size();
-            auto startPos = pos;
             bool success{};
-            while (pos != end)
+            std::string idString;
+            while (pos)
             {
+                const auto c{*pos};
                 if (*pos++ == ')')
                 {
                     success = true;
                     break;
                 }
+                idString += c;
             }
-            if (!success || (pos != end && !isWsp(*pos)))
+            if (!success || (pos && !pos.IsWsp()))
                 return SVGDocumentImpl::Result::kInvalid;
-            std::string idString(startPos, pos - 1);
             auto it = gradientMap.find(idString);
             if (it != gradientMap.end())
             {
@@ -1240,11 +1314,11 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
             }
         }
     }
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
         return result;
 
     ColorImpl altPaint;
-    if (std::distance(pos, end) >= 4 && std::string(pos, pos + 4).compare("none") == 0)
+    if (pos.Remaining() >= 4 && pos.Extract(4).compare("none") == 0)
     {
         pos += 4;
         if (urlResult == SVGDocumentImpl::Result::kInvalid)
@@ -1252,11 +1326,11 @@ SVGDocumentImpl::Result ParsePaint(const std::string& colorString, const std::ma
     }
     else
     {
-        if (!ParseColor(pos, end, altPaint, true, result))
+        if (!ParseColor(pos, altPaint, true, result))
             return result;
     }
 
-    if (!SkipOptWsp(pos, end))
+    if (!SkipOptWsp(pos))
     {
         if (urlResult == SVGDocumentImpl::Result::kInvalid && result != SVGDocumentImpl::Result::kInvalid)
         {

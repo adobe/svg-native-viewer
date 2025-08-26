@@ -106,7 +106,7 @@ void ArcToCurve(SVGNative::Path& path, float startX, float startY, float radiusX
         return;
     }
 
-    SVG_ASSERT(radiusX == radiusY); // untested
+    //SVG_ASSERT(radiusX == radiusY); // untested
 
     SVG_ASSERT(radiusX != 0 && radiusY != 0);
 

@@ -237,7 +237,7 @@ def main(argv):
         if platform.system() == 'Darwin':
             plat = 'mac'
         elif platform.system() == 'Windows':
-            plat = 'win64'
+            plat = 'win32'
         elif platform.system() == 'Linux':
             plat = 'linux'
         else:

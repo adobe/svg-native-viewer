@@ -209,7 +209,7 @@ float svg_native_canvas_width(svg_native_t* sn)
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
     if (!_sn || !_sn->mDocument)
         return 0;
-    return _sn->mDocument->Width();
+    return static_cast<float>(_sn->mDocument->Width());
 }
 
 float svg_native_canvas_height(svg_native_t* sn)
@@ -217,7 +217,7 @@ float svg_native_canvas_height(svg_native_t* sn)
     auto _sn = dynamic_cast<svg_native_t_*>(sn);
     if (!_sn || !_sn->mDocument)
         return 0;
-    return _sn->mDocument->Height();
+    return static_cast<float>(_sn->mDocument->Height());
 }
 
 void svg_native_render(svg_native_t* sn)
