@@ -41,7 +41,7 @@ jobs:
     steps:
       - run:
           name: Installing Build System
-          command: 'sudo apt-get update && sudo apt-get install git clang++-11 python2.7'
+          command: 'sudo apt-get update && sudo apt-get install git clang++-14 python2.7'
       - run:
           name: Installing Build System
           command: 'sudo apt-get update && sudo apt-get install wget && sudo apt-get install zlib1g-dev && sudo apt-get install libcurl4-openssl-dev cmake'
@@ -50,7 +50,7 @@ jobs:
       - run: git submodule update --init
       - run:
           name: Creating Build Files
-          command: 'cd svgnative && cmake -Bbuild/linux -H. -DCMAKE_CXX_COMPILER=clang++-11 -DLIB_ONLY=ON'
+          command: 'cd svgnative && cmake -Bbuild/linux -H. -DCMAKE_CXX_COMPILER=clang++-14 -DLIB_ONLY=ON'
       - run:
           name: Creating Binary Files
           command: 'cd svgnative && cmake --build build/linux'
