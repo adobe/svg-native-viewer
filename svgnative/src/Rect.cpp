@@ -68,10 +68,10 @@ namespace SVGNative
     }
     float Rect::MaxDiffVertex(Rect other) const
     {
-        const float topLeftDiff{std::sqrtf(std::powf(Left() - other.Left(), 2) + std::powf(Top() - other.Top(), 2))};
-        const float topRightDiff{std::sqrtf(std::powf(Right() - other.Right(), 2) + std::powf(Top() - other.Top(), 2))};
-        const float bottomLeftDiff{std::sqrtf(std::powf(Left() - other.Left(), 2) + std::powf(Bottom() - other.Bottom(), 2))};
-        const float bottomRightDiff{std::sqrtf(std::powf(Right() - other.Right(), 2) + std::powf(Bottom() - other.Bottom(), 2))};
+        const float topLeftDiff{sqrtf(powf(Left() - other.Left(), 2) + powf(Top() - other.Top(), 2))};
+        const float topRightDiff{sqrtf(powf(Right() - other.Right(), 2) + powf(Top() - other.Top(), 2))};
+        const float bottomLeftDiff{sqrtf(powf(Left() - other.Left(), 2) + powf(Bottom() - other.Bottom(), 2))};
+        const float bottomRightDiff{sqrtf(powf(Right() - other.Right(), 2) + powf(Bottom() - other.Bottom(), 2))};
         const float max1{std::max(topLeftDiff, topRightDiff)};
         const float max2{std::max(bottomLeftDiff, bottomRightDiff)};
         return std::max(max1, max2);
