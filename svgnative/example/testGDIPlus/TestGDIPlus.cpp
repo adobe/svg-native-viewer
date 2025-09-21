@@ -18,6 +18,7 @@ governing permissions and limitations under the License.
 #include <Gdiplus.h>
 #include <memory>
 
+#include "svgnative/Rect.h"
 #include "svgnative/SVGDocument.h"
 #include "svgnative/ports/gdiplus/GDIPlusSVGRenderer.h"
 

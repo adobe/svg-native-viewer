@@ -19,6 +19,7 @@ governing permissions and limitations under the License.
 #endif
 
 #include "xml/XMLParser.h"
+#include "svgnative/Rect.h"
 
 #include <stdexcept>
 #include <stdlib.h>

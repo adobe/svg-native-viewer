@@ -11,6 +11,7 @@ set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} /MT")
 set (SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/../../src/Interval.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../../src/Rect.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../../src/SVGRenderer.cpp
 )
 add_executable("testGDIPlus" WIN32 "TestGDIPlus.cpp" ${SOURCE_FILES})
 target_link_libraries("testGDIPlus" PUBLIC SVGNativeViewerLib)

@@ -14,13 +14,8 @@ governing permissions and limitations under the License.
 
 #include "Config.h"
 
-#include <array>
 #include <limits>
-#include <map>
-#include <memory>
-#include <string>
 #include <tuple>
-#include <vector>
 
 namespace SVGNative
 {

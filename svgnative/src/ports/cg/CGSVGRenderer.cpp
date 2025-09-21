@@ -12,6 +12,7 @@ governing permissions and limitations under the License.
 
 #include <math.h>
 
+#include "svgnative/Rect.h"
 #include "svgnative/ports/cg/CGSVGRenderer.h"
 #include "base64.h"
 #include "svgnative/Config.h"

@@ -15,6 +15,7 @@ governing permissions and limitations under the License.
 #include <Wincodec.h> // Windows Imaging Component (WIC)
 
 #include "svgnative/Config.h"
+#include "svgnative/Rect.h"
 #include "svgnative/ports/d2d/D2DSVGRenderer.h"
 #include "base64.h"
 #include <memory>
