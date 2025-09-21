@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 #include "svgnative/ports/skia/SkiaSVGRenderer.h"
 #include "base64.h"
 #include "svgnative/Config.h"
+#include "SkPathEffect.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkData.h"
@@ -126,7 +127,7 @@ inline sk_sp<SkImage> getOrientedImage(sk_sp<SkImage> srcImg, SkEncodedOrigin or
         return nullptr;
     }
 
-    auto skRasterSurface = SkSurface::MakeRasterN32Premul(width, height);
+    auto skRasterSurface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height));
     auto skRasterCanvas = skRasterSurface->getCanvas();
     if (offsetX != 0 || offsetY != 0)
         skRasterCanvas->translate(offsetX, offsetY);
@@ -150,10 +151,10 @@ SkiaSVGImageData::SkiaSVGImageData(const std::string& base64, ImageEncoding /*en
         return;
     SkEncodedOrigin origin = codec->getOrigin();
     if (origin == SkEncodedOrigin::kTopLeft_SkEncodedOrigin)
-        mImageData = SkImage::MakeFromEncoded(skData);
+        mImageData = SkImages::DeferredFromEncodedData(skData);
     else
     {
-        auto rawImg = SkImage::MakeFromEncoded(skData);
+        auto rawImg = SkImages::DeferredFromEncodedData(skData);
         mImageData = getOrientedImage(rawImg, origin);
     }
 }
