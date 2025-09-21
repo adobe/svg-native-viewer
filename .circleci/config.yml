@@ -75,14 +75,14 @@ jobs:
           command: 'cd svgnative && cmake --build build/linux'
   build_with_cocoa:
     macos:
-      xcode: "14.2.0"
+      xcode: "15.2.0"
     steps:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
       - run:
           name: Installing dependencies
-          command: HOMEBREW_NO_INSTALL_CLEANUP=1 brew install cmake
+          command: HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install cmake
       - run:
           name: Creating Build Files
           command: 'cd svgnative && cmake -Bbuild/mac -H. -DCG=ON'
