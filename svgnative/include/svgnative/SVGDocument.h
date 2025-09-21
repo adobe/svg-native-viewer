@@ -14,7 +14,7 @@ governing permissions and limitations under the License.
 #define SVGViewer_SVGParser_h
 
 #include "Config.h"
-#include "SVGRenderer.h"
+#include "svgnative/SVGRenderer.h"
 
 #include <array>
 #include <map>
