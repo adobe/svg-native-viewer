@@ -16,6 +16,7 @@ governing permissions and limitations under the License.
 #include "cairo.h"
 #include <math.h>
 #include "CairoImageInfo.h"
+#include <cstring>
 
 namespace SVGNative
 {
