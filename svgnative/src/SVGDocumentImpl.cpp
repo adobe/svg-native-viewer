@@ -1167,6 +1167,8 @@ static void ResolveColorImpl(const ColorMap& colorMap, const ColorImpl& colorImp
     }
     else if (SVGNative::holds_alternative<Color>(colorImpl))
         color = SVGNative::get<Color>(colorImpl);
+    else if (SVGNative::holds_alternative<ColorMixPtr>(colorImpl))
+        color = SVGNative::get<ColorMixPtr>(colorImpl)->BlendedColor(colorMap);
     else
         // Can only be reached if fallback color value of var() is currentColor.
         color = Color{{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -1211,8 +1213,28 @@ static void ResolvePaintImpl(const ColorMap& colorMap, const PaintImpl& internal
     else if (SVGNative::holds_alternative<ColorKeys>(internalPaint))
         // currentColor is the only possible enum value for now.
         paint = currentColor;
+    else if (SVGNative::holds_alternative<ColorMixPtr>(internalPaint))
+        paint = SVGNative::get<ColorMixPtr>(internalPaint)->BlendedColor(colorMap);
     else
         SVG_ASSERT_MSG(false, "Unhandled PaintImpl type");
+}
+
+constexpr float BlendChannel(float from, float to, float progress)
+{
+    return from + (to - from) * progress;
+}
+
+Color ColorMix::BlendedColor(const ColorMap& colorMap) const
+{
+    Color resolvedColor1;
+    ResolveColorImpl(colorMap, color1, resolvedColor1);
+    Color resolvedColor2;
+    ResolveColorImpl(colorMap, color2, resolvedColor2);
+    resolvedColor1[0] = BlendChannel(resolvedColor1[0], resolvedColor2[0], blendProgress);
+    resolvedColor1[1] = BlendChannel(resolvedColor1[1], resolvedColor2[1], blendProgress);
+    resolvedColor1[2] = BlendChannel(resolvedColor1[2], resolvedColor2[2], blendProgress);
+    resolvedColor1[3] = BlendChannel(resolvedColor1[3], resolvedColor2[3], blendProgress);
+    return resolvedColor1;
 }
 
 void SVGDocumentImpl::TraverseTree(const ColorMap& colorMap, const Element& element)
