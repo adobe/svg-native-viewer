@@ -304,7 +304,7 @@ inline void createCairoPattern(const Paint& paint, float opacity, cairo_pattern_
 {
     *pat = NULL;
 
-    if (paint.type() != typeid(Gradient))
+    if (!SVGNative::holds_alternative<Gradient>(paint))
         return;
 
     const auto& gradient = SVGNative::get<Gradient>(paint);
