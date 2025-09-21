@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 #include "svgnative/ports/string/StringSVGRenderer.h"
-#include "svgNative/Rect.h"
+#include "svgnative/Rect.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>
