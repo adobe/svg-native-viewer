@@ -61,6 +61,7 @@ existing ports include:
 * **CairoSVGRenderer** a rendering port using Cairo Graphics.
 * **GDIPlusSVGRenderer** a rendering port using GDI+.
 * **D2DSVGRenderer** a rendering port using Direct2D.
+* **QSVGRenderer** a rendering port using Qt 6.
 
 New ports need to inherit from **SVGRenderer** and implement the
 virtual functions.

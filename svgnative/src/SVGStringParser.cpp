@@ -50,7 +50,7 @@ inline bool SkipOptWspOrDelimiter(CharIt& pos, const CharIt& end, bool isAllOpti
 
     while (pos < end && isWsp(*pos))
         pos++;
-    if (*pos == delimiter)
+    if (pos < end && *pos == delimiter)
         pos++;
     while (pos < end && isWsp(*pos))
         pos++;
@@ -62,7 +62,7 @@ inline bool SkipOptWspDelimiterOptWsp(CharIt& pos, const CharIt& end, char delim
     bool hasDelimiter{};
     while (pos < end && isWsp(*pos))
         pos++;
-    if (*pos == delimiter)
+    if (pos < end && *pos == delimiter)
     {
         hasDelimiter = true;
         pos++;
@@ -77,12 +77,12 @@ inline bool SkipOptWspOptPercentageDelimiterOptWsp(CharIt& pos, const CharIt& en
     bool hasDelimiter{};
     while (pos < end && isWsp(*pos))
         pos++;
-    if (*pos == '%')
+    if (pos < end && *pos == '%')
     {
         hasPercentage = true;
         pos++;
     }
-    if (*pos == delimiter)
+    if (pos < end && *pos == delimiter)
     {
         hasDelimiter = true;
         pos++;
@@ -103,7 +103,7 @@ inline bool SkipOptWspOptPercentOptWsp(CharIt& pos, const CharIt& end, bool &has
 {
     while (pos < end && isWsp(*pos))
         ++pos;
-    if (*pos == '%')
+    if (pos < end && *pos == '%')
     {
         hasPercentage = true;
         pos++;
@@ -139,7 +139,7 @@ static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
     float sign{1};
 
     // get the sign, if present
-    if (*pos == '-' || *pos == '+')
+    if (pos < end && (*pos == '-' || *pos == '+'))
     {
         if (*pos == '-')
             sign = -1;
@@ -166,7 +166,7 @@ static bool ParseFloatingPoint(CharIt &pos, const CharIt& end, float& number)
     }
 
     // if there is a decimal point
-    if (*pos == '.')
+    if (pos < end && *pos == '.')
     {
         // skip the decimal, if no digits remain, just return
         pos++;
@@ -224,7 +224,7 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
         return std::isfinite(number);
     }
 
-    if (*pos == '.')
+    if (pos < end && *pos == '.')
     {
         pos++;
         if (pos == end || !isDigit(*pos))
@@ -251,7 +251,7 @@ static bool ParseScientificNumber(CharIt& pos, const CharIt& end, float& number)
     if (pos == end)
         return false;
 
-    if (*pos == '-' || *pos == '+')
+    if (pos < end && (*pos == '-' || *pos == '+'))
     {
         if (*pos == '-')
             exponentSign = -1;
@@ -304,9 +304,9 @@ static bool ParseBool(CharIt& pos, const CharIt& end, bool& boolVal)
 {
     if (!SkipOptWspOrDelimiter(pos, end))
         return false;
-    if (*pos == '0')
+    if (pos < end && *pos == '0')
         boolVal = false;
-    else if (*pos == '1')
+    else if (pos < end && *pos == '1')
         boolVal = true;
     else
         return false;
