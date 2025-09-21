@@ -14,7 +14,6 @@ governing permissions and limitations under the License.
 #define SVGViewer_SVGRenderer_h
 
 #include "Config.h"
-#include "Rect.h"
 
 #include <array>
 #include <limits>
@@ -52,6 +51,7 @@ constexpr bool holds_alternative(const boost::variant<Types...>& v) noexcept
 
 namespace SVGNative
 {
+class Rect;
 /**
  * Supported image encoding formats are PNG and JPEG.
  * The assumed encoding format based on the base64 string.
@@ -270,11 +270,7 @@ public:
     virtual void DrawPath(
         const Path& path, const GraphicStyle& graphicStyle, const FillStyle& fillStyle, const StrokeStyle& strokeStyle) = 0;
     virtual void DrawImage(const ImageData& image, const GraphicStyle& graphicStyle, const Rect& clipArea, const Rect& fillArea) = 0;
-    virtual Rect GetBounds(const Path&, const GraphicStyle&, const FillStyle&, const StrokeStyle&)
-    {
-      throw "Bound calculation functionality not implemented in this port";
-      return Rect{0, 0, 0, 0};
-    }
+    virtual Rect GetBounds(const Path&, const GraphicStyle&, const FillStyle&, const StrokeStyle&);
 };
 
 class SaveRestoreHelper
