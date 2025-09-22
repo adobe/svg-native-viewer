@@ -31,24 +31,20 @@ namespace SVGStringParser
 {
 class CharPos final {
 public:
-    explicit CharPos(const std::string& str) : _pos{str.begin()}, _end{str.end()} {
-        if (_pos != _end) {
+    explicit CharPos(const std::string& str) : _pos{str.begin()}, _end{str.end()}
+    {
+        if (_pos != _end)
+        {
             _c = *_pos;
         }
     }
 
-    template <typename T>
-    auto operator+(T) = delete;
-
-    template <typename T>
-    auto operator-(T) = delete;
-
-    [[nodiscard]] explicit operator bool() const
+    explicit operator bool() const
     {
         return !AtEnd();
     }
 
-    [[nodiscard]] char operator*() const
+    char operator*() const
     {
         return _c;
     }
@@ -86,12 +82,12 @@ public:
         }
     }
 
-    [[nodiscard]] std::size_t Remaining() const
+    std::size_t Remaining() const
     {
         return std::distance(_pos, _end);
     }
 
-    [[nodiscard]] auto Extract(std::size_t length) const
+    auto Extract(std::size_t length) const
     {
         std::string str;
         auto pos{_pos};
@@ -104,17 +100,17 @@ public:
         return str;
     }
 
-    [[nodiscard]] bool IsDigit() const
+    bool IsDigit() const
     {
         return _c >= '0' && _c <= '9';
     }
 
-    [[nodiscard]] bool IsHex() const
+    bool IsHex() const
     {
         return IsDigit() || (_c >= 'a' && _c <= 'f') || (_c >= 'A' && _c <= 'F');
     }
 
-    [[nodiscard]] bool IsWsp() const
+    bool IsWsp() const
     {
         return _c == ' ' || _c == '\t' || _c == '\n' || _c == '\r';
     }
@@ -126,7 +122,7 @@ public:
     }
 
 private:
-    [[nodiscard]] bool AtEnd() const { return _pos == _end; }
+    bool AtEnd() const { return _pos == _end; }
 
     std::string::const_iterator _pos;
     std::string::const_iterator _end;
