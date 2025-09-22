@@ -13,9 +13,15 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+#ifdef _WIN32
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
+#ifdef _WIN32
+#undef _CRT_SECURE_NO_DEPRECATE
+#endif
 
 #include "svgnative/SVGNativeCWrapper.h"
 
@@ -81,9 +87,9 @@ int main(int argc, const char* argv[])
     buff_input = read_svg_input(argv[1]);
 
     colorMap = svg_native_color_map_create();
-    svg_native_color_map_add(colorMap, "test-red",   0.502,   0.0, 0.0, 1.0);
-    svg_native_color_map_add(colorMap, "test-green",   0.0, 0.502, 0.0, 1.0);
-    svg_native_color_map_add(colorMap, "test-blue",    0.0,   0.0, 1.0, 1.0);
+    svg_native_color_map_add(colorMap, "test-red",   0.502f, 0.0f,   0.0f, 1.0f);
+    svg_native_color_map_add(colorMap, "test-green", 0.0f,   0.502f, 0.0f, 1.0f);
+    svg_native_color_map_add(colorMap, "test-blue",  0.0f,   0.0f,   1.0f, 1.0f);
 
     sn = svg_native_create(SVG_RENDERER_STRING, buff_input);
     svg_native_set_color_map(sn, colorMap);

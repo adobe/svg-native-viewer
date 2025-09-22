@@ -43,9 +43,9 @@ int main(int argc, char* const argv[])
     input.close();
 
     SVGNative::ColorMap colorMap = {
-        {"test-red",   {{0.502,   0.0, 0.0, 1.0}}},
-        {"test-green", {{  0.0, 0.502, 0.0, 1.0}}},
-        {"test-blue",  {{  0.0,   0.0, 1.0, 1.0}}}
+        {"test-red",   {{0.502f, 0.0f,   0.0f, 1.0f}}},
+        {"test-green", {{0.0f,   0.502f, 0.0f, 1.0f}}},
+        {"test-blue",  {{0.0f,   0.0f,   1.0f, 1.0f}}}
     };
     auto renderer = std::make_shared<SVGNative::StringSVGRenderer>();
 

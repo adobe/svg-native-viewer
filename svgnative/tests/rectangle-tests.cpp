@@ -29,7 +29,7 @@ TEST(rectangle_tests, rectangle_invalid_dimensions_test)
     try {
         Rect rect(1, 2, 4, -6);
         FAIL();
-    } catch(std::invalid_argument &excepted) {}
+    } catch(std::invalid_argument&) {}
 }
 
 TEST(rectangle_tests, rectangle_regular_test)

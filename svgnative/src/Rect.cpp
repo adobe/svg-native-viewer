@@ -68,13 +68,13 @@ namespace SVGNative
     }
     float Rect::MaxDiffVertex(Rect other) const
     {
-        float topLeftDiff = std::sqrt(std::pow(Left() - other.Left(), 2) + std::pow(Top() - other.Top(), 2));
-        float topRightDiff = std::sqrt(std::pow(Right() - other.Right(), 2) + std::pow(Top() - other.Top(), 2));
-        float bottomLeftDiff = std::sqrt(std::pow(Left() - other.Left(), 2) + std::pow(Bottom() - other.Bottom(), 2));
-        float bottomRightDiff = std::sqrt(std::pow(Right() - other.Right(), 2) + std::pow(Bottom() - other.Bottom(), 2));
-	float max1 = std::max(topLeftDiff, topRightDiff);
-	float max2 = std::max(bottomLeftDiff, bottomRightDiff);
-	return std::max(max1,max2);
+        const float topLeftDiff{sqrtf(powf(Left() - other.Left(), 2) + powf(Top() - other.Top(), 2))};
+        const float topRightDiff{sqrtf(powf(Right() - other.Right(), 2) + powf(Top() - other.Top(), 2))};
+        const float bottomLeftDiff{sqrtf(powf(Left() - other.Left(), 2) + powf(Bottom() - other.Bottom(), 2))};
+        const float bottomRightDiff{sqrtf(powf(Right() - other.Right(), 2) + powf(Bottom() - other.Bottom(), 2))};
+        const float max1{std::max(topLeftDiff, topRightDiff)};
+        const float max2{std::max(bottomLeftDiff, bottomRightDiff)};
+        return std::max(max1, max2);
     }
 
     IntervalPair Rect::Intervals() const { return IntervalPair(Interval(x, x + width), Interval(y, y + height)); }
